@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyChild - 2000s Edition</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MyChild - 2000s Edition</h1>
+            <div class="header-controls">
+                <div class="year-display">Year: <span id="currentYear">2000</span></div>
+                <button id="musicToggle" class="music-btn" onclick="game.toggleMusic()" title="Toggle background music">
+                    🎵
+                </button>
+            </div>
+        </header>
+
+        <div class="game-area">
+            <div class="child-status">
+                <div class="child-avatar">👶</div>
+                <h2 id="childName">Your Child</h2>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Happiness:</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="happinessBar" style="width: 50%"></div>
+                        </div>
+                        <span id="happinessValue">50</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Energy:</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="energyBar" style="width: 80%"></div>
+                        </div>
+                        <span id="energyValue">80</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Social:</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="socialBar" style="width: 60%"></div>
+                        </div>
+                        <span id="socialValue">60</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Learning:</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill" id="learningBar" style="width: 40%"></div>
+                        </div>
+                        <span id="learningValue">40</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Hunger:</span>
+                        <div class="stat-bar">
+                            <div class="stat-fill hunger-fill" id="hungerBar" style="width: 70%"></div>
+                        </div>
+                        <span id="hungerValue">70</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="game-content">
+                <div class="scene-area">
+                    <div class="scene-image" id="sceneImage">
+                        <!-- Scene image will be inserted here -->
+                    </div>
+                    <div class="scene-name" id="sceneName">Home</div>
+                </div>
+
+                <div class="narrative-area">
+                    <div class="child-dialogue" id="childDialogue">
+                        <p id="dialogueText"></p>
+                    </div>
+                    <div class="story-message" id="storyMessage">
+                        <p id="statusMessage">Welcome! Take care of your child in the 2000s.</p>
+                    </div>
+                </div>
+
+                <div class="choices-area" id="choicesArea">
+                    <!-- Choices will be dynamically generated -->
+                </div>
+
+                <div class="actions-area" id="actionsArea">
+                    <h3>Activities</h3>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="game.goToLocation('playground')">
+                            🏃 Playground
+                        </button>
+                        <button class="action-btn" onclick="game.goToLocation('school')">
+                            🏫 School
+                        </button>
+                        <button class="action-btn" onclick="game.goToLocation('home')">
+                            🏠 Home
+                        </button>
+                        <button class="action-btn" onclick="game.goToLocation('friend')">
+                            👥 Friend's House
+                        </button>
+                    </div>
+                    <div class="daily-routines">
+                        <h4>Daily Care</h4>
+                        <div class="routine-buttons">
+                            <button class="routine-btn" onclick="game.feedChild()">🍕 Feed</button>
+                            <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
+                            <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
+                            <button class="routine-btn" onclick="game.readToChild()">📖 Read</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="time-control">
+                    <button class="time-btn" onclick="game.nextDay()">Next Day →</button>
+                    <div class="time-info">
+                        <span>Day: <span id="currentDay">1</span></span>
+                        <span>Time: <span id="currentTime">Morning</span></span>
+                        <span id="actionInfo" style="color: #28a745; font-weight: bold;">Actions: 6/6</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="backgroundMusic" loop>
+        <source src="08 - Free.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script src="game.js"></script>
+</body>
+</html>
+
