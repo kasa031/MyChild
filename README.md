@@ -2,6 +2,12 @@
 
 Et livssimulasjonsspill inspirert av "Mitt barn, livets børn" men med mindre fokus på mobbing og handlingen satt på 2000-tallet.
 
+## 🌐 Spill spillet online
+
+**Spill nå:** https://kasa031.github.io/MyChild/
+
+*(Hvis lenken ikke fungerer, aktiver GitHub Pages i repository settings)*
+
 ## Funksjoner
 
 - **2000-talls setting**: Spillet utspiller seg i 2000-tallet med autentiske referanser til teknologi, kultur og miljø
