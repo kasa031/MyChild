@@ -137,9 +137,8 @@
                     <div class="option-group">
                         <label>Kjønn:</label>
                         <select id="gender" name="gender">
-                            <option value="boy">Gutt (Alex)</option>
-                            <option value="girl">Jente (Alexa)</option>
-                            <option value="nonbinary">Non-binær</option>
+                            <option value="boy">Gutt (Ole Jacob)</option>
+                            <option value="girl">Jente (Alma)</option>
                         </select>
                     </div>
                     
@@ -151,9 +150,13 @@
                     <div class="option-group">
                         <label>Alder (start):</label>
                         <select id="startAge" name="startAge">
+                            <option value="7">7 år</option>
                             <option value="8">8 år</option>
                             <option value="9">9 år</option>
                             <option value="10">10 år</option>
+                            <option value="11">11 år</option>
+                            <option value="12">12 år</option>
+                            <option value="13">13 år</option>
                         </select>
                     </div>
                 </div>
@@ -354,7 +357,7 @@
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
             const gender = document.getElementById('gender').value;
-            const childName = document.getElementById('childName').value.trim() || (gender === 'girl' ? 'Alexa' : 'Alex');
+            const childName = document.getElementById('childName').value.trim() || (gender === 'girl' ? 'Alma' : 'Ole Jacob');
             const startAge = parseInt(document.getElementById('startAge').value);
             const hairColor = document.getElementById('hairColor').value;
             const eyeColor = document.getElementById('eyeColor').value;
@@ -390,7 +393,7 @@
             const gender = this.value;
             const nameInput = document.getElementById('childName');
             if (!nameInput.value.trim()) {
-                nameInput.value = gender === 'girl' ? 'Alexa' : 'Alex';
+                nameInput.value = gender === 'girl' ? 'Alma' : 'Ole Jacob';
             }
         });
     </script>

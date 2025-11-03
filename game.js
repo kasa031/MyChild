@@ -11,13 +11,13 @@ class MyChildGame {
         const savedGame = this.loadGame();
         
         this.child = savedGame ? savedGame.child : {
-            name: this.customization.name || "Alex",
+            name: this.customization.name || (this.customization.gender === 'girl' ? 'Alma' : 'Ole Jacob'),
             happiness: 50,
             energy: 80,
             social: 60,
             learning: 40,
             hunger: 70,
-            age: this.customization.age || 8,
+            age: this.customization.age || 7,
             // Alex is a bullying victim - emotional states
             resilience: 50, // How well Alex handles bullying (0-100)
             currentEmotion: 'neutral', // Current emotional state
@@ -30,7 +30,6 @@ class MyChildGame {
                 anxious: 0,
                 curious: 0,
                 embarrassed: 0,
-                inLove: 0,
                 surprised: 0
             },
             // Career and success system
@@ -135,8 +134,8 @@ class MyChildGame {
             console.error('Error loading customization:', e);
             this.customization = {
                 gender: 'boy',
-                name: 'Alex',
-                age: 8,
+                name: 'Ole Jacob',
+                age: 7,
                 emoji: '🧒',
                 hairColor: 'brown',
                 eyeColor: 'brown',
@@ -438,8 +437,6 @@ class MyChildGame {
             emotion = 'happy';
         } else if (this.child.emotionalState.embarrassed > 30) {
             emotion = 'embarrassed';
-        } else if (this.child.emotionalState.inLove > 30) {
-            emotion = 'inLove';
         } else if (this.child.emotionalState.surprised > 30) {
             emotion = 'surprised';
         } else if (this.child.hunger < 20) {
