@@ -1,26 +1,77 @@
 class MyChildGame {
     constructor() {
-        this.child = {
-            name: "Alex",
+        // Get username from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        this.username = urlParams.get('username') || 'default';
+        
+        // Load customization
+        this.loadCustomization();
+        
+        // Load saved game or create new
+        const savedGame = this.loadGame();
+        
+        this.child = savedGame ? savedGame.child : {
+            name: this.customization.name || "Alex",
             happiness: 50,
             energy: 80,
             social: 60,
             learning: 40,
             hunger: 70,
-            age: 8
+            age: this.customization.age || 8,
+            // Alex is a bullying victim - emotional states
+            resilience: 50, // How well Alex handles bullying (0-100)
+            currentEmotion: 'neutral', // Current emotional state
+            emotionalState: {
+                // Alex's complex emotions
+                angry: 0,
+                sad: 0,
+                scared: 0,
+                happy: 0,
+                anxious: 0,
+                curious: 0,
+                embarrassed: 0,
+                inLove: 0,
+                surprised: 0
+            },
+            // Career and success system
+            studyLevel: 0, // Study dedication (0-100)
+            money: 0, // Money earned through work
+            careerProgress: 0, // Career development (0-100)
+            helpingOthers: 0, // Times Alex helped others (hero counter)
+            goodChoices: 0, // Count of good long-term choices
+            shortTermChoices: 0, // Count of short-term pleasure choices
+            // Character customization
+            gender: this.customization.gender || 'boy',
+            emoji: this.customization.emoji || '🧒',
+            hairColor: this.customization.hairColor || 'brown',
+            eyeColor: this.customization.eyeColor || 'brown',
+            style: this.customization.style || 'normal'
         };
         
-        this.day = 1;
-        this.year = 2000;
-        this.timeOfDay = 0;
+        this.day = savedGame ? savedGame.day : 1;
+        this.year = savedGame ? savedGame.year : 2000;
+        this.timeOfDay = savedGame ? savedGame.timeOfDay : 0;
         this.timeNames = ["Morning", "Afternoon", "Evening", "Night"];
-        this.currentLocation = "home";
-        this.pendingEvent = null;
-        this.dialogueQueue = [];
-        this.actionsToday = 0;
+        this.currentLocation = savedGame ? savedGame.currentLocation : "home";
+        this.pendingEvent = savedGame ? savedGame.pendingEvent : null;
+        this.dialogueQueue = savedGame ? savedGame.dialogueQueue : [];
+        this.actionsToday = savedGame ? savedGame.actionsToday : 0;
         this.maxActionsPerDay = 6; // Like original - limited actions per day
-        this.memory = []; // Track important events and choices
-        this.relationship = 50; // Relationship strength (hidden stat)
+        this.memory = savedGame ? savedGame.memory : []; // Track important events and choices
+        this.relationship = savedGame ? savedGame.relationship : 50; // Relationship strength (hidden stat)
+        this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
+        this.copingActivities = savedGame ? savedGame.copingActivities : []; // Track activities that help Alex cope
+        
+        // Initialize customization if not loaded
+        this.customization = this.customization || {
+            gender: 'boy',
+            name: 'Alex',
+            age: 8,
+            emoji: '🧒',
+            hairColor: 'brown',
+            eyeColor: 'brown',
+            style: 'normal'
+        };
         
         this.locations = {
             home: { name: "Home", color: "#ffb3ba", image: "images/home.jpg", usePlaceholder: false },
@@ -36,13 +87,187 @@ class MyChildGame {
         this.musicEnabled = true;
         this.backgroundMusic = null;
         
+        // API configuration
+        this.apiConfig = window.APIConfig || null;
+        this.useAPI = false; // Will be set based on API availability
+        
+        // Auto-save every 30 seconds
+        this.autoSaveInterval = setInterval(() => this.saveGame(), 30000);
+        
+        // Save on page unload
+        window.addEventListener('beforeunload', () => this.saveGame());
+        
+        // Save on visibility change (when tab becomes hidden)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.saveGame();
+            }
+        });
+        
+        // Redirect to login if no username
+        if (!this.username || this.username === 'default') {
+            if (window.location.pathname.includes('index.html')) {
+                window.location.href = 'login.html';
+                return;
+            }
+        }
+        
         this.initializeGame();
     }
     
+    loadCustomization() {
+        try {
+            const customizationData = localStorage.getItem(`mychild_customization_${this.username}`);
+            if (customizationData) {
+                this.customization = JSON.parse(customizationData);
+            } else {
+                this.customization = {
+                    gender: 'boy',
+                    name: 'Alex',
+                    age: 8,
+                    emoji: '🧒',
+                    hairColor: 'brown',
+                    eyeColor: 'brown',
+                    style: 'normal'
+                };
+            }
+        } catch (e) {
+            console.error('Error loading customization:', e);
+            this.customization = {
+                gender: 'boy',
+                name: 'Alex',
+                age: 8,
+                emoji: '🧒',
+                hairColor: 'brown',
+                eyeColor: 'brown',
+                style: 'normal'
+            };
+        }
+    }
+    
+    loadGame() {
+        try {
+            if (typeof(Storage) === "undefined") {
+                console.warn('LocalStorage not available');
+                return null;
+            }
+            
+            const gameData = localStorage.getItem(`mychild_game_${this.username}`);
+            if (gameData) {
+                const parsed = JSON.parse(gameData);
+                // Validate data structure
+                if (parsed && parsed.child && typeof parsed.day === 'number') {
+                    return parsed;
+                } else {
+                    console.warn('Invalid game data structure, creating new game');
+                    return null;
+                }
+            }
+        } catch (e) {
+            console.error('Error loading game:', e);
+            // If JSON is corrupted, try to recover or create new
+            try {
+                localStorage.removeItem(`mychild_game_${this.username}`);
+            } catch (removeError) {
+                console.error('Could not remove corrupted save:', removeError);
+            }
+        }
+        return null;
+    }
+    
+    saveGame() {
+        try {
+            // Check if localStorage is available
+            if (typeof(Storage) === "undefined") {
+                console.warn('LocalStorage not available');
+                return false;
+            }
+            
+            const gameData = {
+                child: this.child,
+                day: this.day,
+                year: this.year,
+                timeOfDay: this.timeOfDay,
+                currentLocation: this.currentLocation,
+                pendingEvent: this.pendingEvent,
+                dialogueQueue: this.dialogueQueue,
+                actionsToday: this.actionsToday,
+                memory: this.memory,
+                relationship: this.relationship,
+                bullyingIncidents: this.bullyingIncidents,
+                copingActivities: this.copingActivities,
+                lastSaved: new Date().toISOString() // Save timestamp
+            };
+            
+            const gameDataString = JSON.stringify(gameData);
+            
+            // Check if data is too large (localStorage has ~5-10MB limit)
+            if (gameDataString.length > 5000000) {
+                console.warn('Game data too large to save');
+                return false;
+            }
+            
+            localStorage.setItem(`mychild_game_${this.username}`, gameDataString);
+            this.showSaveIndicator();
+            console.log('Game saved successfully');
+            return true;
+        } catch (e) {
+            console.error('Error saving game:', e);
+            if (e.name === 'QuotaExceededError') {
+                this.showMessage('⚠️ Lagringsfull - vennligst slett noen gamle spill');
+            }
+            return false;
+        }
+    }
+    
+    showSaveIndicator() {
+        // Show save indicator briefly
+        const saveIndicator = document.getElementById('saveIndicator');
+        if (saveIndicator) {
+            saveIndicator.textContent = '💾 Lagret';
+            saveIndicator.style.opacity = '1';
+            setTimeout(() => {
+                saveIndicator.style.opacity = '0.5';
+            }, 2000);
+        }
+    }
+    
+    deleteGame() {
+        if (confirm('Er du sikker på at du vil slette dette spillet? Dette kan ikke angres!')) {
+            try {
+                localStorage.removeItem(`mychild_game_${this.username}`);
+                localStorage.removeItem(`mychild_customization_${this.username}`);
+                window.location.href = 'login.html';
+            } catch (e) {
+                console.error('Error deleting game:', e);
+                alert('Kunne ikke slette spillet. Prøv igjen.');
+            }
+        }
+    }
+    
     initializeGame() {
+        // Update child name and customization from saved data
+        if (this.customization) {
+            this.child.name = this.customization.name || this.child.name;
+            this.child.gender = this.customization.gender || this.child.gender;
+            this.child.emoji = this.customization.emoji || this.child.emoji;
+            this.child.hairColor = this.customization.hairColor || this.child.hairColor;
+            this.child.eyeColor = this.customization.eyeColor || this.child.eyeColor;
+            this.child.style = this.customization.style || this.child.style;
+        }
+        
         this.updateDisplay();
-        this.showDialogue("Hi! I'm " + this.child.name + ". I'm so excited to start this new adventure in the 2000s!");
-        this.showMessage("Welcome! You are now taking care of " + this.child.name + " in the year 2000. Help them grow up happy and healthy.");
+        
+        // Check if this is a loaded game
+        const isLoadedGame = this.loadGame() !== null;
+        
+        if (isLoadedGame) {
+            this.showDialogue("Hi! I'm back, " + this.child.name + ". Ready to continue our journey!");
+            this.showMessage("Welcome back! " + this.child.name + "'s progress has been saved. Let's continue growing stronger together!");
+        } else {
+            this.showDialogue("Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. But I know I'm good enough just as I am, and so is everyone else.");
+            this.showMessage("Welcome! You are now taking care of " + this.child.name + " in the year 2000. " + this.child.name + " faces challenges, but remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is. With your support and the right choices, " + this.child.name + " can grow stronger, help others, and find success. Every choice matters - both for today and tomorrow.");
+        }
         
         // Show image loading message
         if (this.locations.home.usePlaceholder) {
@@ -51,6 +276,9 @@ class MyChildGame {
         
         // Initialize background music
         this.initMusic();
+        
+        // Start with initial emotional check
+        this.updateEmotionalState();
         
         this.checkForEvents();
     }
@@ -139,11 +367,11 @@ class MyChildGame {
         // Update action counter
         this.updateActionDisplay();
         
-        // Update avatar based on emotional state
-        this.updateAvatar();
+        // Update avatar based on emotional state (async)
+        this.updateAvatar().catch(e => console.log('Avatar update error:', e));
         
-        // Update scene
-        this.updateScene();
+        // Update scene (async)
+        this.updateScene().catch(e => console.log('Scene update error:', e));
         
         // Check for critical states
         this.checkCriticalStates();
@@ -161,38 +389,126 @@ class MyChildGame {
         }
     }
     
-    updateAvatar() {
-        const avatar = document.querySelector('.child-avatar');
-        let emoji = '🧒'; // default
+    updateEmotionalState() {
+        // Update Alex's current emotion based on emotional states
+        const emotions = this.child.emotionalState;
+        const maxEmotion = Object.entries(emotions).reduce((a, b) => emotions[a[0]] > emotions[b[1]] ? a : b);
         
-        // Age-based avatar
-        if (this.child.age < 5) {
-            emoji = '👶';
-        } else if (this.child.age < 10) {
-            emoji = '🧒';
-        } else if (this.child.age < 15) {
-            emoji = '👦';
-        } else {
-            emoji = '🧑';
-        }
-        
-        // Emotional state affects expression (more nuanced)
-        if (this.child.hunger < 20) {
-            emoji = '😟'; // Hunger is most urgent
+        if (maxEmotion[1] > 30) {
+            this.child.currentEmotion = maxEmotion[0];
         } else if (this.child.happiness < 30) {
-            emoji = '😢';
-        } else if (this.child.happiness > 80 && this.child.hunger > 50) {
-            emoji = '😊';
-        } else if (this.child.happiness > 60) {
-            emoji = '🙂';
+            this.child.currentEmotion = 'sad';
+        } else if (this.child.happiness > 70) {
+            this.child.currentEmotion = 'happy';
+        } else {
+            this.child.currentEmotion = 'neutral';
         }
         
-        // Relationship affects expression
-        if (this.relationship > 80 && this.child.happiness > 50) {
-            emoji = '😊';
+        // Emotional states naturally fade over time
+        Object.keys(emotions).forEach(emotion => {
+            if (emotions[emotion] > 0) {
+                emotions[emotion] = Math.max(0, emotions[emotion] - 2);
+            }
+        });
+    }
+    
+    setEmotion(emotion, intensity = 30) {
+        if (this.child.emotionalState.hasOwnProperty(emotion)) {
+            this.child.emotionalState[emotion] = Math.min(100, Math.max(0, 
+                this.child.emotionalState[emotion] + intensity));
+            this.updateEmotionalState();
+            this.updateDisplay();
+        }
+    }
+    
+    async updateAvatar() {
+        const avatar = document.querySelector('.child-avatar');
+        
+        // Determine emotion state based on Alex's complex emotions
+        let emotion = this.child.currentEmotion;
+        
+        // Priority: strong emotions override basic needs
+        if (this.child.emotionalState.angry > 40) {
+            emotion = 'angry';
+        } else if (this.child.emotionalState.scared > 40) {
+            emotion = 'scared';
+        } else if (this.child.emotionalState.sad > 40) {
+            emotion = 'sad';
+        } else if (this.child.emotionalState.happy > 40) {
+            emotion = 'happy';
+        } else if (this.child.emotionalState.embarrassed > 30) {
+            emotion = 'embarrassed';
+        } else if (this.child.emotionalState.inLove > 30) {
+            emotion = 'inLove';
+        } else if (this.child.emotionalState.surprised > 30) {
+            emotion = 'surprised';
+        } else if (this.child.hunger < 20) {
+            emotion = 'hungry';
+        } else if (this.child.happiness < 30) {
+            emotion = 'sad';
+        } else if (this.child.happiness > 80) {
+            emotion = 'happy';
         }
         
-        avatar.textContent = emoji;
+        // Try to use API for professional illustration
+        if (this.apiConfig && this.apiConfig.animationAPI && this.apiConfig.animationAPI.enabled) {
+            try {
+                const animationUrl = await this.apiConfig.animationAPI.getAnimation(emotion, this.child.age);
+                if (animationUrl) {
+                    avatar.innerHTML = `<img src="${animationUrl}" alt="Child avatar" style="width:100%;height:100%;object-fit:contain;border-radius:50%;">`;
+                    return;
+                }
+            } catch (e) {
+                console.log('API animation failed, using fallback:', e);
+            }
+        }
+        
+        // Try API image generation for character (professional portrait)
+        if (this.apiConfig && this.apiConfig.imageAPI && this.apiConfig.imageAPI.enabled) {
+            try {
+                const prompt = this.apiConfig.characterPrompts[emotion].replace('{age}', this.child.age);
+                const imageUrl = await this.apiConfig.imageAPI.generateImage(prompt, 'character');
+                if (imageUrl) {
+                    const img = document.createElement('img');
+                    img.src = imageUrl;
+                    img.alt = 'Child avatar';
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '50%';
+                    img.style.transition = 'opacity 0.3s';
+                    img.style.opacity = '0';
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                    };
+                    avatar.innerHTML = '';
+                    avatar.appendChild(img);
+                    return;
+                }
+            } catch (e) {
+                console.log('API image generation failed, using fallback:', e);
+            }
+        }
+        
+        // Use custom emoji from character customization
+        let baseEmoji = this.child.emoji || '🧒';
+        
+        // If no custom emoji, use age-appropriate default
+        if (!this.child.emoji || this.child.emoji === '🧒') {
+            if (this.child.age < 5) {
+                baseEmoji = '👶';
+            } else if (this.child.age < 10) {
+                baseEmoji = this.child.gender === 'girl' ? '👧' : '🧒';
+            } else if (this.child.age < 15) {
+                baseEmoji = this.child.gender === 'girl' ? '👩' : '👦';
+            } else {
+                baseEmoji = this.child.gender === 'girl' ? '👩' : '🧑';
+            }
+        }
+        
+        // For emotion display, we'll use the base emoji but could add emotion indicators
+        // For now, keep the custom emoji but show emotion through text/context
+        avatar.textContent = baseEmoji;
     }
     
     loadSceneImages() {
@@ -211,43 +527,88 @@ class MyChildGame {
                 this.locations[location].usePlaceholder = true;
                 // Update scene if it's the current location
                 if (this.currentLocation === location) {
-                    this.updateScene();
+                    this.updateScene().catch(e => console.log('Scene update error:', e));
                 }
             };
             img.src = `images/${imgName}`;
         });
     }
     
-    updateScene() {
+    async updateScene() {
         const location = this.locations[this.currentLocation];
         const sceneImage = document.getElementById('sceneImage');
         const sceneName = document.getElementById('sceneName');
         
         sceneImage.style.background = `linear-gradient(135deg, ${location.color} 0%, ${location.color}dd 100%)`;
         
+        // Try API-generated professional illustration first
+        if (this.apiConfig && this.apiConfig.imageAPI && this.apiConfig.imageAPI.enabled) {
+            // Show loading indicator
+            sceneImage.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:1.2em;">🎨 Generating professional illustration...</div>';
+            
+            try {
+                const prompt = this.apiConfig.scenePrompts[this.currentLocation] || `Professional illustration of ${location.name}`;
+                const apiImageUrl = await this.apiConfig.imageAPI.generateImage(prompt, this.currentLocation);
+                if (apiImageUrl) {
+                    const img = document.createElement('img');
+                    img.src = apiImageUrl;
+                    img.alt = location.name;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = 'cover';
+                    img.style.transition = 'opacity 0.3s';
+                    img.style.opacity = '0';
+                    img.onload = () => {
+                        img.style.opacity = '1';
+                    };
+                    img.onerror = () => {
+                        // Fallback if API image fails
+                        this.loadSceneImage(location, sceneImage);
+                    };
+                    sceneImage.innerHTML = '';
+                    sceneImage.appendChild(img);
+                    sceneName.textContent = location.name;
+                    return;
+                } else {
+                    // API returned null, use fallback
+                    this.loadSceneImage(location, sceneImage);
+                }
+            } catch (e) {
+                console.log('API image generation failed, using local images:', e);
+                this.loadSceneImage(location, sceneImage);
+            }
+        } else {
+            // Use local images or placeholder
+            this.loadSceneImage(location, sceneImage);
+        }
+        
+        sceneName.textContent = location.name;
+    }
+    
+    loadSceneImage(location, sceneImageElement) {
         // Use image if available, otherwise use SVG placeholder
         if (location.image && !location.usePlaceholder) {
             const img = document.createElement('img');
             img.src = location.image;
             img.alt = location.name;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
             img.onerror = () => {
                 // If image fails to load, use placeholder
                 this.locations[this.currentLocation].usePlaceholder = true;
-                sceneImage.innerHTML = this.getPlaceholderSVG(this.currentLocation);
+                sceneImageElement.innerHTML = this.getPlaceholderSVG(this.currentLocation);
             };
             img.onload = () => {
-                sceneImage.innerHTML = '';
-                sceneImage.appendChild(img);
+                sceneImageElement.innerHTML = '';
+                sceneImageElement.appendChild(img);
             };
-            // Clear and show loading or placeholder
-            sceneImage.innerHTML = '';
-            sceneImage.appendChild(img);
+            sceneImageElement.innerHTML = '';
+            sceneImageElement.appendChild(img);
         } else {
-            // Use SVG placeholder (no emoji!)
-            sceneImage.innerHTML = this.getPlaceholderSVG(this.currentLocation);
+            // Use SVG placeholder
+            sceneImageElement.innerHTML = this.getPlaceholderSVG(this.currentLocation);
         }
-        
-        sceneName.textContent = location.name;
     }
     
     getPlaceholderSVG(location) {
@@ -324,7 +685,7 @@ class MyChildGame {
         if (this.locations[location]) {
             this.locations[location].image = imagePath;
             this.locations[location].usePlaceholder = false;
-            this.updateScene();
+            this.updateScene().catch(e => console.log('Scene update error:', e));
         }
     }
     
@@ -376,9 +737,10 @@ class MyChildGame {
         this.updateActionDisplay();
     }
     
-    goToLocation(location) {
+    async goToLocation(location) {
         this.currentLocation = location;
         this.updateDisplay();
+        // Scene will be updated in updateDisplay, but ensure it happens
         
         const locationMessages = {
             home: [
@@ -624,12 +986,15 @@ class MyChildGame {
         this.adjustStat('happiness', 10);
         this.adjustStat('energy', 5);
         this.adjustRelationship(2);
+        this.setEmotion('happy', 10);
+        this.setEmotion('anxious', -5); // Eating together is comforting
         
         const messages = [
             "Thank you! This food is so yummy!",
             "I was so hungry! This tastes great!",
             "Mmm, this is delicious! Can I have more?",
-            "I love eating with you! Thank you for the meal!"
+            "I love eating with you! Thank you for the meal!",
+            "Eating together makes me feel safe... Thank you."
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         this.showMessage("You fed your child. A well-fed child is a happy child!");
@@ -667,16 +1032,23 @@ class MyChildGame {
         this.adjustStat('social', 10);
         this.adjustStat('energy', -10);
         this.adjustRelationship(3); // Playing together strengthens relationship
+        this.setEmotion('happy', 25);
+        this.setEmotion('sad', -15);
+        this.setEmotion('anxious', -10);
+        this.child.resilience = Math.min(100, this.child.resilience + 2);
         
         const messages = [
             "This is so much fun! I love playing with you!",
-            "Yay! Playing together is the best!",
-            "I'm having the best time! Can we play more?",
-            "This is awesome! You're the best!"
+            "Yay! Playing together is the best! When we play, I forget about everything else.",
+            "I'm having the best time! Can we play more? This makes me feel so much better!",
+            "This is awesome! You're the best! Playing helps me forget about school.",
+            "I feel so free when we play... Like nothing can hurt me here."
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        this.showMessage("Playing together strengthens your bond with your child!");
+        this.showMessage("Playing together strengthens your bond and helps " + this.child.name + " find joy! Remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is!");
+        this.copingActivities.push({day: this.day, activity: 'play', helpful: true});
         this.performAction();
+        this.saveGame(); // Auto-save after important actions
         this.advanceTime();
     }
     
@@ -687,15 +1059,244 @@ class MyChildGame {
         this.adjustStat('happiness', 10);
         this.adjustStat('energy', -5);
         this.adjustRelationship(2);
+        this.setEmotion('happy', 15);
+        this.setEmotion('anxious', -10); // Reading helps calm anxiety
         
         const messages = [
             "I love this story! Can you read another one?",
             "This book is so interesting! I'm learning so much!",
-            "Reading together is so nice! I feel calm and happy.",
-            "I want to learn to read like you! This is great!"
+            "Reading together is so nice... It makes me forget about school.",
+            "I want to learn to read like you! This is great!",
+            "When we read, I can escape to other worlds... It helps."
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         this.showMessage("Reading together - great for learning and bonding!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    daydream() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 15) {
+            this.showDialogue("I'm too tired to daydream...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('energy', -5);
+        this.setEmotion('happy', 20);
+        this.setEmotion('curious', 15);
+        this.setEmotion('anxious', -15); // Daydreaming helps Alex escape and find comfort
+        this.setEmotion('sad', -10);
+        this.adjustRelationship(2);
+        
+        const messages = [
+            "I love imagining... In my dreams, I'm a hero!",
+            "Daydreaming helps me forget about what happened at school...",
+            "I imagine I'm somewhere else, somewhere safe and happy.",
+            "When I daydream, I can be anyone I want to be.",
+            "It's peaceful... I can create my own world in my mind."
+        ];
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        this.showMessage("Daydreaming helps Alex find comfort and escape.");
+        this.copingActivities.push({day: this.day, activity: 'daydream', helpful: true});
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    talkToCaringAdult() {
+        if (!this.canPerformAction()) return;
+        
+        this.adjustStat('happiness', 12);
+        this.adjustStat('social', 8);
+        this.setEmotion('happy', 15);
+        this.setEmotion('anxious', -20);
+        this.setEmotion('sad', -15);
+        this.adjustRelationship(4);
+        this.child.resilience = Math.min(100, this.child.resilience + 5);
+        
+        const messages = [
+            "Thank you for listening... It helps to talk about it.",
+            "I feel better when I can tell you what's happening.",
+            "Sometimes I'm scared to talk, but you make me feel safe.",
+            "I don't know what I'd do without you...",
+            "Talking to you makes the bad feelings go away a little."
+        ];
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        this.showMessage("Talking with caring adults helps Alex feel supported and stronger.");
+        this.copingActivities.push({day: this.day, activity: 'talk', helpful: true});
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    studyHard() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 20) {
+            this.showDialogue("I'm too tired to study right now...");
+            return;
+        }
+        
+        this.adjustStat('learning', 20);
+        this.adjustStat('energy', -15);
+        this.child.studyLevel = Math.min(100, this.child.studyLevel + 5);
+        this.child.careerProgress = Math.min(100, this.child.careerProgress + 3);
+        this.child.goodChoices++;
+        this.setEmotion('curious', 15);
+        this.setEmotion('happy', 10);
+        
+        // Higher study level unlocks opportunities
+        if (this.child.studyLevel > 50 && this.child.age >= 12) {
+            this.adjustStat('happiness', 10);
+            this.setEmotion('happy', 15);
+            const messages = [
+                "I'm getting better at this! Studying is paying off!",
+                "I understand more now... This feels good!",
+                "I'm learning so much! Maybe I can do something great one day.",
+                "The more I study, the more I realize I can achieve anything.",
+                "I used to think I wasn't smart enough... But I'm proving myself wrong!"
+            ];
+            this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        } else {
+            const messages = [
+                "I'm studying hard... It's not easy, but I know it matters.",
+                "I want to be smart and successful. I'll keep working at it.",
+                "Sometimes I'd rather do something else, but I know this is important.",
+                "I'm building my future, one study session at a time.",
+                "The kids who mock me now... They'll see. I'm building something real."
+            ];
+            this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        }
+        
+        this.showMessage("Hard work pays off! " + this.child.name + " is building a bright future. You're doing great, " + this.child.name + " - you're perfect just as you are!");
+        this.performAction();
+        this.saveGame(); // Auto-save after important actions
+        this.advanceTime();
+    }
+    
+    volunteer() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 10) {
+            this.showDialogue("I'm too young to volunteer... But maybe I can help in other ways?");
+            return;
+        }
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('social', 12);
+        this.adjustStat('energy', -10);
+        this.child.helpingOthers++;
+        this.child.goodChoices++;
+        this.child.careerProgress = Math.min(100, this.child.careerProgress + 2);
+        this.setEmotion('happy', 25);
+        this.setEmotion('sad', -10);
+        this.adjustRelationship(3);
+        this.child.resilience = Math.min(100, this.child.resilience + 3);
+        
+        const messages = [
+            "Helping others feels so good... I know what it's like to need help.",
+            "I want to be there for people who are hurting, like you were there for me.",
+            "Making a difference in someone's life... This is what I want to do.",
+            "The people I help thank me... It makes all the hard times worth it.",
+            "I'm learning that my pain can help me understand others' pain."
+        ];
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        this.showMessage("Volunteering helps others and makes Alex feel valuable and strong!");
+        this.memory.push({day: this.day, event: "Volunteered - helped others", positive: true});
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    helpOthers() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.resilience < 40) {
+            this.showDialogue("I want to help... But I'm still too scared. Maybe when I'm stronger?");
+            return;
+        }
+        
+        this.adjustStat('happiness', 20);
+        this.adjustStat('social', 15);
+        this.adjustStat('energy', -12);
+        this.child.helpingOthers++;
+        this.child.goodChoices++;
+        this.setEmotion('happy', 30);
+        this.setEmotion('surprised', 15);
+        this.setEmotion('anxious', -15);
+        this.adjustRelationship(5);
+        this.child.resilience = Math.min(100, this.child.resilience + 5);
+        
+        const messages = [
+            "I stood up for someone today... I told the bullies to stop. It was scary but right.",
+            "I helped someone who was being bullied. I know how they feel.",
+            "I can't let others go through what I went through... Not if I can help it.",
+            "I was brave today. I helped someone, and it felt amazing.",
+            "I'm becoming the person I needed when I was younger."
+        ];
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        this.showMessage(this.child.name + " is becoming a hero! Standing up for others shows incredible strength! Remember: all children are good enough just as they are - including you, " + this.child.name + "!");
+        this.memory.push({day: this.day, event: "Helped someone - stopped bullying", positive: true});
+        this.performAction();
+        this.saveGame(); // Auto-save after important actions
+        this.advanceTime();
+    }
+    
+    watchTikTok() {
+        if (!this.canPerformAction()) return;
+        
+        // Short-term pleasure, but long-term cost
+        this.adjustStat('happiness', 8);
+        this.adjustStat('energy', -5);
+        this.adjustStat('learning', -2);
+        this.child.studyLevel = Math.max(0, this.child.studyLevel - 1);
+        this.child.shortTermChoices++;
+        this.setEmotion('happy', 10);
+        this.setEmotion('anxious', 5); // Can create anxiety/FOMO
+        
+        const messages = [
+            "This is fun... But I know I probably should be doing something else.",
+            "I'm scrolling... It's entertaining but... I feel a bit empty?",
+            "Time flies when I'm watching these videos... Maybe too much?",
+            "This is nice for a break, but I know I have goals.",
+            "I'm relaxing, but I'm not really building anything..."
+        ];
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        this.showMessage("Short-term entertainment is fine, but balance is key. " + this.child.name + " knows there are more productive choices.");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    playVideoGames() {
+        if (!this.canPerformAction()) return;
+        
+        // Moderate choice - can be fun but excessive is bad
+        this.adjustStat('happiness', 12);
+        this.adjustStat('energy', -8);
+        this.adjustStat('learning', -1);
+        this.child.shortTermChoices++;
+        
+        if (this.child.shortTermChoices > this.child.goodChoices * 2) {
+            // Too much gaming vs. productive activities
+            this.child.studyLevel = Math.max(0, this.child.studyLevel - 2);
+            this.setEmotion('anxious', 5);
+            const messages = [
+                "I've been playing a lot... Maybe too much? I feel like I'm wasting time.",
+                "Games are fun, but I'm not moving forward with my goals.",
+                "I should probably balance this better... Study and play, not just play."
+            ];
+            this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        } else {
+            this.setEmotion('happy', 15);
+            const messages = [
+                "Playing games is fun! A good break from everything.",
+                "I love this game! It helps me relax.",
+                "Gaming is fun, but I know when to stop and study too."
+            ];
+            this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        }
+        
+        this.showMessage("Gaming can be fun, but balance with productive activities is important!");
         this.performAction();
         this.advanceTime();
     }
@@ -713,25 +1314,50 @@ class MyChildGame {
         // Age progression
         if (this.day % 30 === 0) {
             this.child.age++;
-            this.showDialogue(`I'm ${this.child.age} years old now! I'm growing up in the 2000s!`);
+            
+            // Show progress and hope based on choices
+            let progressMessage = "";
+            if (this.child.helpingOthers > 10) {
+                progressMessage = `I'm ${this.child.age} years old now! I've helped so many people... I never thought I could make a difference, but I am.`;
+            } else if (this.child.studyLevel > 70) {
+                progressMessage = `I'm ${this.child.age} years old now! All my hard studying is paying off. I'm getting smarter every day!`;
+            } else if (this.child.resilience > 80) {
+                progressMessage = `I'm ${this.child.age} years old now! I'm so much stronger than I was. Things are getting better.`;
+            } else if (this.child.goodChoices > this.child.shortTermChoices) {
+                progressMessage = `I'm ${this.child.age} years old now! I'm making good choices, building my future.`;
+            } else {
+                progressMessage = `I'm ${this.child.age} years old now! I'm growing up in the 2000s!`;
+            }
+            
+            this.showDialogue(progressMessage);
+            
             const ageMessages = [
                 `Your child turned ${this.child.age} years old! Growing up in the 2000s.`,
                 `🎂 Happy ${this.child.age}th birthday! Another year of 2000s childhood!`
             ];
             this.showMessage(ageMessages[Math.floor(Math.random() * ageMessages.length)]);
-        }
-        
-        // Year progression
-        if (this.day % 365 === 0) {
-            this.year++;
-            if (this.year <= 2009) {
-                this.showDialogue(`It's ${this.year} now! The 2000s are amazing!`);
-                this.showMessage(`New year! Welcome to ${this.year} - still in the 2000s decade!`);
-            } else {
-                this.showDialogue("I've grown up through the whole 2000s! What a journey!");
-                this.showMessage("Your child has grown up through the 2000s! What an amazing journey!");
+            
+            // Career opportunities based on study level and age
+            if (this.child.age >= 14 && this.child.studyLevel > 60 && this.child.money === 0) {
+                this.showMessage("💼 Alex is old enough and smart enough to start earning money through part-time work!");
+            }
+            
+            // Year progression
+            if (this.child.age % 2 === 0 && this.child.age <= 18) {
+                this.year++;
+                if (this.year <= 2009) {
+                    this.showDialogue(`It's ${this.year} now! The 2000s are flying by!`);
+                }
+            }
+            
+            // Special milestone at age 18 - show success story
+            if (this.child.age === 18) {
+                this.showFinalSuccessMessage();
             }
         }
+        
+        // Check for success milestones
+        this.checkSuccessMilestones();
         
         // Natural stat changes (like original game)
         this.adjustStat('energy', -5);
@@ -740,32 +1366,280 @@ class MyChildGame {
         // Low hunger affects happiness
         if (this.child.hunger < 30) {
             this.adjustStat('happiness', -5);
+            this.setEmotion('anxious', 5);
         }
         
         // Low happiness can affect other stats
         if (this.child.happiness < 20) {
             this.adjustStat('social', -2);
             this.adjustRelationship(-1);
+            this.setEmotion('sad', 10);
         }
         
         // High relationship provides passive benefits
         if (this.relationship > 80) {
             this.adjustStat('happiness', 2);
+            this.setEmotion('happy', 5);
         }
+        
+        // High resilience helps Alex handle challenges better
+        if (this.child.resilience > 70) {
+            this.adjustStat('happiness', 1);
+            this.setEmotion('anxious', -2);
+        }
+        
+        // High study level provides passive learning benefits
+        if (this.child.studyLevel > 50) {
+            this.adjustStat('learning', 1);
+            this.child.careerProgress = Math.min(100, this.child.careerProgress + 0.5);
+        }
+        
+        // Helping others provides passive happiness
+        if (this.child.helpingOthers > 5) {
+            this.adjustStat('happiness', 1);
+            this.setEmotion('happy', 2);
+        }
+        
+        // Update emotional state daily
+        this.updateEmotionalState();
         
         // Check for narrative events
         this.checkForEvents();
         
         this.updateDisplay();
-        this.showMessage(`Day ${this.day} begins! Time for new adventures in the 2000s.`);
+        this.saveGame(); // Auto-save at end of day
+        this.showMessage(`Day ${this.day} begins! Time for new adventures in the 2000s. Remember: ${this.child.name} is perfect just as ${this.child.gender === 'girl' ? 'she' : 'he'} is, and so is everyone else!`);
+    }
+    
+    checkSuccessMilestones() {
+        // Show hope and progress messages
+        if (this.child.helpingOthers === 5 && this.child.age >= 12) {
+            this.showDialogue("I've helped five people now... I'm becoming someone who makes a difference. This feels amazing!");
+            this.showMessage("🎉 Alex is becoming a hero! Helping others gives purpose and strength!");
+        }
+        
+        if (this.child.studyLevel === 50 && this.child.age >= 12) {
+            this.showDialogue("I'm really getting good at studying! I can see my future opening up... The kids who mocked me don't know what I'm building.");
+            this.showMessage("💪 Alex's hard work is paying off! Success comes from dedication!");
+        }
+        
+        if (this.child.careerProgress >= 50 && this.child.age >= 14) {
+            this.showDialogue("I'm starting to see opportunities... All this work is leading somewhere. I'm not who they said I was.");
+            this.showMessage("✨ Alex is building a bright future! The story isn't over - it's just beginning!");
+        }
+        
+        if (this.child.goodChoices > this.child.shortTermChoices * 2 && this.child.age >= 12) {
+            this.showDialogue("I'm making good choices... Prioritizing my future over short-term fun. I know it's worth it.");
+            this.showMessage("🌟 Alex is learning the value of long-term thinking! These choices will shape the future!");
+        }
+    }
+    
+    showFinalSuccessMessage() {
+        let successStory = "";
+        
+        if (this.child.helpingOthers > 20) {
+            successStory = "I've grown up through the whole 2000s! I've helped over 20 people... I became the person I needed when I was younger. The bullies who said I'd never amount to anything? They were wrong. I'm a hero now, and I'm just getting started.";
+        } else if (this.child.studyLevel > 80 && this.child.careerProgress > 70) {
+            successStory = "I've grown up through the whole 2000s! All that studying paid off... I'm successful, smart, and making money. The kids who called me a loser? They can see me now - successful, happy, and building my future. Hard work wins.";
+        } else if (this.child.resilience > 90) {
+            successStory = "I've grown up through the whole 2000s! I'm stronger than I ever imagined. I faced challenges, I grew, and I learned that I'm capable of amazing things. The story isn't written in stone - I wrote my own story.";
+        } else if (this.child.goodChoices > this.child.shortTermChoices) {
+            successStory = "I've grown up through the 2000s! I made good choices, even when they were hard. I prioritized my future, and now I'm reaping the rewards. Success doesn't come from taking the easy path - it comes from working hard.";
+        }
+        
+        if (successStory) {
+            this.showDialogue(successStory);
+            this.showMessage("🌟 Alex's story shows that with support, hard work, and good choices, anyone can overcome challenges and find success! The future is never set in stone - it's built by the choices we make today!");
+        } else {
+            this.showDialogue("I've grown up through the whole 2000s! What a journey!");
+            this.showMessage("Your child has grown up through the 2000s! What an amazing journey!");
+        }
     }
     
     checkForEvents() {
+        // Bullying incidents happen at school (more likely if resilience is low)
+        if (this.currentLocation === 'school' && Math.random() < 0.3) {
+            const bullyingChance = this.child.resilience < 50 ? 0.4 : 0.2;
+            if (Math.random() < bullyingChance) {
+                this.triggerBullyingEvent();
+                return;
+            }
+        }
+        
         // Narrative events - more frequent if relationship is good
         const eventChance = this.relationship > 70 ? 0.6 : 0.4;
         if (Math.random() < eventChance) {
             this.triggerNarrativeEvent();
         }
+    }
+    
+    triggerBullyingEvent() {
+        this.bullyingIncidents++;
+        const events = [
+            {
+                dialogue: "Some kids at school... they said mean things today. It hurt. But I know I'm good enough just as I am.",
+                message: this.child.name + " experienced bullying at school, but remembers that " + (this.child.gender === 'girl' ? 'she' : 'he') + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is.",
+                choices: [
+                    { 
+                        text: "I'm so sorry. Tell me what happened. You're safe here.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 20);
+                            this.setEmotion('anxious', 15);
+                            this.adjustStat('happiness', -10);
+                            this.adjustStat('social', -5);
+                            this.adjustRelationship(5);
+                            this.child.resilience = Math.min(100, this.child.resilience + 3);
+                            this.memory.push({day: this.day, event: "Bullying - talked about it", positive: true});
+                            this.showDialogue("Thank you for listening... It helps to talk about it. I feel a little better. I know I'm good enough, even if they say mean things."); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: "Don't let them get to you. You're strong and perfect just as you are.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 15);
+                            this.setEmotion('angry', 10);
+                            this.adjustStat('happiness', -5);
+                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.showDialogue("I'll try to be strong... but it's hard sometimes."); 
+                        } 
+                    },
+                    { 
+                        text: "Maybe we should talk to the teacher about this.", 
+                        effect: () => { 
+                            this.setEmotion('anxious', 10);
+                            this.setEmotion('scared', 5);
+                            this.adjustStat('happiness', -5);
+                            this.adjustStat('social', -3);
+                            this.child.resilience = Math.min(100, this.child.resilience + 1);
+                            this.showDialogue("I'm scared... what if they get angry? But... maybe it's the right thing."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "They pushed me today... I didn't know what to do.",
+                message: "Physical bullying incident.",
+                choices: [
+                    { 
+                        text: "Are you okay? We need to tell someone about this.", 
+                        effect: () => { 
+                            this.setEmotion('scared', 25);
+                            this.setEmotion('sad', 20);
+                            this.adjustStat('happiness', -15);
+                            this.adjustStat('energy', -10);
+                            this.adjustRelationship(6);
+                            this.child.resilience = Math.min(100, this.child.resilience + 5);
+                            this.memory.push({day: this.day, event: "Physical bullying - got help", positive: true});
+                            this.showDialogue("I'm okay... Thank you for caring. I'm scared but I know you'll help me."); 
+                        } 
+                    },
+                    { 
+                        text: "You're brave. Stand up for yourself next time.", 
+                        effect: () => { 
+                            this.setEmotion('angry', 20);
+                            this.setEmotion('scared', 15);
+                            this.adjustStat('happiness', -10);
+                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.showDialogue("I'll try... I want to be brave. But it's scary."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "Everyone laughed at me in class today... I wanted to disappear.",
+                message: "Embarrassment and social bullying.",
+                choices: [
+                    { 
+                        text: "I'm here for you. Those feelings are valid. Let's talk about it.", 
+                        effect: () => { 
+                            this.setEmotion('embarrassed', 30);
+                            this.setEmotion('sad', 20);
+                            this.adjustStat('happiness', -12);
+                            this.adjustStat('social', -8);
+                            this.adjustRelationship(4);
+                            this.child.resilience = Math.min(100, this.child.resilience + 3);
+                            this.copingActivities.push({day: this.day, activity: 'talk', helpful: true});
+                            this.showDialogue("I feel so embarrassed... But talking to you helps. I don't feel so alone."); 
+                        } 
+                    },
+                    { 
+                        text: "Don't worry about what others think. You're special.", 
+                        effect: () => { 
+                            this.setEmotion('embarrassed', 20);
+                            this.setEmotion('happy', 10);
+                            this.adjustStat('happiness', -5);
+                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.showDialogue("Thank you... I know you see me for who I am."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I came back stronger today. I told them to stop, and they actually did.",
+                message: "Alex stood up for themselves!",
+                choices: [
+                    { 
+                        text: "I'm so proud of you! That took courage! You're perfect just as you are!", 
+                        effect: () => { 
+                            this.setEmotion('happy', 30);
+                            this.setEmotion('surprised', 15);
+                            this.setEmotion('anxious', -20);
+                            this.setEmotion('sad', -15);
+                            this.adjustStat('happiness', 25);
+                            this.adjustStat('social', 10);
+                            this.adjustRelationship(8);
+                            this.child.resilience = Math.min(100, this.child.resilience + 10);
+                            this.memory.push({day: this.day, event: "Stood up to bullies - succeeded!", positive: true});
+                            this.showDialogue("I did it! I can't believe it worked! I feel so much stronger now! You're right - I am good enough just as I am!"); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: "That's my brave child! You're learning to handle this.", 
+                        effect: () => { 
+                            this.setEmotion('happy', 20);
+                            this.setEmotion('surprised', 10);
+                            this.adjustStat('happiness', 15);
+                            this.adjustStat('social', 8);
+                            this.child.resilience = Math.min(100, this.child.resilience + 8);
+                            this.showDialogue("I'm learning... I'm getting stronger. Thank you for believing in me."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I pretended I didn't care, but I'm really hurt inside...",
+                message: "Alex is hiding their feelings.",
+                choices: [
+                    { 
+                        text: "It's okay to feel hurt. Your feelings matter. Let's talk.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 25);
+                            this.setEmotion('anxious', -15);
+                            this.adjustStat('happiness', -8);
+                            this.adjustRelationship(6);
+                            this.child.resilience = Math.min(100, this.child.resilience + 4);
+                            this.copingActivities.push({day: this.day, activity: 'talk', helpful: true});
+                            this.showDialogue("Thank you... It's hard to show how I really feel. But with you, I can."); 
+                        } 
+                    },
+                    { 
+                        text: "You're strong. But you don't have to hide your feelings with me.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 15);
+                            this.adjustStat('happiness', -5);
+                            this.adjustRelationship(4);
+                            this.child.resilience = Math.min(100, this.child.resilience + 3);
+                            this.showDialogue("I know... I'm just scared of being vulnerable. But I trust you."); 
+                        } 
+                    }
+                ]
+            }
+        ];
+        
+        const event = events[Math.floor(Math.random() * events.length)];
+        this.showNarrativeEvent(event);
     }
     
     triggerNarrativeEvent() {
@@ -829,10 +1703,226 @@ class MyChildGame {
             },
             {
                 dialogue: "I'm feeling a bit lonely today... Can we spend more time together?",
-                message: "Your child needs attention.",
+                message: "Alex needs attention and comfort.",
                 choices: [
-                    { text: "Of course! Let's do something fun together.", effect: () => { this.adjustStat('happiness', 20); this.adjustStat('social', 10); this.showDialogue("Thank you! I feel so much better now!"); } },
-                    { text: "I understand, but we're busy right now.", effect: () => { this.adjustStat('happiness', -10); this.showDialogue("Oh... okay. I'll wait."); } }
+                    { 
+                        text: "Of course! Let's do something fun together.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 20); 
+                            this.adjustStat('social', 10); 
+                            this.setEmotion('happy', 20);
+                            this.setEmotion('sad', -15);
+                            this.setEmotion('anxious', -10);
+                            this.adjustRelationship(4);
+                            this.showDialogue("Thank you! I feel so much better now! Being with you makes everything okay."); 
+                        } 
+                    },
+                    { 
+                        text: "I understand, but we're busy right now.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', -10); 
+                            this.setEmotion('sad', 15);
+                            this.showDialogue("Oh... okay. I'll wait."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I found a quiet spot in the library today. It was peaceful there...",
+                message: "Alex found a safe space.",
+                choices: [
+                    { 
+                        text: "That sounds wonderful! Finding places that make you feel safe is important.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 15); 
+                            this.setEmotion('happy', 15);
+                            this.setEmotion('anxious', -15);
+                            this.child.resilience = Math.min(100, this.child.resilience + 3);
+                            this.memory.push({day: this.day, event: "Found safe space", positive: true});
+                            this.showDialogue("It was... I felt like I could breathe there. Maybe I can go back?"); 
+                        } 
+                    },
+                    { 
+                        text: "That's nice. Libraries are peaceful places.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 8); 
+                            this.setEmotion('happy', 10);
+                            this.showDialogue("Yes... It was nice to be somewhere quiet."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "Someone at school was nice to me today... It surprised me.",
+                message: "Positive social interaction!",
+                choices: [
+                    { 
+                        text: "That's wonderful! Tell me about it.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 20); 
+                            this.adjustStat('social', 15); 
+                            this.setEmotion('happy', 25);
+                            this.setEmotion('surprised', 15);
+                            this.setEmotion('sad', -10);
+                            this.child.resilience = Math.min(100, this.child.resilience + 5);
+                            this.memory.push({day: this.day, event: "Someone was kind", positive: true});
+                            this.showDialogue("They just... talked to me normally. Like I mattered. It felt so good!"); 
+                        } 
+                    },
+                    { 
+                        text: "That's nice. People can surprise you.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 12); 
+                            this.adjustStat('social', 8); 
+                            this.setEmotion('happy', 15);
+                            this.showDialogue("Yes... Maybe not everyone is mean?"); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I wrote in my journal today... It helped me process my feelings.",
+                message: "Alex is finding healthy ways to cope.",
+                choices: [
+                    { 
+                        text: "That's a great way to express yourself! Writing can be very healing.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 15); 
+                            this.setEmotion('happy', 15);
+                            this.setEmotion('anxious', -15);
+                            this.setEmotion('sad', -10);
+                            this.child.resilience = Math.min(100, this.child.resilience + 4);
+                            this.copingActivities.push({day: this.day, activity: 'journal', helpful: true});
+                            this.showDialogue("It really does help... Getting my thoughts on paper makes them less scary."); 
+                        } 
+                    },
+                    { 
+                        text: "That's good. Keep expressing yourself.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 10); 
+                            this.setEmotion('happy', 10);
+                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.showDialogue("I will... It's becoming a habit that helps me."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I'm starting to feel... stronger? Like I'm learning to handle things better.",
+                message: "Alex is growing in resilience!",
+                choices: [
+                    { 
+                        text: "I'm so proud of you! You're becoming so strong and brave. You were always perfect - you're just discovering it now!", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 25); 
+                            this.setEmotion('happy', 30);
+                            this.setEmotion('surprised', 10);
+                            this.setEmotion('anxious', -20);
+                            this.adjustRelationship(8);
+                            this.child.resilience = Math.min(100, this.child.resilience + 10);
+                            this.memory.push({day: this.day, event: "Growing stronger", positive: true});
+                            this.showDialogue("Thank you... I couldn't do this without you. I'm learning that I'm stronger than I thought! And I'm realizing that I'm good enough just as I am - all children are!"); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: "You've always been strong. You're just discovering it now.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 20); 
+                            this.setEmotion('happy', 20);
+                            this.setEmotion('surprised', 15);
+                            this.child.resilience = Math.min(100, this.child.resilience + 8);
+                            this.showDialogue("You think so? I'm starting to believe it too..."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I saw someone else being bullied today... I stopped it. I couldn't let it happen.",
+                message: "Alex is becoming a hero!",
+                choices: [
+                    { 
+                        text: "That's incredibly brave! You're making a real difference.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 30); 
+                            this.adjustStat('social', 20);
+                            this.setEmotion('happy', 35);
+                            this.setEmotion('surprised', 20);
+                            this.child.helpingOthers++;
+                            this.child.goodChoices++;
+                            this.child.resilience = Math.min(100, this.child.resilience + 10);
+                            this.adjustRelationship(10);
+                            this.memory.push({day: this.day, event: "Stopped bullying - became hero", positive: true});
+                            this.showDialogue("I did it! I stood up for them... I know what it feels like. I had to help. I'm becoming the person I needed when I was younger!"); 
+                        } 
+                    },
+                    { 
+                        text: "You're amazing. That took real courage.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 25); 
+                            this.adjustStat('social', 15);
+                            this.setEmotion('happy', 30);
+                            this.child.helpingOthers++;
+                            this.child.goodChoices++;
+                            this.child.resilience = Math.min(100, this.child.resilience + 8);
+                            this.showDialogue("Thank you... I'm learning that I can be strong. I can help others now."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "I got accepted into a good program! All my studying is paying off!",
+                message: "Success through hard work!",
+                choices: [
+                    { 
+                        text: "I'm so proud! You worked so hard for this!", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 30); 
+                            this.adjustStat('learning', 20);
+                            this.setEmotion('happy', 40);
+                            this.setEmotion('surprised', 25);
+                            this.child.careerProgress = Math.min(100, this.child.careerProgress + 15);
+                            this.child.money += 50; // Scholarship or opportunity
+                            this.memory.push({day: this.day, event: "Got accepted - success!", positive: true});
+                            this.showDialogue("I can't believe it! All those hours studying... They said I couldn't do it, but I did! The future is mine!"); 
+                        } 
+                    },
+                    { 
+                        text: "You earned this! Your dedication is inspiring.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 25); 
+                            this.adjustStat('learning', 15);
+                            this.setEmotion('happy', 35);
+                            this.child.careerProgress = Math.min(100, this.child.careerProgress + 10);
+                            this.showDialogue("I worked so hard... And it's paying off. I'm not who they said I was."); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: "The kids who used to bully me... They're different now. Some even apologized. Things changed.",
+                message: "The story isn't set in stone - things can change!",
+                choices: [
+                    { 
+                        text: "People can change, and you've shown incredible growth. You're inspiring.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 25); 
+                            this.setEmotion('happy', 30);
+                            this.setEmotion('surprised', 15);
+                            this.child.resilience = Math.min(100, this.child.resilience + 10);
+                            this.memory.push({day: this.day, event: "Things changed - hope", positive: true});
+                            this.showDialogue("You're right... Things aren't set in stone. I changed, they changed... The future is what we make it. I have so much hope now."); 
+                        } 
+                    },
+                    { 
+                        text: "You've come so far. Your story is proof that hard times don't last forever.", 
+                        effect: () => { 
+                            this.adjustStat('happiness', 20); 
+                            this.setEmotion('happy', 25);
+                            this.child.resilience = Math.min(100, this.child.resilience + 8);
+                            this.showDialogue("Thank you... I'm learning that nothing is permanent. I can create my own future."); 
+                        } 
+                    }
                 ]
             },
             {

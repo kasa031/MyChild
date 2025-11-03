@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyChild - Login</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-container {
+            max-width: 500px;
+            margin: 100px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn-primary {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        .character-customization {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .customization-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .option-group label {
+            font-size: 14px;
+            color: #666;
+        }
+        .option-group select, .option-group input {
+            padding: 8px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+        }
+        .emoji-picker {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .emoji-option {
+            font-size: 2em;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        .emoji-option:hover {
+            border-color: #667eea;
+            transform: scale(1.1);
+        }
+        .emoji-option.selected {
+            border-color: #667eea;
+            background: #e8f0ff;
+        }
+        .avatar-preview {
+            text-align: center;
+            font-size: 4em;
+            padding: 20px;
+            background: white;
+            border-radius: 50%;
+            margin: 20px auto;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>MyChild - 2000s Edition</h1>
+        <p style="color: #666; margin-bottom: 30px;">Velg brukernavn eller opprett nytt spill</p>
+        
+        <form class="login-form" id="loginForm">
+            <div class="form-group">
+                <label for="username">Brukernavn:</label>
+                <input type="text" id="username" name="username" required placeholder="Skriv ditt brukernavn">
+            </div>
+            
+            <div class="character-customization">
+                <h3>Karaktertilpasning</h3>
+                
+                <div class="avatar-preview" id="avatarPreview">👶</div>
+                
+                <div class="customization-options">
+                    <div class="option-group">
+                        <label>Kjønn:</label>
+                        <select id="gender" name="gender">
+                            <option value="boy">Gutt (Alex)</option>
+                            <option value="girl">Jente (Alexa)</option>
+                            <option value="nonbinary">Non-binær</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Navn:</label>
+                        <input type="text" id="childName" name="childName" placeholder="Navn (valgfritt)">
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Alder (start):</label>
+                        <select id="startAge" name="startAge">
+                            <option value="8">8 år</option>
+                            <option value="9">9 år</option>
+                            <option value="10">10 år</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="option-group" style="margin-top: 15px;">
+                    <label>Velg emoji for karakteren:</label>
+                    <div class="emoji-picker" id="emojiPicker">
+                        <div class="emoji-option" data-emoji="👶">👶</div>
+                        <div class="emoji-option" data-emoji="🧒">🧒</div>
+                        <div class="emoji-option" data-emoji="👦">👦</div>
+                        <div class="emoji-option" data-emoji="👧">👧</div>
+                        <div class="emoji-option" data-emoji="🧑">🧑</div>
+                        <div class="emoji-option" data-emoji="👨">👨</div>
+                        <div class="emoji-option" data-emoji="👩">👩</div>
+                        <div class="emoji-option" data-emoji="🧑‍🦱">🧑‍🦱</div>
+                        <div class="emoji-option" data-emoji="👨‍🦱">👨‍🦱</div>
+                        <div class="emoji-option" data-emoji="👩‍🦱">👩‍🦱</div>
+                        <div class="emoji-option" data-emoji="🧑‍🦰">🧑‍🦰</div>
+                        <div class="emoji-option" data-emoji="👨‍🦰">👨‍🦰</div>
+                        <div class="emoji-option" data-emoji="👩‍🦰">👩‍🦰</div>
+                        <div class="emoji-option" data-emoji="🧑‍🦳">🧑‍🦳</div>
+                        <div class="emoji-option" data-emoji="👨‍🦳">👨‍🦳</div>
+                        <div class="emoji-option" data-emoji="👩‍🦳">👩‍🦳</div>
+                        <div class="emoji-option" data-emoji="🧑‍🦲">🧑‍🦲</div>
+                        <div class="emoji-option" data-emoji="👨‍🦲">👨‍🦲</div>
+                        <div class="emoji-option" data-emoji="👩‍🦲">👩‍🦲</div>
+                        <div class="emoji-option" data-emoji="👨‍🎓">👨‍🎓</div>
+                        <div class="emoji-option" data-emoji="👩‍🎓">👩‍🎓</div>
+                        <div class="emoji-option" data-emoji="🧑‍🎓">🧑‍🎓</div>
+                        <div class="emoji-option" data-emoji="👨‍💼">👨‍💼</div>
+                        <div class="emoji-option" data-emoji="👩‍💼">👩‍💼</div>
+                        <div class="emoji-option" data-emoji="🧑‍💼">🧑‍💼</div>
+                        <div class="emoji-option" data-emoji="🧑‍🎤">🧑‍🎤</div>
+                        <div class="emoji-option" data-emoji="👨‍🎤">👨‍🎤</div>
+                        <div class="emoji-option" data-emoji="👩‍🎤">👩‍🎤</div>
+                        <div class="emoji-option" data-emoji="🧑‍🎨">🧑‍🎨</div>
+                        <div class="emoji-option" data-emoji="👨‍🎨">👨‍🎨</div>
+                        <div class="emoji-option" data-emoji="👩‍🎨">👩‍🎨</div>
+                        <div class="emoji-option" data-emoji="🧑‍🏫">🧑‍🏫</div>
+                        <div class="emoji-option" data-emoji="👨‍🏫">👨‍🏫</div>
+                        <div class="emoji-option" data-emoji="👩‍🏫">👩‍🏫</div>
+                        <div class="emoji-option" data-emoji="🧑‍⚕️">🧑‍⚕️</div>
+                        <div class="emoji-option" data-emoji="👨‍⚕️">👨‍⚕️</div>
+                        <div class="emoji-option" data-emoji="👩‍⚕️">👩‍⚕️</div>
+                        <div class="emoji-option" data-emoji="🧑‍🔬">🧑‍🔬</div>
+                        <div class="emoji-option" data-emoji="👨‍🔬">👨‍🔬</div>
+                        <div class="emoji-option" data-emoji="👩‍🔬">👩‍🔬</div>
+                        <div class="emoji-option" data-emoji="🧑‍🚀">🧑‍🚀</div>
+                        <div class="emoji-option" data-emoji="👨‍🚀">👨‍🚀</div>
+                        <div class="emoji-option" data-emoji="👩‍🚀">👩‍🚀</div>
+                        <div class="emoji-option" data-emoji="🧑‍✈️">🧑‍✈️</div>
+                        <div class="emoji-option" data-emoji="👨‍✈️">👨‍✈️</div>
+                        <div class="emoji-option" data-emoji="👩‍✈️">👩‍✈️</div>
+                    </div>
+                </div>
+                
+                <div class="customization-options" style="margin-top: 15px;">
+                    <div class="option-group">
+                        <label>Hårfarge:</label>
+                        <select id="hairColor" name="hairColor">
+                            <option value="blonde">Blond</option>
+                            <option value="brown">Brun</option>
+                            <option value="black">Svart</option>
+                            <option value="red">Rød</option>
+                            <option value="other">Annet</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Øyenfarge:</label>
+                        <select id="eyeColor" name="eyeColor">
+                            <option value="blue">Blå</option>
+                            <option value="brown">Brun</option>
+                            <option value="green">Grønn</option>
+                            <option value="hazel">Nøttebrun</option>
+                            <option value="gray">Grå</option>
+                        </select>
+                    </div>
+                    
+                    <div class="option-group">
+                        <label>Stil:</label>
+                        <select id="style" name="style">
+                            <option value="normal">Normal</option>
+                            <option value="cap">Caps</option>
+                            <option value="hoodie">Hoodie</option>
+                            <option value="sporty">Sporty</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn-primary">Start Spill</button>
+        </form>
+        
+        <div id="existingGames" style="margin-top: 30px;">
+            <h3>Eksisterende spill:</h3>
+            <div id="gamesList"></div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedEmoji = '👶';
+        
+        // Load existing games
+        function loadExistingGames() {
+            const gamesList = document.getElementById('gamesList');
+            gamesList.innerHTML = '';
+            
+            const games = [];
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key.startsWith('mychild_game_')) {
+                    try {
+                        const gameData = JSON.parse(localStorage.getItem(key));
+                        const username = key.replace('mychild_game_', '');
+                        games.push({
+                            username, 
+                            day: gameData.day || 1, 
+                            age: gameData.child?.age || 8,
+                            lastSaved: gameData.lastSaved || null
+                        });
+                    } catch (e) {
+                        console.error('Error loading game:', e);
+                    }
+                }
+            }
+            
+            // Sort by last saved (most recent first)
+            games.sort((a, b) => {
+                if (!a.lastSaved) return 1;
+                if (!b.lastSaved) return -1;
+                return new Date(b.lastSaved) - new Date(a.lastSaved);
+            });
+            
+            if (games.length === 0) {
+                gamesList.innerHTML = '<p style="color: #666;">Ingen eksisterende spill</p>';
+                return;
+            }
+            
+            games.forEach(game => {
+                const gameDiv = document.createElement('div');
+                gameDiv.style.cssText = 'padding: 10px; margin: 5px 0; background: #f0f0f0; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
+                
+                const lastSaved = game.lastSaved ? new Date(game.lastSaved).toLocaleString('no-NO') : 'Ukjent';
+                const buttonDiv = document.createElement('div');
+                buttonDiv.style.cssText = 'display: flex; gap: 5px;';
+                
+                const loadBtn = document.createElement('button');
+                loadBtn.textContent = 'Last inn';
+                loadBtn.style.cssText = 'padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                loadBtn.onclick = () => loadGame(game.username);
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.style.cssText = 'padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                deleteBtn.onclick = () => {
+                    if (confirm(`Er du sikker på at du vil slette spillet "${game.username}"?`)) {
+                        try {
+                            localStorage.removeItem(`mychild_game_${game.username}`);
+                            localStorage.removeItem(`mychild_customization_${game.username}`);
+                            loadExistingGames();
+                        } catch (e) {
+                            alert('Kunne ikke slette spillet.');
+                        }
+                    }
+                };
+                
+                buttonDiv.appendChild(loadBtn);
+                buttonDiv.appendChild(deleteBtn);
+                
+                gameDiv.innerHTML = `
+                    <div>
+                        <strong>${game.username}</strong> - Dag ${game.day}, ${game.age} år<br>
+                        <small style="color: #666;">Sist lagret: ${lastSaved}</small>
+                    </div>
+                `;
+                gameDiv.appendChild(buttonDiv);
+                gamesList.appendChild(gameDiv);
+            });
+        }
+        
+        function loadGame(username) {
+            window.location.href = `index.html?username=${encodeURIComponent(username)}`;
+        }
+        
+        // Emoji picker
+        document.querySelectorAll('.emoji-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.emoji-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedEmoji = this.dataset.emoji;
+                document.getElementById('avatarPreview').textContent = selectedEmoji;
+            });
+        });
+        
+        // Form submission
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const gender = document.getElementById('gender').value;
+            const childName = document.getElementById('childName').value.trim() || (gender === 'girl' ? 'Alexa' : 'Alex');
+            const startAge = parseInt(document.getElementById('startAge').value);
+            const hairColor = document.getElementById('hairColor').value;
+            const eyeColor = document.getElementById('eyeColor').value;
+            const style = document.getElementById('style').value;
+            
+            if (!username) {
+                alert('Vennligst skriv inn et brukernavn');
+                return;
+            }
+            
+            // Store character customization
+            const customization = {
+                gender,
+                name: childName,
+                age: startAge,
+                emoji: selectedEmoji,
+                hairColor,
+                eyeColor,
+                style
+            };
+            
+            localStorage.setItem(`mychild_customization_${username}`, JSON.stringify(customization));
+            
+            // Redirect to game
+            window.location.href = `index.html?username=${encodeURIComponent(username)}`;
+        });
+        
+        // Load games on page load
+        loadExistingGames();
+        
+        // Update preview when gender changes
+        document.getElementById('gender').addEventListener('change', function() {
+            const gender = this.value;
+            const nameInput = document.getElementById('childName');
+            if (!nameInput.value.trim()) {
+                nameInput.value = gender === 'girl' ? 'Alexa' : 'Alex';
+            }
+        });
+    </script>
+</body>
+</html>
+

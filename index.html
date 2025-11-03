@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyChild - 2000s Edition</title>
     <link rel="stylesheet" href="style.css">
+    <!-- API Configuration - Load local config if available, otherwise use example -->
+    <script>
+        // Try to load local API config first (not in git)
+        const script = document.createElement('script');
+        script.src = 'api-config.local.js';
+        script.onerror = () => {
+            // If local config doesn't exist, load example (will be disabled)
+            const exampleScript = document.createElement('script');
+            exampleScript.src = 'api-config.example.js';
+            document.head.appendChild(exampleScript);
+        };
+        document.head.appendChild(script);
+    </script>
 </head>
 <body>
     <div class="container">
@@ -12,8 +25,15 @@
             <h1>MyChild - 2000s Edition</h1>
             <div class="header-controls">
                 <div class="year-display">Year: <span id="currentYear">2000</span></div>
+                <span id="saveIndicator" style="opacity: 0.5; font-size: 0.9em; margin-right: 10px; transition: opacity 0.3s;">💾</span>
                 <button id="musicToggle" class="music-btn" onclick="game.toggleMusic()" title="Toggle background music">
                     🎵
+                </button>
+                <button class="music-btn" onclick="game.deleteGame()" title="Slett dette spillet" style="margin-left: 10px;">
+                    🗑️
+                </button>
+                <button class="music-btn" onclick="window.location.href='login.html'" title="Logg ut / Tilbake til innlogging" style="margin-left: 10px;">
+                    🚪
                 </button>
             </div>
         </header>
@@ -98,15 +118,31 @@
                             👥 Friend's House
                         </button>
                     </div>
-                    <div class="daily-routines">
-                        <h4>Daily Care</h4>
-                        <div class="routine-buttons">
-                            <button class="routine-btn" onclick="game.feedChild()">🍕 Feed</button>
-                            <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
-                            <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
-                            <button class="routine-btn" onclick="game.readToChild()">📖 Read</button>
-                        </div>
+                <div class="daily-routines">
+                    <h4>Daily Care</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.feedChild()">🍕 Feed</button>
+                        <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
+                        <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
+                        <button class="routine-btn" onclick="game.readToChild()">📖 Read</button>
                     </div>
+                    <h4>Support & Coping</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.daydream()">💭 Daydream</button>
+                        <button class="routine-btn" onclick="game.talkToCaringAdult()">💬 Talk</button>
+                    </div>
+                    <h4>Growth & Choices</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.studyHard()">📚 Study Hard</button>
+                        <button class="routine-btn" onclick="game.volunteer()">🤝 Volunteer</button>
+                        <button class="routine-btn" onclick="game.helpOthers()">🦸 Help Others</button>
+                    </div>
+                    <h4>Free Time (Choose Wisely)</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.watchTikTok()">📱 TikTok</button>
+                        <button class="routine-btn" onclick="game.playVideoGames()">🎮 Games</button>
+                    </div>
+                </div>
                 </div>
 
                 <div class="time-control">
@@ -128,6 +164,16 @@
     </audio>
 
     <script src="game.js"></script>
+    <script>
+        // Check if username is provided, redirect to login if not
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+            if (!username) {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
 </body>
 </html>
 

@@ -21,3 +21,7 @@ package-lock.json
 *.tmp
 *.temp
 
+# API configuration (contains sensitive keys)
+api-config.js
+api-config.local.js
+
