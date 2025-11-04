@@ -30,6 +30,9 @@
             </div>
             <div class="header-controls">
                 <div class="year-display">Year: <span id="currentYear">2000</span></div>
+                <div id="moneyDisplay" style="display: none; margin: 0 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold;">
+                    💰 <span id="moneyValue">0</span>
+                </div>
                 <span id="saveIndicator" style="opacity: 0.5; font-size: 0.9em; margin-right: 10px; transition: opacity 0.3s;">💾</span>
                 <button id="musicToggle" class="music-btn" onclick="game.toggleMusic()" title="Toggle background music">
                     🎵
@@ -164,11 +167,14 @@
                         <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
                         <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
                         <button class="routine-btn" onclick="game.readToChild()">📖 Read</button>
+                        <button class="routine-btn" onclick="game.practiceMindfulness()">🧘 Mindfulness</button>
+                        <button class="routine-btn" onclick="game.drawOrCreate()">🎨 Draw/Create</button>
                     </div>
                     <h4>Support & Coping</h4>
                     <div class="routine-buttons">
                         <button class="routine-btn" onclick="game.daydream()">💭 Daydream</button>
                         <button class="routine-btn" onclick="game.talkToCaringAdult()">💬 Talk</button>
+                        <button class="routine-btn" onclick="game.learnAboutEmotions()">❤️ Learn Emotions</button>
                     </div>
                     <h4>Growth & Choices</h4>
                     <div class="routine-buttons">
@@ -180,6 +186,13 @@
                     <div class="routine-buttons">
                         <button class="routine-btn" onclick="game.watchTikTok()">📱 TikTok</button>
                         <button class="routine-btn" onclick="game.playVideoGames()">🎮 Games</button>
+                        <button class="routine-btn" onclick="game.quizAboutEmotions()">❓ Emotion Quiz</button>
+                        <button class="routine-btn" onclick="game.listenToMusic()">
+                            <img src="images/cd.png" alt="Music" class="action-icon" style="width: 20px; height: 20px;"> Listen Music
+                        </button>
+                        <button class="routine-btn" onclick="game.callFriend()">
+                            <img src="images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;"> Call Friend
+                        </button>
                     </div>
                 </div>
                 </div>
@@ -197,7 +210,7 @@
     </div>
 
     <!-- Background Music -->
-    <audio id="backgroundMusic" loop>
+    <audio id="backgroundMusic" loop playsinline preload="auto">
         <source src="08 - Free.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>

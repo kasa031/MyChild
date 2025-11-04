@@ -811,27 +811,212 @@ header h1 {
     height: 20px;
 }
 
+/* Responsive Design - Mobile & Tablet */
 @media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .container {
+        border-radius: 20px;
+        border-width: 3px;
+    }
+    
     .game-area {
         grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    header {
+        padding: 15px 10px;
+        padding-top: 40px;
     }
     
     header h1 {
-        font-size: 1.8em;
+        font-size: 1.5em;
+    }
+    
+    .header-title-wrapper {
+        padding-left: 60px !important;
+        padding-right: 10px !important;
+    }
+    
+    .header-controls {
+        flex-direction: column;
+        gap: 5px;
+        align-items: center;
+    }
+    
+    .child-status {
+        padding: 15px;
+    }
+    
+    .child-avatar {
+        font-size: 3em;
+    }
+    
+    .stats {
+        gap: 10px;
+    }
+    
+    .stat {
+        font-size: 0.9em;
+    }
+    
+    .action-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .action-btn {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .routine-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+    
+    .routine-btn {
+        padding: 8px;
+        font-size: 0.85em;
+    }
+    
+    .scene-area {
+        min-height: 150px;
+    }
+    
+    .narrative-area {
+        padding: 10px;
+    }
+    
+    .child-dialogue, .story-message {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+    
+    .time-control {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .time-info {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+    }
+    
+    .time-info span {
+        font-size: 0.85em;
+        padding: 4px 8px;
+    }
+    
+    .sticker-img {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .sticker-img-small {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .sticker-top-left {
+        top: 5px;
+        left: 5px;
+    }
+    
+    .sticker-avatar {
+        top: 3px;
+        right: 3px;
+    }
+    
+    .sticker-avatar-bottom {
+        bottom: 3px;
+        left: 3px;
+    }
+}
+
+/* Tablet specific */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .game-area {
+        grid-template-columns: 300px 1fr;
+    }
+    
+    .routine-buttons {
+        grid-template-columns: repeat(3, 1fr);
     }
     
     .action-buttons {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+/* iPhone specific (smaller screens) */
+@media (max-width: 480px) {
+    body {
+        padding: 5px;
+    }
+    
+    .container {
+        border-radius: 15px;
+    }
+    
+    header {
+        padding: 10px 5px;
+        padding-top: 35px;
+    }
+    
+    header h1 {
+        font-size: 1.2em;
+    }
+    
+    .header-title-wrapper {
+        padding-left: 50px !important;
+        padding-right: 5px !important;
+    }
+    
+    .child-status {
+        padding: 10px;
+    }
+    
+    .child-avatar {
+        font-size: 2.5em;
+    }
+    
+    .stat-label {
+        font-size: 0.8em;
+    }
+    
+    .routine-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    .routine-btn {
+        width: 100%;
+        padding: 10px;
+    }
+    
+    .action-btn {
+        width: 100%;
+        padding: 12px;
+    }
     
     .sticker-img {
-        width: 60px;
-        height: 60px;
+        width: 40px;
+        height: 40px;
     }
     
     .sticker-img-small {
-        width: 40px;
-        height: 40px;
+        width: 30px;
+        height: 30px;
+    }
+    
+    .daily-routines h4 {
+        font-size: 1em;
+        margin-top: 15px;
+        margin-bottom: 8px;
     }
 }
 

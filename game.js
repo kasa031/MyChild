@@ -39,6 +39,11 @@ class MyChildGame {
             helpingOthers: 0, // Times Alex helped others (hero counter)
             goodChoices: 0, // Count of good long-term choices
             shortTermChoices: 0, // Count of short-term pleasure choices
+            // Learning and activity tracking
+            emotionLessonsLearned: savedGame && savedGame.emotionLessonsLearned ? savedGame.emotionLessonsLearned : 0,
+            mindfulnessPractices: savedGame && savedGame.mindfulnessPractices ? savedGame.mindfulnessPractices : 0,
+            artCreated: savedGame && savedGame.artCreated ? savedGame.artCreated : 0,
+            quizzesCompleted: savedGame && savedGame.quizzesCompleted ? savedGame.quizzesCompleted : 0,
             // Character customization
             gender: this.customization.gender || 'boy',
             emoji: this.customization.emoji || '🧒',
@@ -61,6 +66,9 @@ class MyChildGame {
             this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
             this.copingActivities = savedGame ? savedGame.copingActivities : []; // Track activities that help Alex cope
             this.achievements = savedGame ? savedGame.achievements : []; // Track achievements
+            this.factsShown = savedGame ? savedGame.factsShown : []; // Track which facts have been shown
+            this.lastFactDay = savedGame ? savedGame.lastFactDay : 0; // Track last day a fact was shown
+            this.dailyTipShown = savedGame ? savedGame.dailyTipShown : false; // Track if daily tip was shown today
         
         // Initialize customization if not loaded
         this.customization = this.customization || {
@@ -157,6 +165,19 @@ class MyChildGame {
                 const parsed = JSON.parse(gameData);
                 // Validate data structure
                 if (parsed && parsed.child && typeof parsed.day === 'number') {
+                    // Restore learning tracking from saved data
+                    if (parsed.emotionLessonsLearned !== undefined && parsed.child) {
+                        parsed.child.emotionLessonsLearned = parsed.emotionLessonsLearned;
+                    }
+                    if (parsed.mindfulnessPractices !== undefined && parsed.child) {
+                        parsed.child.mindfulnessPractices = parsed.mindfulnessPractices;
+                    }
+                    if (parsed.artCreated !== undefined && parsed.child) {
+                        parsed.child.artCreated = parsed.artCreated;
+                    }
+                    if (parsed.quizzesCompleted !== undefined && parsed.child) {
+                        parsed.child.quizzesCompleted = parsed.quizzesCompleted;
+                    }
                     return parsed;
                 } else {
                     console.warn('Invalid game data structure, creating new game');
@@ -197,6 +218,13 @@ class MyChildGame {
                     bullyingIncidents: this.bullyingIncidents,
                     copingActivities: this.copingActivities,
                     achievements: this.achievements,
+                    factsShown: this.factsShown,
+                    lastFactDay: this.lastFactDay,
+                    dailyTipShown: this.dailyTipShown,
+                    emotionLessonsLearned: this.child.emotionLessonsLearned || 0,
+                    mindfulnessPractices: this.child.mindfulnessPractices || 0,
+                    artCreated: this.child.artCreated || 0,
+                    quizzesCompleted: this.child.quizzesCompleted || 0,
                     lastSaved: new Date().toISOString() // Save timestamp
                 };
             
@@ -291,7 +319,56 @@ class MyChildGame {
         // Start with initial emotional check
         this.updateEmotionalState();
         
+        // Show daily learning fact or tip
+        setTimeout(() => this.showDailyLearning(), 2000);
+        
         this.checkForEvents();
+    }
+    
+    showDailyLearning() {
+        // Show a learning fact or tip once per day
+        if (this.lastFactDay !== this.day) {
+            this.lastFactDay = this.day;
+            this.dailyTipShown = false;
+        }
+        
+        if (!this.dailyTipShown && this.actionsToday === 0) {
+            // Show learning fact about emotions or psychology
+            const facts = this.getLearningFacts();
+            const randomFact = facts[Math.floor(Math.random() * facts.length)];
+            
+            // Only show if not shown before, or rotate through them
+            if (!this.factsShown.includes(randomFact.id) || this.factsShown.length >= facts.length) {
+                this.factsShown.push(randomFact.id);
+                if (this.factsShown.length >= facts.length) {
+                    this.factsShown = []; // Reset when all facts shown
+                }
+                
+                this.showMessage("💡 Læringsfakta: " + randomFact.text);
+            }
+            
+            this.dailyTipShown = true;
+        }
+    }
+    
+    getLearningFacts() {
+        return [
+            { id: 1, text: "Følelser er normale! Alle føler seg glade, triste, sinte eller engstelige av og til. Det er viktig å snakke om følelsene våre." },
+            { id: 2, text: "Hjernen vår har en del som heter 'amygdala' - den hjelper oss å kjenne igjen følelser. Den er som en alarmklokke som varsler når vi er redde eller engstelige." },
+            { id: 3, text: "Når vi er stresset, kan dype pust og telling til 10 hjelpe hjernen vår å roe seg ned. Dette kalles 'selvregulering'." },
+            { id: 4, text: "Empati betyr at vi forstår hvordan andre føler seg. Å ha empati gjør oss til gode venner og hjelpsomme mennesker." },
+            { id: 5, text: "Selvtillit er når vi tror på oss selv. Vi bygger selvtillit ved å prøve nye ting og feile - feil er en del av læring!" },
+            { id: 6, text: "Hjernen vår vokser og lærer hele livet! Når vi prøver nye ting, lager hjernen nye 'baner' som hjelper oss å huske bedre." },
+            { id: 7, text: "Å sove godt er viktig for hjernen vår! Mens vi sover, reparerer hjernen seg og lagrer det vi har lært i dag." },
+            { id: 8, text: "Følelser kan være som været - de kommer og går. Akkurat som regn ikke varer evig, varer ikke triste følelser heller." },
+            { id: 9, text: "Å hjelpe andre gjør ikke bare dem glade - det gjør OSS også glade! Det kalles 'giver's high'." },
+            { id: 10, text: "Alle har ulike styrker. Noen er gode til matte, andre til å være venner. Det er det som gjør verden interessant!" },
+            { id: 11, text: "Mindfulness betyr å være oppmerksom på nåtiden. Det kan hjelpe oss å føle oss mer rolige og mindre engstelige." },
+            { id: 12, text: "Når vi føler oss engstelige, er det fordi hjernen vår prøver å beskytte oss. Men vi kan lære å håndtere engstelsen." },
+            { id: 13, text: "Å snakke om følelser våre gjør dem mindre skummle. Det er derfor det er viktig å ha noen å snakke med." },
+            { id: 14, text: "Selvrespekt betyr å behandle oss selv godt, akkurat som vi behandler en venn. Vi fortjener alltid respekt!" },
+            { id: 15, text: "Hjernen vår lager et kjemikal som heter 'dopamin' når vi gjør noe vi liker. Det er grunnen til at vi føler oss glade!" }
+        ];
     }
     
     initMusic() {
@@ -300,24 +377,47 @@ class MyChildGame {
             // Set volume (0.0 to 1.0)
             this.backgroundMusic.volume = 0.5; // 50% volume
             
+            // Mobile-specific: Ensure playsinline is set (important for iOS)
+            if (!this.backgroundMusic.hasAttribute('playsinline')) {
+                this.backgroundMusic.setAttribute('playsinline', 'true');
+            }
+            if (!this.backgroundMusic.hasAttribute('preload')) {
+                this.backgroundMusic.setAttribute('preload', 'auto');
+            }
+            
             // Try to play music (may require user interaction due to browser policies)
             // Music will start when user interacts with the page
-            document.addEventListener('click', () => {
-                if (this.musicEnabled && this.backgroundMusic.paused) {
-                    this.backgroundMusic.play().catch(e => {
-                        console.log('Music autoplay prevented by browser:', e);
-                    });
+            const tryPlayMusic = () => {
+                if (this.musicEnabled && this.backgroundMusic && this.backgroundMusic.paused) {
+                    const playPromise = this.backgroundMusic.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(e => {
+                            console.log('Music autoplay prevented by browser:', e);
+                        });
+                    }
                 }
-            }, { once: true });
+            };
             
-            // Also try to play on any user interaction
-            document.addEventListener('keydown', () => {
-                if (this.musicEnabled && this.backgroundMusic.paused) {
-                    this.backgroundMusic.play().catch(e => {
-                        console.log('Music autoplay prevented by browser:', e);
+            // Try on various user interactions (important for mobile)
+            document.addEventListener('click', tryPlayMusic, { once: true });
+            document.addEventListener('touchstart', tryPlayMusic, { once: true });
+            document.addEventListener('touchend', tryPlayMusic, { once: true });
+            document.addEventListener('keydown', tryPlayMusic, { once: true });
+            
+            // Also try on button interactions after DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    const buttons = document.querySelectorAll('button');
+                    buttons.forEach(btn => {
+                        btn.addEventListener('click', tryPlayMusic, { once: true });
                     });
-                }
-            }, { once: true });
+                });
+            } else {
+                const buttons = document.querySelectorAll('button');
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', tryPlayMusic, { once: true });
+                });
+            }
         }
     }
     
@@ -331,16 +431,35 @@ class MyChildGame {
                 // Pause music
                 this.backgroundMusic.pause();
                 this.musicEnabled = false;
-                document.getElementById('musicToggle').classList.add('muted');
-                document.getElementById('musicToggle').textContent = '🔇';
+                const toggleBtn = document.getElementById('musicToggle');
+                if (toggleBtn) {
+                    toggleBtn.classList.add('muted');
+                    toggleBtn.textContent = '🔇';
+                }
             } else {
-                // Play music
-                this.backgroundMusic.play().catch(e => {
-                    console.log('Error playing music:', e);
-                });
-                this.musicEnabled = true;
-                document.getElementById('musicToggle').classList.remove('muted');
-                document.getElementById('musicToggle').textContent = '🎵';
+                // Play music - handle mobile autoplay restrictions
+                const playPromise = this.backgroundMusic.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        this.musicEnabled = true;
+                        const toggleBtn = document.getElementById('musicToggle');
+                        if (toggleBtn) {
+                            toggleBtn.classList.remove('muted');
+                            toggleBtn.textContent = '🎵';
+                        }
+                    }).catch(e => {
+                        console.log('Error playing music (may require user interaction):', e);
+                        // Show message to user that they need to interact first
+                        this.showMessage('Musikk krever brukerinteraksjon på mobil. Trykk på en knapp for å starte musikk.');
+                    });
+                } else {
+                    this.musicEnabled = true;
+                    const toggleBtn = document.getElementById('musicToggle');
+                    if (toggleBtn) {
+                        toggleBtn.classList.remove('muted');
+                        toggleBtn.textContent = '🎵';
+                    }
+                }
             }
         }
     }
@@ -375,6 +494,18 @@ class MyChildGame {
         // Update child name
         document.getElementById('childName').textContent = this.child.name;
         
+        // Update money display if child has money
+        const moneyDisplay = document.getElementById('moneyDisplay');
+        const moneyValue = document.getElementById('moneyValue');
+        if (moneyDisplay && moneyValue) {
+            if (this.child.money > 0) {
+                moneyDisplay.style.display = 'block';
+                moneyValue.textContent = this.child.money;
+            } else {
+                moneyDisplay.style.display = 'none';
+            }
+        }
+        
         // Update action counter
         this.updateActionDisplay();
         
@@ -383,6 +514,9 @@ class MyChildGame {
         
         // Update avatar based on emotional state (async)
         this.updateAvatar().catch(e => console.log('Avatar update error:', e));
+        
+        // Update child avatar image based on gender and age
+        this.updateChildAvatarImage();
         
         // Update scene (async)
         this.updateScene().catch(e => console.log('Scene update error:', e));
@@ -446,6 +580,51 @@ class MyChildGame {
             this.showDialogue("I feel sad... Can we do something fun together?");
         } else if (this.child.energy < 15 && Math.random() < 0.3) {
             this.showDialogue("I'm really tired... Can I rest?");
+        }
+    }
+    
+    updateChildAvatarImage() {
+        // Use real photos if available based on gender
+        const avatar = document.querySelector('.child-avatar');
+        if (!avatar) return;
+        
+        // Check if we should use real photos (for older children)
+        if (this.child.age >= 3) {
+            const photoPath = this.child.gender === 'girl' 
+                ? 'images/girlcloseuppicture.png' 
+                : 'images/boycloseuppicture.png';
+            
+            // Only use photo if avatar is currently emoji
+            if (avatar.textContent && !avatar.querySelector('img')) {
+                const img = document.createElement('img');
+                img.src = photoPath;
+                img.alt = this.child.name;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '50%';
+                img.style.transition = 'opacity 0.3s';
+                img.onerror = () => {
+                    // If image doesn't exist, keep emoji
+                    img.style.display = 'none';
+                };
+                img.onload = () => {
+                    // Fade in photo
+                    img.style.opacity = '0';
+                    setTimeout(() => {
+                        img.style.opacity = '1';
+                    }, 100);
+                };
+                
+                // Don't replace if already has image
+                if (!avatar.querySelector('img')) {
+                    const currentEmoji = avatar.textContent;
+                    avatar.innerHTML = '';
+                    avatar.appendChild(img);
+                    // Keep emoji as fallback text
+                    avatar.setAttribute('data-emoji', currentEmoji);
+                }
+            }
         }
     }
     
@@ -560,6 +739,9 @@ class MyChildGame {
                 console.log('SVG rendering failed, using emoji fallback:', e);
             }
         }
+        
+        // Use real photos if available (boycloseuppicture.png / girlcloseuppicture.png)
+        this.updateChildAvatarImage();
         
         // Fallback to emoji
         let baseEmoji = this.child.emoji || '🧒';
@@ -1042,12 +1224,32 @@ class MyChildGame {
         this.adjustStat('social', 15);
         this.adjustStat('energy', -20);
         
-        const schoolDays = [
-            "School was fun today! I learned about computers and the internet!",
-            "I had a great day at school! My classmates are really nice.",
-            "I love school! We're learning so many interesting things about the 2000s!"
-        ];
+        let schoolDays = [];
+        if (this.child.age < 10) {
+            schoolDays = [
+                "School was fun! I learned new things!",
+                "I like school! I made new friends!",
+                "School is interesting! I'm learning a lot!"
+            ];
+        } else {
+            schoolDays = [
+                "School was fun today! I learned about computers and the internet!",
+                "I had a great day at school! My classmates are really nice.",
+                "I love school! We're learning so many interesting things about the 2000s!"
+            ];
+        }
         this.showDialogue(schoolDays[Math.floor(Math.random() * schoolDays.length)]);
+        
+        // Occasionally add learning fact about school and learning
+        if (Math.random() < 0.2) {
+            const schoolFacts = [
+                "💡 Læringsfakta: Skole er viktig for å lære nye ting, men det er også viktig å lære utenfor skolen - gjennom lek og utforskning!",
+                "💡 Læringsfakta: Når vi lærer sammen med andre, husker vi bedre! Det er derfor gruppearbeid er så nyttig.",
+                "💡 Læringsfakta: Å stille spørsmål er en viktig del av læring. Det er bra å være nysgjerrig!"
+            ];
+            setTimeout(() => this.showMessage(schoolFacts[Math.floor(Math.random() * schoolFacts.length)]), 1000);
+        }
+        
         this.showMessage("A productive day at school! Learning and making friends.");
         this.performAction();
         this.advanceTime();
@@ -1058,6 +1260,32 @@ class MyChildGame {
         if (this.actionsToday >= this.maxActionsPerDay) {
             this.adjustStat('energy', 40);
             this.adjustStat('happiness', 10);
+            
+            // Show sleeping baby image if available
+            const sceneImage = document.getElementById('sceneImage');
+            if (sceneImage && this.child.age < 3) {
+                const sleepingImg = document.createElement('img');
+                sleepingImg.src = 'images/sleepingbaby.jpg';
+                sleepingImg.alt = 'Sleeping baby';
+                sleepingImg.style.width = '100%';
+                sleepingImg.style.height = '100%';
+                sleepingImg.style.objectFit = 'cover';
+                sleepingImg.onerror = () => {
+                    // If image doesn't exist, keep current scene
+                };
+                const currentContent = sceneImage.innerHTML;
+                sceneImage.innerHTML = '';
+                sceneImage.appendChild(sleepingImg);
+                
+                // Restore scene after 3 seconds
+                setTimeout(() => {
+                    if (sceneImage.querySelector('img[alt="Sleeping baby"]')) {
+                        sceneImage.innerHTML = currentContent;
+                        this.updateScene();
+                    }
+                }, 3000);
+            }
+            
             this.showDialogue("Good night! I'm so tired. Sweet dreams!");
             this.showMessage("Your child is getting a good night's rest. Sleep is important for growing children.");
             this.advanceTime();
@@ -1101,6 +1329,17 @@ class MyChildGame {
             ];
         }
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Occasionally add learning fact about nutrition
+        if (Math.random() < 0.15) {
+            const nutritionFacts = [
+                "💡 Læringsfakta: God mat gir hjernen vår energi! Hjernen vår bruker mye energi, så det er viktig å spise næringsrikt.",
+                "💡 Læringsfakta: Frukter og grønnsaker inneholder vitaminer som hjelper hjernen vår å fungere best!",
+                "💡 Læringsfakta: Når vi spiser sammen med andre, bygger vi også relasjoner. Det er godt for både kropp og sinn!"
+            ];
+            setTimeout(() => this.showMessage(nutritionFacts[Math.floor(Math.random() * nutritionFacts.length)]), 1000);
+        }
+        
         this.showMessage("You fed your child. A well-fed child is a happy child!");
         this.performAction();
         this.advanceTime();
@@ -1120,6 +1359,17 @@ class MyChildGame {
             "I feel so much better after a bath!"
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Occasionally add learning fact about hygiene and self-care
+        if (Math.random() < 0.15) {
+            const hygieneFacts = [
+                "💡 Læringsfakta: Å ta vare på kroppen vår er viktig! Det hjelper oss å føle oss godt, både fysisk og mentalt.",
+                "💡 Læringsfakta: Å ta bad eller dusj kan være avslappende. Varmt vann hjelper kroppen å slappe av, noe som også hjelper hjernen.",
+                "💡 Læringsfakta: Selvpleie er en måte å vise respekt for oss selv. Vi fortjener å ta vare på oss selv!"
+            ];
+            setTimeout(() => this.showMessage(hygieneFacts[Math.floor(Math.random() * hygieneFacts.length)]), 1000);
+        }
+        
         this.showMessage("Bathing together - important daily care routine!");
         this.performAction();
         this.advanceTime();
@@ -1141,14 +1391,44 @@ class MyChildGame {
         this.setEmotion('anxious', -10);
         this.child.resilience = Math.min(100, this.child.resilience + 2);
         
-        const messages = [
-            "This is so much fun! I love playing with you!",
-            "Yay! Playing together is the best! When we play, I forget about everything else.",
-            "I'm having the best time! Can we play more? This makes me feel so much better!",
-            "This is awesome! You're the best! Playing helps me forget about school.",
-            "I feel so free when we play... Like nothing can hurt me here."
-        ];
-        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        let messages = [];
+        if (this.child.age < 3) {
+            messages = [
+                "Yay! Play!",
+                "Fun! More play!",
+                "I like playing!",
+                "*giggles happily*"
+            ];
+        } else if (this.child.age < 7) {
+            messages = [
+                "This is so much fun! I love playing!",
+                "Can we play more? This is the best!",
+                "Playing makes me feel happy!",
+                "I love when we play together!"
+            ];
+        } else {
+            messages = [
+                "This is so much fun! I love playing with you!",
+                "Yay! Playing together is the best! When we play, I forget about everything else.",
+                "I'm having the best time! Can we play more? This makes me feel so much better!",
+                "This is awesome! You're the best! Playing helps me forget about school.",
+                "I feel so free when we play... Like nothing can hurt me here."
+            ];
+        }
+        
+        const playMessage = messages[Math.floor(Math.random() * messages.length)];
+        this.showDialogue(playMessage);
+        
+        // Occasionally add learning fact about play
+        if (Math.random() < 0.3) {
+            const playFacts = [
+                "💡 Læringsfakta: Når vi leker, frigir hjernen vår endorfiner - kjemikalier som gjør oss glade!",
+                "💡 Læringsfakta: Lek er viktig for hjernen vår! Det hjelper oss å lære, være kreative og bygge selvtillit.",
+                "💡 Læringsfakta: Å leke sammen styrker båndet mellom mennesker. Det bygger tillit og glede!"
+            ];
+            setTimeout(() => this.showMessage(playFacts[Math.floor(Math.random() * playFacts.length)]), 1000);
+        }
+        
         this.showMessage("Playing together strengthens your bond and helps " + this.child.name + " find joy! Remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is!");
         this.copingActivities.push({day: this.day, activity: 'play', helpful: true});
         this.performAction();
@@ -1189,6 +1469,17 @@ class MyChildGame {
             ];
         }
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Occasionally add learning fact about reading
+        if (Math.random() < 0.2) {
+            const readingFacts = [
+                "💡 Læringsfakta: Når vi leser, aktiveres mange deler av hjernen vår samtidig! Det er som en treningsøkt for hjernen.",
+                "💡 Læringsfakta: Å lese sammen med noen bygger bånd og hjelper med språkutvikling. Det er spesielt viktig for små barn!",
+                "💡 Læringsfakta: Bøker kan hjelpe oss å forstå andre mennesker og situasjoner bedre. Det bygger empati!"
+            ];
+            setTimeout(() => this.showMessage(readingFacts[Math.floor(Math.random() * readingFacts.length)]), 1000);
+        }
+        
         this.showMessage("Reading together - great for learning and bonding!");
         this.performAction();
         this.advanceTime();
@@ -1218,8 +1509,74 @@ class MyChildGame {
             "It's peaceful... I can create my own world in my mind."
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        this.showMessage("Daydreaming helps Alex find comfort and escape.");
+        
+        // Occasionally add learning fact about imagination
+        if (Math.random() < 0.2) {
+            setTimeout(() => this.showMessage("💡 Læringsfakta: Fantasi og dagdrømmer er viktig for kreativitet! Hjernen vår trenger tid til å tenke fritt."), 1000);
+        }
+        
+        this.showMessage("Daydreaming helps " + this.child.name + " find comfort and escape.");
         this.copingActivities.push({day: this.day, activity: 'daydream', helpful: true});
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    learnAboutEmotions() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue("I'm too tired to learn right now...");
+            return;
+        }
+        
+        this.adjustStat('learning', 15);
+        this.adjustStat('happiness', 10);
+        this.adjustStat('energy', -8);
+        this.setEmotion('curious', 20);
+        this.setEmotion('happy', 10);
+        this.setEmotion('anxious', -10);
+        this.child.resilience = Math.min(100, this.child.resilience + 3);
+        this.adjustRelationship(2);
+        
+        const emotionLessons = [
+            {
+                emotion: "Glad",
+                description: "Når vi er glade, lager hjernen vår dopamin og serotonin - kjemikalier som gjør oss glad!",
+                dialogue: "Jeg lærte om følelser i dag! Det er interessant å forstå hvordan hjernen vår fungerer."
+            },
+            {
+                emotion: "Trist",
+                description: "Det er normalt å føle seg trist. Triste følelser hjelper oss å forstå hva som er viktig for oss.",
+                dialogue: "Jeg lærte at triste følelser er normale. De går over etter hvert, akkurat som været."
+            },
+            {
+                emotion: "Sint",
+                description: "Sinne er vår kropps måte å si 'noe er ikke rettferdig'. Det er viktig å lære å håndtere sinne på en god måte.",
+                dialogue: "Jeg lærte om sinne i dag. Det er en viktig følelse, men vi må lære å uttrykke den på en god måte."
+            },
+            {
+                emotion: "Engstelig",
+                description: "Engstelse er hjernens vårsystem som prøver å beskytte oss. Vi kan lære å håndtere engstelse ved å puste dypt og tenke på trygge ting.",
+                dialogue: "Jeg lærte at engstelse er hjernens måte å beskytte oss på. Det er normalt, og vi kan lære å håndtere det."
+            },
+            {
+                emotion: "Overrasket",
+                description: "Når vi er overrasket, blir hjernen vår ekstra oppmerksom. Det hjelper oss å lære nye ting!",
+                dialogue: "Jeg lærte at overraskelse hjelper hjernen vår å lære! Det er derfor nye ting er så interessante."
+            }
+        ];
+        
+        const lesson = emotionLessons[Math.floor(Math.random() * emotionLessons.length)];
+        
+        this.showDialogue(lesson.dialogue);
+        setTimeout(() => {
+            this.showMessage("💡 Læringsfakta om følelser: " + lesson.emotion + " - " + lesson.description);
+        }, 1000);
+        
+        this.showMessage("Learning about emotions helps " + this.child.name + " understand " + (this.child.gender === 'girl' ? 'herself' : 'himself') + " better!");
+        if (!this.child.emotionLessonsLearned) this.child.emotionLessonsLearned = 0;
+        this.child.emotionLessonsLearned++;
+        this.checkAchievements();
         this.performAction();
         this.advanceTime();
     }
@@ -1235,15 +1592,35 @@ class MyChildGame {
         this.adjustRelationship(4);
         this.child.resilience = Math.min(100, this.child.resilience + 5);
         
-        const messages = [
-            "Thank you for listening... It helps to talk about it.",
-            "I feel better when I can tell you what's happening.",
-            "Sometimes I'm scared to talk, but you make me feel safe.",
-            "I don't know what I'd do without you...",
-            "Talking to you makes the bad feelings go away a little."
-        ];
+        let messages = [];
+        if (this.child.age < 5) {
+            messages = [
+                "I like talking with you!",
+                "You make me feel safe.",
+                "I feel better now!",
+                "Thank you for listening!"
+            ];
+        } else {
+            messages = [
+                "Thank you for listening... It helps to talk about it.",
+                "I feel better when I can tell you what's happening.",
+                "Sometimes I'm scared to talk, but you make me feel safe.",
+                "I don't know what I'd do without you...",
+                "Talking to you makes the bad feelings go away a little."
+            ];
+        }
+        
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        this.showMessage("Talking with caring adults helps Alex feel supported and stronger.");
+        
+        // Add learning fact about communication
+        const talkFacts = [
+            "💡 Læringsfakta: Å snakke om følelser våre gjør dem mindre skummle. Det kalles 'validering' når noen lytter og forstår.",
+            "💡 Læringsfakta: Å ha noen å snakke med er viktig for mental helse. Det er bra å dele både gode og vanskelige følelser!",
+            "💡 Læringsfakta: Når vi snakker om problemer, kan hjernen vår lettere finne løsninger. Det er derfor samtale er så kraftig!"
+        ];
+        setTimeout(() => this.showMessage(talkFacts[Math.floor(Math.random() * talkFacts.length)]), 1000);
+        
+        this.showMessage("Talking with caring adults helps " + this.child.name + " feel supported and stronger.");
         this.copingActivities.push({day: this.day, activity: 'talk', helpful: true});
         this.performAction();
         this.advanceTime();
@@ -1288,6 +1665,16 @@ class MyChildGame {
             this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         }
         
+        // Occasionally add learning fact about brain and learning
+        if (Math.random() < 0.25) {
+            const studyFacts = [
+                "💡 Læringsfakta: Når vi lærer noe nytt, vokser hjernen vår! Det lages nye forbindelser mellom nerveceller - det kalles 'nevroplastisitet'.",
+                "💡 Læringsfakta: Repetisjon er viktig for hukommelsen! Når vi leser samme ting flere ganger, blir det lagret bedre i hjernen.",
+                "💡 Læringsfakta: Å ta pauser mens vi studerer hjelper hjernen å huske bedre. Det er derfor variasjon er viktig!"
+            ];
+            setTimeout(() => this.showMessage(studyFacts[Math.floor(Math.random() * studyFacts.length)]), 1000);
+        }
+        
         this.showMessage("Hard work pays off! " + this.child.name + " is building a bright future. You're doing great, " + this.child.name + " - you're perfect just as you are!");
         this.performAction();
         this.saveGame(); // Auto-save after important actions
@@ -1321,7 +1708,16 @@ class MyChildGame {
             "I'm learning that my pain can help me understand others' pain."
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        this.showMessage("Volunteering helps others and makes Alex feel valuable and strong!");
+        
+        // Add learning fact about helping others
+        const helpingFacts = [
+            "💡 Læringsfakta: Når vi hjelper andre, lager hjernen vår oksytocin - 'kjærlighetshormonet'! Det gjør oss glade.",
+            "💡 Læringsfakta: Å hjelpe andre gir oss en følelse av mening og formål. Det er godt for mental helse!",
+            "💡 Læringsfakta: Frivillig arbeid lærer oss nye ferdigheter og gir oss selvtillit. Det er en vinn-vinn-situasjon!"
+        ];
+        setTimeout(() => this.showMessage(helpingFacts[Math.floor(Math.random() * helpingFacts.length)]), 1000);
+        
+        this.showMessage("Volunteering helps others and makes " + this.child.name + " feel valuable and strong!");
         this.memory.push({day: this.day, event: "Volunteered - helped others", positive: true});
         this.performAction();
         this.advanceTime();
@@ -1420,9 +1816,346 @@ class MyChildGame {
         this.advanceTime();
     }
     
+    practiceMindfulness() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue("I'm too tired to focus right now...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 12);
+        this.adjustStat('learning', 10);
+        this.adjustStat('energy', -5);
+        this.setEmotion('happy', 15);
+        this.setEmotion('anxious', -20);
+        this.setEmotion('sad', -10);
+        this.child.resilience = Math.min(100, this.child.resilience + 4);
+        this.adjustRelationship(2);
+        
+        let messages = [];
+        if (this.child.age < 5) {
+            messages = [
+                "I'm breathing slowly... It feels nice.",
+                "I feel calm now.",
+                "This is peaceful."
+            ];
+        } else {
+            messages = [
+                "Taking deep breaths... I feel my body relaxing.",
+                "Mindfulness helps me feel more peaceful and less anxious.",
+                "I'm focusing on my breathing. It helps me feel calm.",
+                "When I practice mindfulness, the worries seem smaller.",
+                "I'm learning to be present in the moment. It's peaceful."
+            ];
+        }
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        const mindfulnessFacts = [
+            "💡 Læringsfakta: Mindfulness hjelper hjernen vår å roe seg ned. Det reduserer stresshormoner og øker følelsen av ro.",
+            "💡 Læringsfakta: Når vi puster dypt, sender vi signal til hjernen vår om at alt er trygt. Dette hjelper kroppen å slappe av.",
+            "💡 Læringsfakta: Å være oppmerksom på nåtiden hjelper oss å være mindre bekymret for fremtiden. Det kalles 'presence'."
+        ];
+        setTimeout(() => this.showMessage(mindfulnessFacts[Math.floor(Math.random() * mindfulnessFacts.length)]), 1000);
+        
+        this.showMessage("Mindfulness practice helps " + this.child.name + " feel calmer and more centered!");
+        this.copingActivities.push({day: this.day, activity: 'mindfulness', helpful: true});
+        if (!this.child.mindfulnessPractices) this.child.mindfulnessPractices = 0;
+        this.child.mindfulnessPractices++;
+        this.checkAchievements();
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    drawOrCreate() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 8) {
+            this.showDialogue("I'm too tired to be creative right now...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 18);
+        this.adjustStat('learning', 12);
+        this.adjustStat('energy', -6);
+        this.setEmotion('happy', 20);
+        this.setEmotion('curious', 15);
+        this.setEmotion('anxious', -12);
+        this.setEmotion('sad', -10);
+        this.child.resilience = Math.min(100, this.child.resilience + 3);
+        this.adjustRelationship(2);
+        
+        let messages = [];
+        if (this.child.age < 3) {
+            messages = [
+                "I'm drawing!",
+                "Pretty colors!",
+                "I like making art!"
+            ];
+        } else if (this.child.age < 7) {
+            messages = [
+                "I'm creating something new! This is fun!",
+                "I love drawing and making things!",
+                "Being creative makes me feel happy!",
+                "I made something cool! Look!"
+            ];
+        } else {
+            messages = [
+                "Creating something with my hands... It helps me express how I feel.",
+                "When I draw or create, I can show emotions I can't always put into words.",
+                "Art is like a safe space where I can be me, without judgment.",
+                "I love making things! It makes me feel proud and happy.",
+                "Creating something new makes me feel like I can do anything!"
+            ];
+        }
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Occasionally add learning fact about creativity
+        if (Math.random() < 0.3) {
+            const creativityFacts = [
+                "💡 Læringsfakta: Når vi er kreative, aktiveres hjernens høyre side. Dette hjelper oss å tenke på nye måter!",
+                "💡 Læringsfakta: Kunst og kreativitet kan være en måte å uttrykke følelser på når ord ikke er nok.",
+                "💡 Læringsfakta: Å være kreativ bygger selvtillit! Når vi lager noe, føler vi stolthet og glede."
+            ];
+            setTimeout(() => this.showMessage(creativityFacts[Math.floor(Math.random() * creativityFacts.length)]), 1000);
+        }
+        
+        this.showMessage("Creating art helps " + this.child.name + " express " + (this.child.gender === 'girl' ? 'herself' : 'himself') + " and feel proud!");
+        if (!this.child.artCreated) this.child.artCreated = 0;
+        this.child.artCreated++;
+        this.checkAchievements();
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    quizAboutEmotions() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue("I'm too tired for a quiz right now...");
+            return;
+        }
+        
+        this.adjustStat('learning', 20);
+        this.adjustStat('happiness', 10);
+        this.adjustStat('energy', -8);
+        this.setEmotion('curious', 25);
+        this.setEmotion('happy', 15);
+        this.child.resilience = Math.min(100, this.child.resilience + 2);
+        
+        const quizzes = [
+            {
+                question: "Hvilket kjemikal lager hjernen vår når vi er glade?",
+                options: ["Dopamin", "Adrenalin", "Kortisol"],
+                correct: 0,
+                explanation: "Dopamin er 'glede-kjemikaliet'! Hjernen vår lager dopamin når vi gjør noe vi liker."
+            },
+            {
+                question: "Hva betyr empati?",
+                options: ["Å være sint", "Å forstå hvordan andre føler seg", "Å være redd"],
+                correct: 1,
+                explanation: "Empati er når vi forstår og deler følelsene til andre. Det gjør oss til gode venner!"
+            },
+            {
+                question: "Hva heter hjernens 'alarmklokke' som varsler når vi er redde?",
+                options: ["Prefrontal cortex", "Amygdala", "Hippocampus"],
+                correct: 1,
+                explanation: "Amygdala er hjernens 'alarmklokke'! Den hjelper oss å kjenne igjen fare og beskytter oss."
+            },
+            {
+                question: "Hva er nevroplastisitet?",
+                options: ["Hjernen vokser når vi lærer", "Vi blir dummere", "Hjernen slutter å fungere"],
+                correct: 0,
+                explanation: "Nevroplastisitet betyr at hjernen vår vokser og endrer seg når vi lærer nye ting!"
+            },
+            {
+                question: "Hva hjelper oss å roe seg ned når vi er stresset?",
+                options: ["Mer stress", "Dype pust og telling", "Ikke gjøre noe"],
+                correct: 1,
+                explanation: "Dype pust og telling hjelper hjernen vår å roe seg ned. Det kalles selvregulering!"
+            }
+        ];
+        
+        const quiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+        const userAnswer = Math.floor(Math.random() * 3); // Simulate user answering (in real game, this would be interactive)
+        
+        if (userAnswer === quiz.correct) {
+            this.showDialogue("Jeg fikk det riktig! " + quiz.explanation);
+            this.adjustStat('happiness', 5);
+            this.setEmotion('happy', 10);
+            this.setEmotion('surprised', 5);
+        } else {
+            this.showDialogue("Hmm, det var ikke riktig. Men jeg lærte noe nytt: " + quiz.explanation);
+            this.adjustStat('learning', 5); // Still learning even if wrong
+        }
+        
+        setTimeout(() => {
+            this.showMessage("💡 Quiz: " + quiz.question + " - Riktig svar: " + quiz.options[quiz.correct] + ". " + quiz.explanation);
+        }, 1000);
+        
+        this.showMessage("Quizzes help " + this.child.name + " learn about emotions and the brain in a fun way!");
+        if (!this.child.quizzesCompleted) this.child.quizzesCompleted = 0;
+        this.child.quizzesCompleted++;
+        this.checkAchievements();
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    listenToMusic() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue("I'm too tired to listen to music right now...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('learning', 5);
+        this.adjustStat('energy', -3);
+        this.setEmotion('happy', 20);
+        this.setEmotion('anxious', -15);
+        this.setEmotion('sad', -10);
+        this.adjustRelationship(2);
+        
+        let messages = [];
+        if (this.child.age < 5) {
+            messages = [
+                "I like the music! It makes me happy!",
+                "Music is fun! I want to dance!",
+                "This song is nice!"
+            ];
+        } else {
+            messages = [
+                "I love listening to music! It helps me feel better.",
+                "Music is so cool! It makes me forget about everything else.",
+                "This is my favorite song! Can we listen to more?",
+                "Music helps me relax and feel happy.",
+                "I love 2000s music! It's the best!"
+            ];
+        }
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Show CD image briefly
+        const sceneImage = document.getElementById('sceneImage');
+        if (sceneImage) {
+            const cdImg = document.createElement('img');
+            cdImg.src = 'images/cd.png';
+            cdImg.alt = 'CD Player';
+            cdImg.style.width = '100%';
+            cdImg.style.height = '100%';
+            cdImg.style.objectFit = 'contain';
+            cdImg.style.padding = '20px';
+            const currentContent = sceneImage.innerHTML;
+            sceneImage.innerHTML = '';
+            sceneImage.appendChild(cdImg);
+            
+            setTimeout(() => {
+                if (sceneImage.querySelector('img[alt="CD Player"]')) {
+                    sceneImage.innerHTML = currentContent;
+                    this.updateScene();
+                }
+            }, 2000);
+        }
+        
+        // Occasionally add learning fact about music
+        if (Math.random() < 0.25) {
+            const musicFacts = [
+                "💡 Læringsfakta: Musikk aktiverer mange deler av hjernen vår samtidig! Det kan hjelpe med humør, minne og konsentrasjon.",
+                "💡 Læringsfakta: Å lytte til musikk kan redusere stress og engstelse. Det er derfor musikkterapi er så effektivt!",
+                "💡 Læringsfakta: Musikk kan hjelpe oss å uttrykke følelser vi ikke alltid finner ord for."
+            ];
+            setTimeout(() => this.showMessage(musicFacts[Math.floor(Math.random() * musicFacts.length)]), 1000);
+        }
+        
+        this.showMessage("Listening to music helps " + this.child.name + " relax and feel happy!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    callFriend() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 5) {
+            this.showDialogue("I'm too young to use a phone...");
+            return;
+        }
+        
+        if (this.child.energy < 10) {
+            this.showDialogue("I'm too tired to call someone right now...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 12);
+        this.adjustStat('social', 15);
+        this.adjustStat('energy', -5);
+        this.setEmotion('happy', 15);
+        this.setEmotion('anxious', -10);
+        this.adjustRelationship(2);
+        
+        let messages = [];
+        if (this.child.age < 10) {
+            messages = [
+                "I talked to my friend on the phone! It was fun!",
+                "My friend told me about their day! I'm happy!",
+                "I love talking to my friends!"
+            ];
+        } else {
+            messages = [
+                "I called my friend! We talked for a while. It's nice to have someone to talk to.",
+                "Talking to my friend makes me feel better. They understand me.",
+                "I love having friends I can call. It helps me not feel alone.",
+                "My friend always makes me laugh. Phone calls are the best!",
+                "It's so nice to hear a friendly voice. I feel less alone now."
+            ];
+        }
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Show Nokia phone image briefly
+        const sceneImage = document.getElementById('sceneImage');
+        if (sceneImage) {
+            const phoneImg = document.createElement('img');
+            phoneImg.src = 'images/nokiaphone.png';
+            phoneImg.alt = 'Nokia Phone';
+            phoneImg.style.width = '100%';
+            phoneImg.style.height = '100%';
+            phoneImg.style.objectFit = 'contain';
+            phoneImg.style.padding = '20px';
+            const currentContent = sceneImage.innerHTML;
+            sceneImage.innerHTML = '';
+            sceneImage.appendChild(phoneImg);
+            
+            setTimeout(() => {
+                if (sceneImage.querySelector('img[alt="Nokia Phone"]')) {
+                    sceneImage.innerHTML = currentContent;
+                    this.updateScene();
+                }
+            }, 2000);
+        }
+        
+        // Occasionally add learning fact about communication
+        if (Math.random() < 0.2) {
+            const communicationFacts = [
+                "💡 Læringsfakta: Å snakke med venner er viktig for vår mentale helse. Sosiale forbindelser er like viktige som mat og søvn!",
+                "💡 Læringsfakta: Når vi snakker med noen vi stoler på, lager hjernen vår oksytocin - 'bonding-hormonet' som gjør oss glade!",
+                "💡 Læringsfakta: Å ha noen å snakke med kan redusere følelser av ensomhet og stress. Vennskap er medisin!"
+            ];
+            setTimeout(() => this.showMessage(communicationFacts[Math.floor(Math.random() * communicationFacts.length)]), 1000);
+        }
+        
+        this.showMessage("Calling friends helps " + this.child.name + " feel connected and happy!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
     advanceTime() {
         this.timeOfDay = (this.timeOfDay + 1) % 4;
         this.updateDisplay();
+        // Auto-save after time advance
+        this.saveGame();
     }
     
     nextDay() {
@@ -2236,6 +2969,45 @@ class MyChildGame {
         if (this.child.social >= 80 && !this.achievements.includes('friend')) {
             newAchievements.push({ id: 'friend', name: 'Vennlig', description: 'Du er en god venn!', icon: '🤝' });
             this.achievements.push('friend');
+        }
+        
+        // Emotion Master - Learned about emotions many times
+        if (!this.child.emotionLessonsLearned) this.child.emotionLessonsLearned = 0;
+        if (this.child.emotionLessonsLearned >= 5 && !this.achievements.includes('emotion_master')) {
+            newAchievements.push({ id: 'emotion_master', name: 'Følelsesmester', description: 'Du har lært mye om følelser!', icon: '❤️' });
+            this.achievements.push('emotion_master');
+        }
+        
+        // Mindful - Practiced mindfulness many times
+        if (!this.child.mindfulnessPractices) this.child.mindfulnessPractices = 0;
+        if (this.child.mindfulnessPractices >= 10 && !this.achievements.includes('mindful')) {
+            newAchievements.push({ id: 'mindful', name: 'Oppmerksom', description: 'Du har praktisert mindfulness mye!', icon: '🧘' });
+            this.achievements.push('mindful');
+        }
+        
+        // Artist - Created art many times
+        if (!this.child.artCreated) this.child.artCreated = 0;
+        if (this.child.artCreated >= 10 && !this.achievements.includes('artist')) {
+            newAchievements.push({ id: 'artist', name: 'Kunstner', description: 'Du har laget mye kunst!', icon: '🎨' });
+            this.achievements.push('artist');
+        }
+        
+        // Quiz Master - Completed many emotion quizzes
+        if (!this.child.quizzesCompleted) this.child.quizzesCompleted = 0;
+        if (this.child.quizzesCompleted >= 5 && !this.achievements.includes('quiz_master')) {
+            newAchievements.push({ id: 'quiz_master', name: 'Quizmester', description: 'Du har fullført mange følelses-quizer!', icon: '❓' });
+            this.achievements.push('quiz_master');
+        }
+        
+        // Growing Up - Reached age milestones
+        if (this.child.age === 5 && !this.achievements.includes('big_kid')) {
+            newAchievements.push({ id: 'big_kid', name: 'Stor Gutt/Jente', description: 'Du er 5 år gammel!', icon: '🎂' });
+            this.achievements.push('big_kid');
+        }
+        
+        if (this.child.age === 10 && !this.achievements.includes('double_digits')) {
+            newAchievements.push({ id: 'double_digits', name: 'Ti år!', description: 'Du er nå 10 år gammel!', icon: '🎉' });
+            this.achievements.push('double_digits');
         }
         
         // Show new achievements
