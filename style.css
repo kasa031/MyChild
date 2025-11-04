@@ -151,8 +151,67 @@ header h1 {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
     flex-wrap: wrap;
+}
+
+@media (max-width: 1024px) {
+    .header-controls {
+        gap: 8px;
+    }
+    
+    .music-btn {
+        padding: 6px 12px;
+        font-size: 1.3em;
+    }
+}
+
+@media (max-width: 768px) {
+    .header-controls {
+        gap: 5px;
+        flex-wrap: wrap;
+    }
+    
+    .music-btn {
+        padding: 5px 10px;
+        font-size: 1.2em;
+        margin-left: 5px !important;
+    }
+    
+    .year-display {
+        font-size: 1em;
+        padding: 5px 10px;
+    }
+    
+    #moneyDisplay {
+        font-size: 0.9em;
+        padding: 3px 8px;
+        margin: 0 5px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .header-controls {
+        gap: 3px;
+        justify-content: space-around;
+    }
+    
+    .music-btn {
+        padding: 4px 8px;
+        font-size: 1.1em;
+        margin-left: 3px !important;
+    }
+    
+    .year-display {
+        font-size: 0.9em;
+        padding: 4px 8px;
+        display: none; /* Hide on very small screens */
+    }
+    
+    #moneyDisplay {
+        font-size: 0.8em;
+        padding: 2px 6px;
+    }
 }
 
 .year-display {
