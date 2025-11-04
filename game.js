@@ -320,8 +320,14 @@ class MyChildGame {
         const isLoadedGame = this.loadGame() !== null;
         
         if (isLoadedGame) {
-            this.showDialogue("Hi! I'm back, " + this.child.name + ". Ready to continue our journey!");
-            this.showMessage("Welcome back! " + this.child.name + "'s progress has been saved. Let's continue growing stronger together!");
+            const backDialogue = this.language === 'no'
+                ? "Hei! Jeg er tilbake, " + this.child.name + ". Klar for å fortsette reisen vår!"
+                : "Hi! I'm back, " + this.child.name + ". Ready to continue our journey!";
+            const backMessage = this.language === 'no'
+                ? "Velkommen tilbake! " + this.child.name + "s fremgang er lagret. La oss fortsette å vokse sterkere sammen!"
+                : "Welcome back! " + this.child.name + "'s progress has been saved. Let's continue growing stronger together!";
+            this.showDialogue(backDialogue);
+            this.showMessage(backMessage);
         } else {
             let ageAppropriateDialogue = "";
             if (this.child.age < 1) {
@@ -2628,18 +2634,29 @@ class MyChildGame {
         const recipe = recipes[Math.floor(Math.random() * recipes.length)];
         
         // Show ingredient list
-        let ingredientList = "Ingredienser for " + recipe.name + ":\n";
+        const ingredientLabel = this.language === 'no' ? "Ingredienser for " : "Ingredients for ";
+        let ingredientList = ingredientLabel + recipe.name + ":\n";
         recipe.ingredients.forEach((ing, idx) => {
             ingredientList += `${idx + 1}. ${ing.amount} ${ing.unit} ${ing.name}\n`;
         });
         
-        this.showDialogue("La oss lage " + recipe.name + " sammen! " + ingredientList);
+        const cookDialogue = this.language === 'no'
+            ? "La oss lage " + recipe.name + " sammen! " + ingredientList
+            : "Let's make " + recipe.name + " together! " + ingredientList;
+        this.showDialogue(cookDialogue);
         
         // Show conversion question
+        const promptText = this.language === 'no'
+            ? recipe.conversion.question + "\n(Svar med tall)"
+            : recipe.conversion.question + "\n(Answer with number)";
+        
         setTimeout(() => {
-            const userAnswer = prompt(recipe.conversion.question + "\n(Svar med tall)");
+            const userAnswer = prompt(promptText);
             if (userAnswer && userAnswer.trim() === recipe.conversion.answer) {
-                this.showDialogue("Riktig! " + recipe.conversion.explanation + " Vi kan lage " + recipe.name + " nå!");
+                const correctMsg = this.language === 'no'
+                    ? "Riktig! " + recipe.conversion.explanation + " Vi kan lage " + recipe.name + " nå!"
+                    : "Correct! " + recipe.conversion.explanation + " We can make " + recipe.name + " now!";
+                this.showDialogue(correctMsg);
                 this.adjustStat('happiness', 20);
                 this.adjustStat('learning', 15);
                 this.adjustStat('energy', -10);
@@ -2648,22 +2665,35 @@ class MyChildGame {
                 this.adjustRelationship(3);
                 
                 // Learning fact about measurements
-                const measurementFacts = [
+                const measurementFacts = this.language === 'no' ? [
                     "💡 Læringsfakta: 1 dl = 100 ml. Det er viktig å kunne konvertere mellom ml, dl og liter når man lager mat!",
                     "💡 Læringsfakta: 1 liter = 10 dl = 1000 ml. Å forstå måleenheter hjelper oss i hverdagen!",
                     "💡 Læringsfakta: Når vi lager mat sammen, lærer vi ikke bare måling, men også samarbeid og tålmodighet!"
+                ] : [
+                    "💡 Learning Fact: 1 dl = 100 ml. It's important to be able to convert between ml, dl and liters when cooking!",
+                    "💡 Learning Fact: 1 liter = 10 dl = 1000 ml. Understanding measurements helps us in daily life!",
+                    "💡 Learning Fact: When we cook together, we learn not only measurement, but also cooperation and patience!"
                 ];
                 setTimeout(() => this.showMessage(measurementFacts[Math.floor(Math.random() * measurementFacts.length)]), 1000);
                 
-                this.showMessage("Cooking together teaches " + this.child.name + " about measurements and teamwork!");
+                const successMsg = this.language === 'no'
+                    ? "Matlaging lærer " + this.child.name + " om måling og samarbeid!"
+                    : "Cooking together teaches " + this.child.name + " about measurements and teamwork!";
+                this.showMessage(successMsg);
             } else {
-                this.showDialogue("Hmm, det var ikke riktig. Men det er greit! " + recipe.conversion.explanation + " Vi prøver igjen!");
+                const wrongMsg = this.language === 'no'
+                    ? "Hmm, det var ikke riktig. Men det er greit! " + recipe.conversion.explanation + " Vi prøver igjen!"
+                    : "Hmm, that wasn't right. But that's okay! " + recipe.conversion.explanation + " Let's try again!";
+                this.showDialogue(wrongMsg);
                 this.adjustStat('happiness', 10);
                 this.adjustStat('learning', 5);
                 this.adjustStat('energy', -8);
                 this.setEmotion('curious', 10);
                 this.adjustRelationship(2);
-                this.showMessage("Learning from mistakes is part of cooking! " + this.child.name + " is still learning!");
+                const learnMsg = this.language === 'no'
+                    ? "Å lære fra feil er en del av matlaging! " + this.child.name + " lærer fortsatt!"
+                    : "Learning from mistakes is part of cooking! " + this.child.name + " is still learning!";
+                this.showMessage(learnMsg);
             }
             
             // Track cooking
@@ -2727,12 +2757,22 @@ class MyChildGame {
         
         const exercise = exercises[Math.floor(Math.random() * exercises.length)];
         
-        this.showDialogue("La oss gå på " + exercise.name + "! Vi skal gå " + exercise.distance.amount + " " + exercise.distance.unit + "!");
+        const exerciseDialogue = this.language === 'no'
+            ? "La oss gå på " + exercise.name + "! Vi skal gå " + exercise.distance.amount + " " + exercise.distance.unit + "!"
+            : "Let's go on a " + exercise.name + "! We're going " + exercise.distance.amount + " " + exercise.distance.unit + "!";
+        this.showDialogue(exerciseDialogue);
+        
+        const promptText = this.language === 'no'
+            ? exercise.conversion.question + "\n(Svar med tall)"
+            : exercise.conversion.question + "\n(Answer with number)";
         
         setTimeout(() => {
-            const userAnswer = prompt(exercise.conversion.question + "\n(Svar med tall)");
+            const userAnswer = prompt(promptText);
             if (userAnswer && userAnswer.trim() === exercise.conversion.answer) {
-                this.showDialogue("Riktig! " + exercise.conversion.explanation + " La oss begynne!");
+                const correctMsg = this.language === 'no'
+                    ? "Riktig! " + exercise.conversion.explanation + " La oss begynne!"
+                    : "Correct! " + exercise.conversion.explanation + " Let's begin!";
+                this.showDialogue(correctMsg);
                 this.adjustStat('happiness', 18);
                 this.adjustStat('energy', 15);
                 this.adjustStat('learning', 12);
@@ -2741,22 +2781,35 @@ class MyChildGame {
                 this.adjustRelationship(2);
                 
                 // Learning fact about distance
-                const distanceFacts = [
+                const distanceFacts = this.language === 'no' ? [
                     "💡 Læringsfakta: 1 km = 1000 m. Å forstå avstander hjelper oss å planlegge turer og aktiviteter!",
                     "💡 Læringsfakta: 1 mil = 10 km. Det er en standard måleenhet i Norge!",
                     "💡 Læringsfakta: Trening er bra for både kropp og sinn! Det hjelper oss å føle oss sterkere og mer energiske!"
+                ] : [
+                    "💡 Learning Fact: 1 km = 1000 m. Understanding distances helps us plan trips and activities!",
+                    "💡 Learning Fact: 1 mil = 10 km. That's a standard unit of measurement in Norway!",
+                    "💡 Learning Fact: Exercise is good for both body and mind! It helps us feel stronger and more energetic!"
                 ];
                 setTimeout(() => this.showMessage(distanceFacts[Math.floor(Math.random() * distanceFacts.length)]), 1000);
                 
-                this.showMessage("Exercise helps " + this.child.name + " stay healthy and learn about distances!");
+                const successMsg = this.language === 'no'
+                    ? "Trening hjelper " + this.child.name + " å holde seg sunn og lære om avstander!"
+                    : "Exercise helps " + this.child.name + " stay healthy and learn about distances!";
+                this.showMessage(successMsg);
             } else {
-                this.showDialogue("Hmm, det var ikke riktig. Men det er greit! " + exercise.conversion.explanation + " Vi prøver igjen!");
+                const wrongMsg = this.language === 'no'
+                    ? "Hmm, det var ikke riktig. Men det er greit! " + exercise.conversion.explanation + " Vi prøver igjen!"
+                    : "Hmm, that wasn't right. But that's okay! " + exercise.conversion.explanation + " Let's try again!";
+                this.showDialogue(wrongMsg);
                 this.adjustStat('happiness', 10);
                 this.adjustStat('energy', 10);
                 this.adjustStat('learning', 5);
                 this.setEmotion('curious', 10);
                 this.adjustRelationship(1);
-                this.showMessage("Learning from mistakes is part of exercise! " + this.child.name + " is still learning!");
+                const learnMsg = this.language === 'no'
+                    ? "Å lære fra feil er en del av trening! " + this.child.name + " lærer fortsatt!"
+                    : "Learning from mistakes is part of exercise! " + this.child.name + " is still learning!";
+                this.showMessage(learnMsg);
             }
             
             // Track exercise
@@ -2773,7 +2826,10 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         if (this.child.energy < 15) {
-            this.showDialogue("I'm too tired to explore nature right now...");
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å utforske naturen akkurat nå..."
+                : "I'm too tired to explore nature right now...";
+            this.showDialogue(tiredMsg);
             return;
         }
         
@@ -2786,13 +2842,22 @@ class MyChildGame {
         
         let messages = [];
         if (this.child.age < 5) {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Jeg liker å utforske! Så mange interessante ting!",
+                "Natur er gøy! Jeg fant en bug!",
+                "Jeg elsker å være ute i naturen!"
+            ] : [
                 "I like exploring! So many interesting things!",
                 "Nature is fun! I found a bug!",
                 "I love being outside in nature!"
             ];
         } else {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Å utforske naturen er så interessant! Jeg lærer om planter og dyr.",
+                "Jeg elsker å være i naturen! Det er rolig og fullt av liv.",
+                "Natur er fantastisk! Det er så mye å oppdage!",
+                "Jeg fant noen interessante insekter! De er så små, men viktige!"
+            ] : [
                 "Exploring nature is so interesting! I'm learning about plants and animals.",
                 "I love being in nature! It's peaceful and full of life.",
                 "Nature is amazing! There's so much to discover!",
@@ -2803,7 +2868,7 @@ class MyChildGame {
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         
         // Insect facts
-        const insectFacts = [
+        const insectFacts = this.language === 'no' ? [
             {
                 fact: "💡 Læringsfakta: Insekter er super viktige! De pollinerer planter, bryter ned døde ting, og er mat for andre dyr. Uten insekter ville verden være helt annerledes!",
                 tip: "Hvordan bevare insekter: La noen deler av hagen være vill og ubeskjært. Plant blomster som insekter liker, og bruk ikke for mye kjemikalier."
@@ -2824,17 +2889,42 @@ class MyChildGame {
                 fact: "💡 Læringsfakta: Sommerfugler og møll er viktige pollinatorer! De overfører pollen fra blomst til blomst.",
                 tip: "Hvordan tiltrekke sommerfugler: Plant blomster med nektar, spesielt liljer, lavendel og malurt. La noen larver være - de blir til sommerfugler!"
             }
+        ] : [
+            {
+                fact: "💡 Learning Fact: Insects are super important! They pollinate plants, break down dead things, and are food for other animals. Without insects, the world would be completely different!",
+                tip: "How to preserve insects: Let some parts of the garden be wild and uncut. Plant flowers that insects like, and don't use too many chemicals."
+            },
+            {
+                fact: "💡 Learning Fact: Bumblebees are actually better pollinators than bees! They can fly in colder weather and visit more flowers.",
+                tip: "How to help bumblebees: Let some areas in the garden be grass with flowers. Bumblebees need places to live and food year-round."
+            },
+            {
+                fact: "💡 Learning Fact: Many insects are actually useful in the garden! Ladybug larvae eat aphids, which protects our plants.",
+                tip: "How to attract useful insects: Plant flowers that ladybugs and other useful insects like. Let some dead branches lie - they provide homes for many small animals."
+            },
+            {
+                fact: "💡 Learning Fact: Insects make up over 80% of all animals on earth! They are extremely important for the ecosystem.",
+                tip: "How to preserve insects: Avoid using too many chemicals. Let some areas be natural, with flowers and space for insects to live."
+            },
+            {
+                fact: "💡 Learning Fact: Butterflies and moths are important pollinators! They transfer pollen from flower to flower.",
+                tip: "How to attract butterflies: Plant flowers with nectar, especially lilies, lavender and wormwood. Let some caterpillars be - they become butterflies!"
+            }
         ];
         
         const selectedFact = insectFacts[Math.floor(Math.random() * insectFacts.length)];
         setTimeout(() => {
             this.showMessage(selectedFact.fact);
             setTimeout(() => {
-                this.showMessage("💚 Tips: " + selectedFact.tip);
+                const tipLabel = this.language === 'no' ? "💚 Tips: " : "💚 Tip: ";
+                this.showMessage(tipLabel + selectedFact.tip);
             }, 2000);
         }, 1000);
         
-        this.showMessage("Exploring nature helps " + this.child.name + " learn about the environment and insects!");
+        const natureMsg = this.language === 'no'
+            ? "Å utforske naturen hjelper " + this.child.name + " å lære om miljø og insekter!"
+            : "Exploring nature helps " + this.child.name + " learn about the environment and insects!";
+        this.showMessage(natureMsg);
         
         // Track nature exploration
         if (!this.child.natureExplorations) this.child.natureExplorations = 0;
@@ -2849,11 +2939,14 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         if (this.child.age < 6) {
-            this.showDialogue("I'm too young for school subjects yet!");
+            const youngMsg = this.language === 'no'
+                ? "Jeg er for ung for skolefag ennå!"
+                : "I'm too young for school subjects yet!";
+            this.showDialogue(youngMsg);
             return;
         }
         
-        const subjects = [
+        const subjects = this.language === 'no' ? [
             {
                 name: "Matematikk",
                 emoji: "🔢",
@@ -2909,12 +3002,71 @@ class MyChildGame {
                 game: "Hvilken farge får du når du blander rødt og blått?",
                 answer: "lilla"
             }
+        ] : [
+            {
+                name: "Mathematics",
+                emoji: "🔢",
+                facts: [
+                    "💡 Learning Fact: Mathematics is everywhere! When we count, measure, or look at the clock, we use math.",
+                    "💡 Learning Fact: Understanding numbers helps us in daily life - from buying food to planning trips!",
+                    "💡 Learning Fact: Mathematics trains our brain to think logically and solve problems!"
+                ],
+                game: "What is 7 + 5?",
+                answer: "12"
+            },
+            {
+                name: "Science",
+                emoji: "🔬",
+                facts: [
+                    "💡 Learning Fact: Everything in nature is connected! Plants need sunlight, water and nutrients to grow.",
+                    "💡 Learning Fact: Water goes in a cycle - it evaporates from the ocean, becomes clouds, and falls as rain!",
+                    "💡 Learning Fact: Plants produce oxygen through photosynthesis - that's why we need trees!"
+                ],
+                game: "What do plants need to grow? (Sun, water, or both?)",
+                answer: "both"
+            },
+            {
+                name: "Language",
+                emoji: "📚",
+                facts: [
+                    "💡 Learning Fact: Language helps us express feelings and thoughts. When we learn new words, we can better explain how we feel!",
+                    "💡 Learning Fact: Reading books expands our vocabulary and helps us understand the world better.",
+                    "💡 Learning Fact: Writing stories is a creative way to express ourselves - it's like painting with words!"
+                ],
+                game: "What word means 'happy'? (Sad, Joyful, or Scared?)",
+                answer: "joyful"
+            },
+            {
+                name: "English",
+                emoji: "🌍",
+                facts: [
+                    "💡 Learning Fact: Learning new languages opens new doors! It helps us communicate with people from all over the world.",
+                    "💡 Learning Fact: When we learn English, we can understand music, movies and books from many countries!",
+                    "💡 Learning Fact: Being multilingual trains our brain and makes it more flexible!"
+                ],
+                game: "What does 'Hello' mean in Norwegian? (Hi, Bye, or Thanks?)",
+                answer: "hi"
+            },
+            {
+                name: "Art",
+                emoji: "🎨",
+                facts: [
+                    "💡 Learning Fact: Art is a way to express feelings when words aren't enough. It can be therapeutic!",
+                    "💡 Learning Fact: When we create art, the right side of our brain is activated - it helps with creativity and problem solving!",
+                    "💡 Learning Fact: Looking at art from others can help us understand their perspective and feelings!"
+                ],
+                game: "What color do you get when you mix red and blue?",
+                answer: "purple"
+            }
         ];
         
         // Show subject selection
         const subjectChoice = subjects[Math.floor(Math.random() * subjects.length)];
         
-        this.showDialogue("I want to learn " + subjectChoice.name + " today! " + subjectChoice.emoji);
+        const wantToLearn = this.language === 'no'
+            ? "Jeg vil lære " + subjectChoice.name + " i dag! " + subjectChoice.emoji
+            : "I want to learn " + subjectChoice.name + " today! " + subjectChoice.emoji;
+        this.showDialogue(wantToLearn);
         
         setTimeout(() => {
             // Show fact
@@ -2923,24 +3075,39 @@ class MyChildGame {
             
             setTimeout(() => {
                 // Show game/question
-                const userAnswer = prompt(subjectChoice.game + "\n(Skriv ditt svar)");
+                const promptText = this.language === 'no'
+                    ? subjectChoice.game + "\n(Skriv ditt svar)"
+                    : subjectChoice.game + "\n(Write your answer)";
+                const userAnswer = prompt(promptText);
                 if (userAnswer && userAnswer.toLowerCase().trim() === subjectChoice.answer.toLowerCase()) {
-                    this.showDialogue("Riktig! Jeg lærte mye i " + subjectChoice.name + " i dag!");
+                    const correctMsg = this.language === 'no'
+                        ? "Riktig! Jeg lærte mye i " + subjectChoice.name + " i dag!"
+                        : "Correct! I learned a lot in " + subjectChoice.name + " today!";
+                    this.showDialogue(correctMsg);
                     this.adjustStat('happiness', 15);
                     this.adjustStat('learning', 20);
                     this.adjustStat('energy', -12);
                     this.setEmotion('happy', 20);
                     this.setEmotion('curious', 15);
                     this.adjustRelationship(2);
-                    this.showMessage("Great job learning " + subjectChoice.name + "! " + this.child.name + " is getting smarter!");
+                    const smartMsg = this.language === 'no'
+                        ? "Bra jobbet med å lære " + subjectChoice.name + "! " + this.child.name + " blir smartere!"
+                        : "Great job learning " + subjectChoice.name + "! " + this.child.name + " is getting smarter!";
+                    this.showMessage(smartMsg);
                 } else {
-                    this.showDialogue("Hmm, det var ikke riktig. Men jeg lærte noe nytt i " + subjectChoice.name + "!");
+                    const wrongMsg = this.language === 'no'
+                        ? "Hmm, det var ikke riktig. Men jeg lærte noe nytt i " + subjectChoice.name + "!"
+                        : "Hmm, that wasn't right. But I learned something new in " + subjectChoice.name + "!";
+                    this.showDialogue(wrongMsg);
                     this.adjustStat('happiness', 8);
                     this.adjustStat('learning', 12);
                     this.adjustStat('energy', -10);
                     this.setEmotion('curious', 10);
                     this.adjustRelationship(1);
-                    this.showMessage("Learning from mistakes is important! " + this.child.name + " is still learning!");
+                    const learnMsg = this.language === 'no'
+                        ? "Å lære fra feil er viktig! " + this.child.name + " lærer fortsatt!"
+                        : "Learning from mistakes is important! " + this.child.name + " is still learning!";
+                    this.showMessage(learnMsg);
                 }
                 
                 // Track subject studied
@@ -2976,20 +3143,33 @@ class MyChildGame {
             // Show progress and hope based on choices
             let progressMessage = "";
             if (this.child.helpingOthers > 10) {
-                progressMessage = `I'm ${this.child.age} years old now! I've helped so many people... I never thought I could make a difference, but I am.`;
+                progressMessage = this.language === 'no'
+                    ? `Jeg er ${this.child.age} år gammel nå! Jeg har hjulpet så mange mennesker... Jeg trodde aldri jeg kunne gjøre en forskjell, men det gjør jeg.`
+                    : `I'm ${this.child.age} years old now! I've helped so many people... I never thought I could make a difference, but I am.`;
             } else if (this.child.studyLevel > 70) {
-                progressMessage = `I'm ${this.child.age} years old now! All my hard studying is paying off. I'm getting smarter every day!`;
+                progressMessage = this.language === 'no'
+                    ? `Jeg er ${this.child.age} år gammel nå! Alt hardt arbeid med å studere lønner seg. Jeg blir smartere hver dag!`
+                    : `I'm ${this.child.age} years old now! All my hard studying is paying off. I'm getting smarter every day!`;
             } else if (this.child.resilience > 80) {
-                progressMessage = `I'm ${this.child.age} years old now! I'm so much stronger than I was. Things are getting better.`;
+                progressMessage = this.language === 'no'
+                    ? `Jeg er ${this.child.age} år gammel nå! Jeg er så mye sterkere enn jeg var. Ting blir bedre.`
+                    : `I'm ${this.child.age} years old now! I'm so much stronger than I was. Things are getting better.`;
             } else if (this.child.goodChoices > this.child.shortTermChoices) {
-                progressMessage = `I'm ${this.child.age} years old now! I'm making good choices, building my future.`;
+                progressMessage = this.language === 'no'
+                    ? `Jeg er ${this.child.age} år gammel nå! Jeg tar gode valg, bygger min fremtid.`
+                    : `I'm ${this.child.age} years old now! I'm making good choices, building my future.`;
             } else {
-                progressMessage = `I'm ${this.child.age} years old now! I'm growing up in the 2000s!`;
+                progressMessage = this.language === 'no'
+                    ? `Jeg er ${this.child.age} år gammel nå! Jeg vokser opp i 2000-tallet!`
+                    : `I'm ${this.child.age} years old now! I'm growing up in the 2000s!`;
             }
             
             this.showDialogue(progressMessage);
             
-            const ageMessages = [
+            const ageMessages = this.language === 'no' ? [
+                `Barnet ditt ble ${this.child.age} år gammelt! Vokser opp i 2000-tallet.`,
+                `🎂 Gratulerer med ${this.child.age} år! Nok et år med 2000-talls barndom!`
+            ] : [
                 `Your child turned ${this.child.age} years old! Growing up in the 2000s.`,
                 `🎂 Happy ${this.child.age}th birthday! Another year of 2000s childhood!`
             ];
@@ -2997,14 +3177,20 @@ class MyChildGame {
             
             // Career opportunities based on study level and age
             if (this.child.age >= 14 && this.child.studyLevel > 60 && this.child.money === 0) {
-                this.showMessage("💼 Alex is old enough and smart enough to start earning money through part-time work!");
+                const careerMsg = this.language === 'no'
+                    ? "💼 " + this.child.name + " er gammel nok og smart nok til å begynne å tjene penger gjennom deltidsarbeid!"
+                    : "💼 " + this.child.name + " is old enough and smart enough to start earning money through part-time work!";
+                this.showMessage(careerMsg);
             }
             
             // Year progression
             if (this.child.age % 2 === 0 && this.child.age <= 18) {
                 this.year++;
                 if (this.year <= 2009) {
-                    this.showDialogue(`It's ${this.year} now! The 2000s are flying by!`);
+                    const yearMsg = this.language === 'no'
+                        ? `Det er ${this.year} nå! 2000-tallet flyr forbi!`
+                        : `It's ${this.year} now! The 2000s are flying by!`;
+                    this.showDialogue(yearMsg);
                 }
             }
             
@@ -3812,8 +3998,47 @@ class MyChildGame {
         }
         
         if (this.child.age === 10 && !this.achievements.includes('double_digits')) {
-            newAchievements.push({ id: 'double_digits', name: 'Ti år!', description: 'Du er nå 10 år gammel!', icon: '🎉' });
+            const name = this.language === 'no' ? 'Ti år!' : 'Ten Years!';
+            const desc = this.language === 'no' ? 'Du er nå 10 år gammel!' : 'You are now 10 years old!';
+            newAchievements.push({ id: 'double_digits', name: name, description: desc, icon: '🎉' });
             this.achievements.push('double_digits');
+        }
+        
+        // Chef - Cooked many meals
+        if (!this.child.cookedMeals) this.child.cookedMeals = 0;
+        if (this.child.cookedMeals >= 5 && !this.achievements.includes('chef')) {
+            const name = this.language === 'no' ? 'Kokk' : 'Chef';
+            const desc = this.language === 'no' ? 'Du har laget mange måltider!' : 'You have cooked many meals!';
+            newAchievements.push({ id: 'chef', name: name, description: desc, icon: '🍳' });
+            this.achievements.push('chef');
+        }
+        
+        // Athlete - Completed many exercises
+        if (!this.child.exercisesCompleted) this.child.exercisesCompleted = 0;
+        if (this.child.exercisesCompleted >= 5 && !this.achievements.includes('athlete')) {
+            const name = this.language === 'no' ? 'Utøver' : 'Athlete';
+            const desc = this.language === 'no' ? 'Du har trent mye!' : 'You have exercised a lot!';
+            newAchievements.push({ id: 'athlete', name: name, description: desc, icon: '🏃' });
+            this.achievements.push('athlete');
+        }
+        
+        // Nature Explorer - Explored nature many times
+        if (!this.child.natureExplorations) this.child.natureExplorations = 0;
+        if (this.child.natureExplorations >= 5 && !this.achievements.includes('nature_explorer')) {
+            const name = this.language === 'no' ? 'Naturekspert' : 'Nature Explorer';
+            const desc = this.language === 'no' ? 'Du har utforsket naturen mye!' : 'You have explored nature a lot!';
+            newAchievements.push({ id: 'nature_explorer', name: name, description: desc, icon: '🌳' });
+            this.achievements.push('nature_explorer');
+        }
+        
+        // Student - Studied many subjects
+        if (!this.child.subjectsStudied) this.child.subjectsStudied = {};
+        const totalSubjects = Object.values(this.child.subjectsStudied).reduce((sum, count) => sum + count, 0);
+        if (totalSubjects >= 10 && !this.achievements.includes('student')) {
+            const name = this.language === 'no' ? 'Student' : 'Student';
+            const desc = this.language === 'no' ? 'Du har studert mange fag!' : 'You have studied many subjects!';
+            newAchievements.push({ id: 'student', name: name, description: desc, icon: '🎓' });
+            this.achievements.push('student');
         }
         
         // Show new achievements
@@ -3858,22 +4083,34 @@ class MyChildGame {
         }, 4000);
         
         // Show in dialogue too
+        const unlockMsg = this.language === 'no' ? 'Prestasjon oppnådd: ' : 'Achievement Unlocked: ';
         this.showDialogue(`🎉 ${achievement.name}! ${achievement.description}`);
-        this.showMessage(`Achievement Unlocked: ${achievement.name}!`);
+        this.showMessage(unlockMsg + achievement.name + '!');
     }
     
     showHelp() {
-        const helpMessages = [
+        const helpMessages = this.language === 'no' ? [
             "💡 Tips: Fyll statsene regelmessig! Hunger går ned hver dag, så sørg for å fôre barnet.",
             "💡 Tips: Prøv ulike aktiviteter! Hver aktivitet gir læringsfakta og lærer barnet noe nytt.",
-            "💡 Tips: Balance er viktig! Mange aktiviteter gir læring, men husk også å la barnet hvile.",
+            "💡 Tips: Balanse er viktig! Mange aktiviteter gir læring, men husk også å la barnet hvile.",
             "💡 Tips: Når du går til neste dag, får du nye handlinger. Planlegg dagen din!",
             "💡 Tips: Hver aktivitet har læringsmomenter - se etter læringsfakta som dukker opp!",
-            "💡 Tips: Achievements låses opp når du gjør spesielle ting. Prøv å få alle!",
+            "💡 Tips: Prestasjoner låses opp når du gjør spesielle ting. Prøv å få alle!",
             "💡 Tips: Barnet vokser opp - nye aktiviteter låses opp når barnet blir eldre.",
             "💡 Tips: Skolefag gir ekstra læring. Prøv alle fagene for å lære mer!",
             "💡 Tips: Matlaging og trening lærer praktiske ferdigheter som måling og avstand.",
             "💡 Tips: Nature-aktiviteter lærer om miljø og insekter. Utforsk ofte!"
+        ] : [
+            "💡 Tip: Fill stats regularly! Hunger goes down every day, so make sure to feed the child.",
+            "💡 Tip: Try different activities! Each activity gives learning facts and teaches the child something new.",
+            "💡 Tip: Balance is important! Many activities give learning, but also remember to let the child rest.",
+            "💡 Tip: When you go to the next day, you get new actions. Plan your day!",
+            "💡 Tip: Each activity has learning moments - look for learning facts that appear!",
+            "💡 Tip: Achievements unlock when you do special things. Try to get them all!",
+            "💡 Tip: The child grows up - new activities unlock when the child gets older.",
+            "💡 Tip: School subjects give extra learning. Try all subjects to learn more!",
+            "💡 Tip: Cooking and exercise teach practical skills like measurement and distance.",
+            "💡 Tip: Nature activities teach about environment and insects. Explore often!"
         ];
         
         const randomHelp = helpMessages[Math.floor(Math.random() * helpMessages.length)];
