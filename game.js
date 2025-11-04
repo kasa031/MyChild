@@ -17,7 +17,7 @@ class MyChildGame {
             social: 60,
             learning: 40,
             hunger: 70,
-            age: this.customization.age || 7,
+            age: this.customization.age !== undefined ? this.customization.age : 0,
             // Alex is a bullying victim - emotional states
             resilience: 50, // How well Alex handles bullying (0-100)
             currentEmotion: 'neutral', // Current emotional state
@@ -136,7 +136,7 @@ class MyChildGame {
             this.customization = {
                 gender: 'boy',
                 name: 'Gutt',
-                age: 7,
+                age: 0,
                 emoji: '🧒',
                 hairColor: 'brown',
                 eyeColor: 'brown',
@@ -266,8 +266,18 @@ class MyChildGame {
             this.showDialogue("Hi! I'm back, " + this.child.name + ". Ready to continue our journey!");
             this.showMessage("Welcome back! " + this.child.name + "'s progress has been saved. Let's continue growing stronger together!");
         } else {
-            this.showDialogue("Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. But I know I'm good enough just as I am, and so is everyone else.");
-            this.showMessage("Welcome! You are now taking care of " + this.child.name + " in the year 2000. " + this.child.name + " faces challenges, but remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is. With your support and the right choices, " + this.child.name + " can grow stronger, help others, and find success. Every choice matters - both for today and tomorrow.");
+            let ageAppropriateDialogue = "";
+            if (this.child.age < 1) {
+                ageAppropriateDialogue = "Hi... I'm " + this.child.name + ". I'm just a baby in the year 2000. I'll grow up with your help and support!";
+            } else if (this.child.age < 5) {
+                ageAppropriateDialogue = "Hi! I'm " + this.child.name + ". I'm " + this.child.age + " years old in the 2000s. Everything is new and exciting!";
+            } else if (this.child.age < 7) {
+                ageAppropriateDialogue = "Hi... I'm " + this.child.name + ". I'm " + this.child.age + " years old. I'm getting ready for school soon!";
+            } else {
+                ageAppropriateDialogue = "Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. But I know I'm good enough just as I am, and so is everyone else.";
+            }
+            this.showDialogue(ageAppropriateDialogue);
+            this.showMessage("Welcome! You are now taking care of " + this.child.name + " in the year 2000. " + this.child.name + " is " + this.child.age + " years old. " + this.child.name + " faces challenges, but remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is. With your support and the right choices, " + this.child.name + " can grow stronger, help others, and find success. Every choice matters - both for today and tomorrow.");
         }
         
         // Show image loading message
@@ -556,12 +566,16 @@ class MyChildGame {
         
         // If no custom emoji, use age-appropriate default
         if (!this.child.emoji || this.child.emoji === '🧒') {
-            if (this.child.age < 5) {
-                baseEmoji = '👶';
+            if (this.child.age < 1) {
+                baseEmoji = '👶'; // Newborn baby
+            } else if (this.child.age < 3) {
+                baseEmoji = '👶'; // Baby/toddler
+            } else if (this.child.age < 5) {
+                baseEmoji = '🧒'; // Young child
             } else if (this.child.age < 10) {
-                baseEmoji = this.child.gender === 'girl' ? '👧' : '🧒';
+                baseEmoji = this.child.gender === 'girl' ? '👧' : '👦';
             } else if (this.child.age < 15) {
-                baseEmoji = this.child.gender === 'girl' ? '👩' : '👦';
+                baseEmoji = this.child.gender === 'girl' ? '👩' : '👨';
             } else {
                 baseEmoji = this.child.gender === 'girl' ? '👩' : '🧑';
             }
@@ -1013,6 +1027,12 @@ class MyChildGame {
     goToSchool() {
         if (!this.canPerformAction()) return;
         
+        if (this.child.age < 6) {
+            this.showDialogue("I'm too young for school yet! Maybe I can learn at home?");
+            this.showMessage("Your child is too young to go to school. Try learning activities at home instead!");
+            return;
+        }
+        
         if (this.child.energy < 20) {
             this.showDialogue("I'm too tired for school. Can I rest first?");
             this.showMessage("Your child needs more energy to go to school.");
@@ -1058,13 +1078,28 @@ class MyChildGame {
         this.setEmotion('happy', 10);
         this.setEmotion('anxious', -5); // Eating together is comforting
         
-        const messages = [
-            "Thank you! This food is so yummy!",
-            "I was so hungry! This tastes great!",
-            "Mmm, this is delicious! Can I have more?",
-            "I love eating with you! Thank you for the meal!",
-            "Eating together makes me feel safe... Thank you."
-        ];
+        let messages = [];
+        if (this.child.age < 1) {
+            messages = [
+                "*gurgles happily*",
+                "*coos and smiles*",
+                "*drinks milk contentedly*"
+            ];
+        } else if (this.child.age < 3) {
+            messages = [
+                "Yummy! More please!",
+                "I like this food!",
+                "Mmm, tasty!"
+            ];
+        } else {
+            messages = [
+                "Thank you! This food is so yummy!",
+                "I was so hungry! This tastes great!",
+                "Mmm, this is delicious! Can I have more?",
+                "I love eating with you! Thank you for the meal!",
+                "Eating together makes me feel safe... Thank you."
+            ];
+        }
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         this.showMessage("You fed your child. A well-fed child is a happy child!");
         this.performAction();
@@ -1131,13 +1166,28 @@ class MyChildGame {
         this.setEmotion('happy', 15);
         this.setEmotion('anxious', -10); // Reading helps calm anxiety
         
-        const messages = [
-            "I love this story! Can you read another one?",
-            "This book is so interesting! I'm learning so much!",
-            "Reading together is so nice... It makes me forget about school.",
-            "I want to learn to read like you! This is great!",
-            "When we read, I can escape to other worlds... It helps."
-        ];
+        let messages = [];
+        if (this.child.age < 1) {
+            messages = [
+                "*looks at pictures with wide eyes*",
+                "*listens quietly*",
+                "*coos at the colorful pages*"
+            ];
+        } else if (this.child.age < 3) {
+            messages = [
+                "Pretty pictures!",
+                "I like this book!",
+                "More story please!"
+            ];
+        } else {
+            messages = [
+                "I love this story! Can you read another one?",
+                "This book is so interesting! I'm learning so much!",
+                "Reading together is so nice... It makes me forget about school.",
+                "I want to learn to read like you! This is great!",
+                "When we read, I can escape to other worlds... It helps."
+            ];
+        }
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         this.showMessage("Reading together - great for learning and bonding!");
         this.performAction();

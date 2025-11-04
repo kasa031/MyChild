@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="style.css">
     <style>
         .login-container {
-            max-width: 500px;
-            margin: 100px auto;
-            padding: 30px;
+            max-width: 95%;
+            width: 100%;
+            margin: 50px auto;
+            padding: 40px;
             background: linear-gradient(135deg, #ffffff 0%, #fff0f5 50%, #e0f7ff 100%);
             border-radius: 30px;
             box-shadow: 0 10px 40px rgba(255,0,255,0.4), 0 0 30px rgba(0,255,255,0.3);
@@ -19,6 +20,21 @@
             overflow: hidden;
             word-wrap: break-word;
             box-sizing: border-box;
+            min-height: auto;
+        }
+        
+        @media (min-width: 768px) {
+            .login-container {
+                max-width: 90%;
+                padding: 50px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .login-container {
+                max-width: 85%;
+                padding: 60px;
+            }
         }
         .login-form {
             display: flex;
@@ -89,10 +105,17 @@
         }
         .customization-options {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
             margin-top: 15px;
             overflow: hidden;
+        }
+        
+        @media (min-width: 768px) {
+            .customization-options {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 25px;
+            }
         }
         .customization-options:has(#startAge) {
             display: flex;
@@ -143,9 +166,24 @@
         }
         .emoji-picker {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 12px;
             margin-top: 10px;
+            max-width: 100%;
+            overflow: hidden;
+        }
+        
+        @media (min-width: 768px) {
+            .emoji-picker {
+                grid-template-columns: repeat(8, 1fr);
+                gap: 15px;
+            }
+        }
+        
+        @media (min-width: 1200px) {
+            .emoji-picker {
+                grid-template-columns: repeat(10, 1fr);
+            }
         }
         .emoji-option {
             font-size: 2em;
@@ -186,11 +224,26 @@
 </head>
 <body>
     <div class="login-container">
-        <div style="position: absolute; top: -20px; right: 20px; transform: rotate(15deg); z-index: 10;">
-            <img src="images/sticker2000.jpg" alt="2000s sticker" style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 15px rgba(255,0,255,0.5); filter: drop-shadow(0 0 10px rgba(0,255,255,0.5)); animation: float 3s ease-in-out infinite;">
+        <div style="position: absolute; top: 10px; right: 10px; z-index: 10; pointer-events: none;">
+            <img src="images/sticker2000.jpg" alt="2000s sticker" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 15px rgba(255,0,255,0.5); filter: drop-shadow(0 0 10px rgba(0,255,255,0.5)); animation: float 3s ease-in-out infinite; transform: rotate(15deg);">
         </div>
-        <h1 style="background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 3px 3px 0px #00ffff, -3px -3px 0px #ff00ff; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word; max-width: 100%;">MyChild - 2000s Edition</h1>
-        <p style="color: #ff00ff; margin-bottom: 30px; font-weight: bold;">Velg brukernavn eller opprett nytt spill</p>
+        <div style="position: relative; z-index: 1; padding-right: 100px; padding-left: 20px;">
+            <h1 style="background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 3px 3px 0px #00ffff, -3px -3px 0px #ff00ff; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word; max-width: 100%; margin: 0;">MyChild - 2000s Edition</h1>
+            <p style="color: #ff00ff; margin-bottom: 30px; margin-top: 10px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word;">Velg brukernavn eller opprett nytt spill</p>
+        </div>
+        
+        <style>
+            @media (max-width: 768px) {
+                .login-container > div[style*="padding-right: 100px"] {
+                    padding-right: 20px !important;
+                    padding-left: 10px !important;
+                }
+                .login-container > div[style*="top: 10px; right: 10px"] img {
+                    width: 60px !important;
+                    height: 60px !important;
+                }
+            }
+        </style>
         <style>
             @keyframes float {
                 0%, 100% { transform: translateY(0) rotate(15deg); }
@@ -229,6 +282,13 @@
                     <div class="option-group" style="max-width: 200px; margin: 0 auto;">
                         <label>Alder (start):</label>
                         <select id="startAge" name="startAge">
+                            <option value="0">Baby (0 år)</option>
+                            <option value="1">1 år</option>
+                            <option value="2">2 år</option>
+                            <option value="3">3 år</option>
+                            <option value="4">4 år</option>
+                            <option value="5">5 år</option>
+                            <option value="6">6 år</option>
                             <option value="7">7 år</option>
                             <option value="8">8 år</option>
                             <option value="9">9 år</option>
