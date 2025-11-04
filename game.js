@@ -3373,10 +3373,55 @@ class MyChildGame {
     
     triggerBullyingEvent() {
         this.bullyingIncidents++;
-        const events = [
+        const pronoun = this.child.gender === 'girl' ? (this.language === 'no' ? 'hun' : 'she') : (this.language === 'no' ? 'han' : 'he');
+        const pronoun2 = this.child.gender === 'girl' ? (this.language === 'no' ? 'henne' : 'her') : (this.language === 'no' ? 'ham' : 'him');
+        
+        const events = this.language === 'no' ? [
+            {
+                dialogue: "Noen barn på skolen... de sa slemme ting i dag. Det gjorde vondt. Men jeg vet at jeg er god nok akkurat som jeg er.",
+                message: this.child.name + " opplevde mobbing på skolen, men husker at " + pronoun + " er perfekt akkurat som " + pronoun + " er.",
+                choices: [
+                    { 
+                        text: "Jeg er så lei meg. Fortell meg hva som skjedde. Du er trygg her.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 20);
+                            this.setEmotion('anxious', 15);
+                            this.adjustStat('happiness', -10);
+                            this.adjustStat('social', -5);
+                            this.adjustRelationship(5);
+                            this.child.resilience = Math.min(100, this.child.resilience + 3);
+                            this.memory.push({day: this.day, event: "Bullying - talked about it", positive: true});
+                            this.showDialogue("Takk for at du hører... Det hjelper å snakke om det. Jeg føler meg litt bedre. Jeg vet at jeg er god nok, selv om de sier slemme ting."); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: "Ikke la dem få deg til å føle deg dårlig. Du er sterk og perfekt akkurat som du er.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 15);
+                            this.setEmotion('angry', 10);
+                            this.adjustStat('happiness', -5);
+                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.showDialogue("Jeg skal prøve å være sterk... men det er vanskelig noen ganger."); 
+                        } 
+                    },
+                    { 
+                        text: "Kanskje vi burde snakke med læreren om dette.", 
+                        effect: () => { 
+                            this.setEmotion('anxious', 10);
+                            this.setEmotion('scared', 5);
+                            this.adjustStat('happiness', -5);
+                            this.adjustStat('social', -3);
+                            this.child.resilience = Math.min(100, this.child.resilience + 1);
+                            this.showDialogue("Jeg er redd... hva hvis de blir sinte? Men... kanskje det er det riktige å gjøre."); 
+                        } 
+                    }
+                ]
+            },
+        ] : [
             {
                 dialogue: "Some kids at school... they said mean things today. It hurt. But I know I'm good enough just as I am.",
-                message: this.child.name + " experienced bullying at school, but remembers that " + (this.child.gender === 'girl' ? 'she' : 'he') + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is.",
+                message: this.child.name + " experienced bullying at school, but remembers that " + pronoun + " is perfect just as " + pronoun + " is.",
                 choices: [
                     { 
                         text: "I'm so sorry. Tell me what happened. You're safe here.", 
@@ -3415,6 +3460,7 @@ class MyChildGame {
                     }
                 ]
             },
+        ];
             {
                 dialogue: "They pushed me today... I didn't know what to do.",
                 message: "Physical bullying incident.",
