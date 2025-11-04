@@ -58,8 +58,9 @@ class MyChildGame {
         this.maxActionsPerDay = 6; // Like original - limited actions per day
         this.memory = savedGame ? savedGame.memory : []; // Track important events and choices
         this.relationship = savedGame ? savedGame.relationship : 50; // Relationship strength (hidden stat)
-        this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
-        this.copingActivities = savedGame ? savedGame.copingActivities : []; // Track activities that help Alex cope
+            this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
+            this.copingActivities = savedGame ? savedGame.copingActivities : []; // Track activities that help Alex cope
+            this.achievements = savedGame ? savedGame.achievements : []; // Track achievements
         
         // Initialize customization if not loaded
         this.customization = this.customization || {
@@ -192,11 +193,12 @@ class MyChildGame {
                 dialogueQueue: this.dialogueQueue,
                 actionsToday: this.actionsToday,
                 memory: this.memory,
-                relationship: this.relationship,
-                bullyingIncidents: this.bullyingIncidents,
-                copingActivities: this.copingActivities,
-                lastSaved: new Date().toISOString() // Save timestamp
-            };
+                    relationship: this.relationship,
+                    bullyingIncidents: this.bullyingIncidents,
+                    copingActivities: this.copingActivities,
+                    achievements: this.achievements,
+                    lastSaved: new Date().toISOString() // Save timestamp
+                };
             
             const gameDataString = JSON.stringify(gameData);
             
@@ -366,6 +368,9 @@ class MyChildGame {
         // Update action counter
         this.updateActionDisplay();
         
+        // Update progress stats if visible
+        this.updateProgressStats();
+        
         // Update avatar based on emotional state (async)
         this.updateAvatar().catch(e => console.log('Avatar update error:', e));
         
@@ -374,6 +379,52 @@ class MyChildGame {
         
         // Check for critical states
         this.checkCriticalStates();
+        
+        // Check for achievements
+        this.checkAchievements();
+    }
+    
+    updateProgressStats() {
+        const progressStats = document.getElementById('progressStats');
+        if (!progressStats) return;
+        
+        // Only update if visible
+        if (progressStats.style.display !== 'none') {
+            const resilienceBar = document.getElementById('resilienceBar');
+            const resilienceValue = document.getElementById('resilienceValue');
+            const studyBar = document.getElementById('studyBar');
+            const studyValue = document.getElementById('studyValue');
+            const helpingValue = document.getElementById('helpingValue');
+            
+            if (resilienceBar) {
+                resilienceBar.style.width = this.child.resilience + '%';
+                if (resilienceValue) resilienceValue.textContent = this.child.resilience;
+            }
+            
+            if (studyBar) {
+                studyBar.style.width = this.child.studyLevel + '%';
+                if (studyValue) studyValue.textContent = this.child.studyLevel;
+            }
+            
+            if (helpingValue) {
+                helpingValue.textContent = this.child.helpingOthers;
+            }
+        }
+    }
+    
+    toggleProgressStats() {
+        const progressStats = document.getElementById('progressStats');
+        const toggleBtn = document.querySelector('.toggle-stats-btn');
+        if (progressStats && toggleBtn) {
+            if (progressStats.style.display === 'none') {
+                progressStats.style.display = 'block';
+                toggleBtn.textContent = '📊 Skjul fremgang';
+                this.updateProgressStats();
+            } else {
+                progressStats.style.display = 'none';
+                toggleBtn.textContent = '📊 Vis fremgang';
+            }
+        }
     }
     
     checkCriticalStates() {
@@ -2096,6 +2147,91 @@ class MyChildGame {
         this.showDialogue(event.dialogue);
         this.showMessage(event.message);
         this.showChoices(event.choices);
+    }
+    
+    checkAchievements() {
+        const newAchievements = [];
+        
+        // First Helper - Helped someone for the first time
+        if (this.child.helpingOthers >= 1 && !this.achievements.includes('first_helper')) {
+            newAchievements.push({ id: 'first_helper', name: 'Første Hjelper', description: 'Du hjalp noen for første gang!', icon: '🦸' });
+            this.achievements.push('first_helper');
+        }
+        
+        // Hero - Helped 10 people
+        if (this.child.helpingOthers >= 10 && !this.achievements.includes('hero')) {
+            newAchievements.push({ id: 'hero', name: 'Helt', description: 'Du har hjulpet 10 personer!', icon: '⭐' });
+            this.achievements.push('hero');
+        }
+        
+        // Strong - High resilience
+        if (this.child.resilience >= 80 && !this.achievements.includes('strong')) {
+            newAchievements.push({ id: 'strong', name: 'Sterk', description: 'Du har høy motstandskraft!', icon: '💪' });
+            this.achievements.push('strong');
+        }
+        
+        // Scholar - High study level
+        if (this.child.studyLevel >= 70 && !this.achievements.includes('scholar')) {
+            newAchievements.push({ id: 'scholar', name: 'Lærd', description: 'Du har studert mye!', icon: '📚' });
+            this.achievements.push('scholar');
+        }
+        
+        // Good Choices - More good than bad choices
+        if (this.child.goodChoices >= 10 && this.child.goodChoices > this.child.shortTermChoices && !this.achievements.includes('wise')) {
+            newAchievements.push({ id: 'wise', name: 'Klok', description: 'Du tar gode valg!', icon: '🧠' });
+            this.achievements.push('wise');
+        }
+        
+        // Friend - High social
+        if (this.child.social >= 80 && !this.achievements.includes('friend')) {
+            newAchievements.push({ id: 'friend', name: 'Vennlig', description: 'Du er en god venn!', icon: '🤝' });
+            this.achievements.push('friend');
+        }
+        
+        // Show new achievements
+        newAchievements.forEach(achievement => {
+            this.showAchievement(achievement);
+        });
+    }
+    
+    showAchievement(achievement) {
+        // Create achievement notification
+        const notification = document.createElement('div');
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 10000;
+            animation: slideIn 0.5s ease-out;
+            max-width: 300px;
+        `;
+        
+        notification.innerHTML = `
+            <div style="font-size: 2em; margin-bottom: 10px;">${achievement.icon}</div>
+            <div style="font-weight: bold; font-size: 1.2em; margin-bottom: 5px;">${achievement.name}</div>
+            <div style="font-size: 0.9em; opacity: 0.9;">${achievement.description}</div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Remove after 4 seconds
+        setTimeout(() => {
+            notification.style.animation = 'slideOut 0.5s ease-in';
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 500);
+        }, 4000);
+        
+        // Show in dialogue too
+        this.showDialogue(`🎉 ${achievement.name}! ${achievement.description}`);
+        this.showMessage(`Achievement Unlocked: ${achievement.name}!`);
     }
 }
 

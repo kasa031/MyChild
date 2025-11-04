@@ -4,6 +4,29 @@
     box-sizing: border-box;
 }
 
+/* Achievement animations */
+@keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
 body {
     font-family: 'Comic Sans MS', Arial, sans-serif;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -215,6 +238,47 @@ header h1 {
 .stat-bar span {
     font-size: 0.9em;
     color: #666;
+}
+
+/* Progress stats (hidden stats) */
+.progress-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.stat-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9em;
+}
+
+.stat-label-mini {
+    font-weight: 500;
+    color: #666;
+    min-width: 100px;
+    font-size: 0.85em;
+}
+
+.stat-bar-mini {
+    flex: 1;
+    height: 15px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.stat-fill-mini {
+    height: 100%;
+    background: linear-gradient(90deg, #4caf50, #45a049);
+    transition: width 0.3s ease;
+    border-radius: 8px;
+}
+
+.toggle-stats-btn {
+    width: 100%;
+    margin-top: 10px;
 }
 
 .game-content {
