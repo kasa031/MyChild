@@ -22,6 +22,9 @@
 <body>
     <div class="container">
         <header>
+            <div class="sticker-decoration sticker-top-left">
+                <img src="images/sticker2000.jpg" alt="2000s sticker" class="sticker-img">
+            </div>
             <h1>MyChild - 2000s Edition</h1>
             <div class="header-controls">
                 <div class="year-display">Year: <span id="currentYear">2000</span></div>
@@ -40,8 +43,14 @@
 
         <div class="game-area">
             <div class="child-status">
+                <div class="sticker-decoration sticker-avatar">
+                    <img src="images/stickerbaby1.jpg" alt="Baby sticker" class="sticker-img-small">
+                </div>
                 <div class="child-avatar">👶</div>
                 <h2 id="childName">Your Child</h2>
+                <div class="sticker-decoration sticker-avatar-bottom">
+                    <img src="images/stickerbaby2.jpg" alt="Baby sticker 2" class="sticker-img-small">
+                </div>
                 <div class="stats">
                     <div class="stat">
                         <span class="stat-label">Happiness:</span>
@@ -132,7 +141,7 @@
                     <h3>Activities</h3>
                     <div class="action-buttons">
                         <button class="action-btn" onclick="game.goToLocation('playground')">
-                            🏃 Playground
+                            <img src="images/playoutside.png" alt="Playground" class="action-icon"> Playground
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('school')">
                             🏫 School
@@ -147,7 +156,9 @@
                 <div class="daily-routines">
                     <h4>Daily Care</h4>
                     <div class="routine-buttons">
-                        <button class="routine-btn" onclick="game.feedChild()">🍕 Feed</button>
+                        <button class="routine-btn" onclick="game.feedChild()">
+                            <img src="images/babybottle.png" alt="Feed" class="action-icon"> Feed
+                        </button>
                         <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
                         <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
                         <button class="routine-btn" onclick="game.readToChild()">📖 Read</button>

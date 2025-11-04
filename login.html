@@ -10,9 +10,12 @@
             max-width: 500px;
             margin: 100px auto;
             padding: 30px;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ffffff 0%, #fff0f5 50%, #e0f7ff 100%);
+            border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(255,0,255,0.4), 0 0 30px rgba(0,255,255,0.3);
+            border: 5px solid;
+            border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff) 1;
+            position: relative;
         }
         .login-form {
             display: flex;
@@ -40,23 +43,34 @@
         }
         .btn-primary {
             padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
             color: white;
-            border: none;
-            border-radius: 8px;
+            border: 2px solid #ffffff;
+            border-radius: 15px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 15px rgba(255,0,255,0.5);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         .btn-primary:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 5px 25px rgba(255,0,255,0.8);
+        }
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
         .character-customization {
             margin-top: 20px;
             padding: 20px;
-            background: #f8f9fa;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+            border-radius: 20px;
+            border: 3px solid #ff00ff;
+            box-shadow: 0 0 15px rgba(255,0,255,0.3);
         }
         .customization-options {
             display: grid;
@@ -98,7 +112,8 @@
         }
         .option-group select:focus, .option-group input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #ff00ff;
+            box-shadow: 0 0 10px rgba(255,0,255,0.4);
         }
         .option-group select {
             cursor: pointer;
@@ -119,18 +134,20 @@
             transition: all 0.2s;
         }
         .emoji-option:hover {
-            border-color: #667eea;
+            border-color: #ff00ff;
             transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(255,0,255,0.5);
         }
         .emoji-option.selected {
-            border-color: #667eea;
-            background: #e8f0ff;
+            border-color: #ff00ff;
+            background: linear-gradient(135deg, #ffe0f5 0%, #e0f5ff 100%);
+            box-shadow: 0 0 15px rgba(255,0,255,0.6);
         }
         .avatar-preview {
             text-align: center;
             font-size: 4em;
             padding: 20px;
-            background: white;
+            background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
             border-radius: 50%;
             margin: 20px auto;
             width: 150px;
@@ -138,14 +155,25 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 3px solid #667eea;
+            border: 4px solid;
+            border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00) 1;
+            box-shadow: 0 0 20px rgba(255,0,255,0.5);
         }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <h1>MyChild - 2000s Edition</h1>
-        <p style="color: #666; margin-bottom: 30px;">Velg brukernavn eller opprett nytt spill</p>
+        <div style="position: absolute; top: -20px; right: 20px; transform: rotate(15deg); z-index: 10;">
+            <img src="images/sticker2000.jpg" alt="2000s sticker" style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 15px rgba(255,0,255,0.5); filter: drop-shadow(0 0 10px rgba(0,255,255,0.5)); animation: float 3s ease-in-out infinite;">
+        </div>
+        <h1 style="background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 3px 3px 0px #00ffff, -3px -3px 0px #ff00ff;">MyChild - 2000s Edition</h1>
+        <p style="color: #ff00ff; margin-bottom: 30px; font-weight: bold;">Velg brukernavn eller opprett nytt spill</p>
+        <style>
+            @keyframes float {
+                0%, 100% { transform: translateY(0) rotate(15deg); }
+                50% { transform: translateY(-10px) rotate(20deg); }
+            }
+        </style>
         
         <form class="login-form" id="loginForm">
             <div class="form-group">
@@ -162,8 +190,8 @@
                     <div class="option-group">
                         <label>Kjønn:</label>
                         <select id="gender" name="gender">
-                            <option value="boy">Gutt (Ole Jacob)</option>
-                            <option value="girl">Jente (Alma)</option>
+                            <option value="boy">Gutt</option>
+                            <option value="girl">Jente</option>
                         </select>
                     </div>
                     
@@ -385,7 +413,7 @@
             e.preventDefault();
             const username = document.getElementById('username').value.trim();
             const gender = document.getElementById('gender').value;
-            const childName = document.getElementById('childName').value.trim() || (gender === 'girl' ? 'Alma' : 'Ole Jacob');
+            const childName = document.getElementById('childName').value.trim() || (gender === 'girl' ? 'Jente' : 'Gutt');
             const startAge = parseInt(document.getElementById('startAge').value);
             const hairColor = document.getElementById('hairColor').value;
             const eyeColor = document.getElementById('eyeColor').value;
@@ -421,7 +449,7 @@
             const gender = this.value;
             const nameInput = document.getElementById('childName');
             if (!nameInput.value.trim()) {
-                nameInput.value = gender === 'girl' ? 'Alma' : 'Ole Jacob';
+                nameInput.value = gender === 'girl' ? 'Jente' : 'Gutt';
             }
         });
     </script>

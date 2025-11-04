@@ -29,32 +29,106 @@
 
 body {
     font-family: 'Comic Sans MS', Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
     min-height: 100vh;
     padding: 20px;
     color: #333;
+    position: relative;
+}
+
+/* Glitter sparkle effect */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255,255,255,0.3) 2px, transparent 2px),
+        radial-gradient(circle at 80% 50%, rgba(255,255,255,0.3) 2px, transparent 2px),
+        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.3) 2px, transparent 2px);
+    background-size: 200px 200px, 150px 150px, 180px 180px;
+    background-position: 0 0, 100px 100px, 50px 200px;
+    animation: sparkle 3s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+@keyframes sparkle {
+    0%, 100% { opacity: 0.3; transform: translateY(0); }
+    50% { opacity: 0.6; transform: translateY(-10px); }
 }
 
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 50%, #e0f7ff 100%);
+    border-radius: 30px;
+    box-shadow: 0 10px 40px rgba(255,0,255,0.4), 0 0 30px rgba(0,255,255,0.3);
     overflow: hidden;
+    border: 5px solid;
+    border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff) 1;
+    position: relative;
+    z-index: 1;
 }
 
 header {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #ff00ff 0%, #ff1493 25%, #00ffff 50%, #ff1493 75%, #ff00ff 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 5s ease infinite;
     color: white;
     padding: 20px;
+    padding-top: 40px;
     text-align: center;
+    position: relative;
+    overflow: visible;
+}
+
+header::before {
+    content: '✨';
+    position: absolute;
+    font-size: 2em;
+    opacity: 0.5;
+    animation: float 3s ease-in-out infinite;
+}
+
+header::after {
+    content: '⭐';
+    position: absolute;
+    font-size: 1.5em;
+    opacity: 0.5;
+    right: 10%;
+    animation: float 2s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(10deg); }
 }
 
 header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
-    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    text-shadow: 
+        3px 3px 0px #00ffff,
+        -3px -3px 0px #ff00ff,
+        0 0 20px rgba(255,255,255,0.8);
+    animation: titlePulse 2s ease-in-out infinite;
+    position: relative;
+    z-index: 1;
+}
+
+@keyframes titlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
 }
 
 .header-controls {
@@ -102,10 +176,35 @@ header h1 {
 }
 
 .child-status {
-    background: #f8f9fa;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #ffe0f5 0%, #e0f5ff 100%);
+    border-radius: 20px;
     padding: 20px;
+    padding-top: 40px;
+    padding-bottom: 40px;
     text-align: center;
+    border: 3px solid #ff00ff;
+    box-shadow: 0 0 20px rgba(255,0,255,0.3);
+    position: relative;
+    overflow: visible;
+}
+
+.child-status::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0.5;
+    animation: borderGlow 3s ease infinite;
+}
+
+@keyframes borderGlow {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
 }
 
 .child-avatar {
@@ -190,8 +289,15 @@ header h1 {
 }
 
 .child-status h2 {
-    color: #667eea;
+    background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradientShift 3s ease infinite;
     margin-bottom: 20px;
+    font-size: 1.8em;
+    text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
 }
 
 .stats {
@@ -222,9 +328,12 @@ header h1 {
 
 .stat-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea, #764ba2);
+    background: linear-gradient(90deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+    background-size: 200% 100%;
+    animation: gradientShift 2s ease infinite;
     transition: width 0.3s ease;
     border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255,0,255,0.5);
 }
 
 .stat-fill.hunger-fill {
@@ -288,22 +397,27 @@ header h1 {
 }
 
 .scene-area {
-    background: #f8f9fa;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    border-radius: 20px;
     padding: 20px;
     text-align: center;
+    border: 3px solid #ff00ff;
+    box-shadow: 0 0 15px rgba(255,0,255,0.3);
 }
 
 .scene-image {
     width: 100%;
     height: 250px;
-    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-    border-radius: 10px;
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ffff00 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 4s ease infinite;
+    border-radius: 15px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
-    border: 3px solid #90caf9;
+    border: 4px solid #ffffff;
+    box-shadow: 0 0 20px rgba(255,0,255,0.5), inset 0 0 20px rgba(0,255,255,0.3);
     overflow: hidden;
     position: relative;
 }
@@ -326,7 +440,11 @@ header h1 {
 .scene-name {
     font-size: 1.2em;
     font-weight: bold;
-    color: #667eea;
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
 }
 
 .narrative-area {
@@ -336,11 +454,13 @@ header h1 {
 }
 
 .child-dialogue {
-    background: #e8f5e9;
-    border-left: 4px solid #4caf50;
+    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    border-left: 5px solid;
+    border-image: linear-gradient(180deg, #ff00ff, #00ffff) 1;
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 15px;
     min-height: 60px;
+    box-shadow: 0 0 10px rgba(255,0,255,0.2);
 }
 
 .child-dialogue p {
@@ -350,11 +470,13 @@ header h1 {
 }
 
 .story-message {
-    background: #fff3cd;
-    border-left: 4px solid #ffc107;
+    background: linear-gradient(135deg, #ffffe0 0%, #ffe0f5 100%);
+    border-left: 5px solid;
+    border-image: linear-gradient(180deg, #ffff00, #ff00ff) 1;
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 15px;
     min-height: 60px;
+    box-shadow: 0 0 10px rgba(255,255,0,0.3);
 }
 
 .story-message p {
@@ -392,9 +514,11 @@ header h1 {
 }
 
 .actions-area {
-    background: #f8f9fa;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    border-radius: 20px;
     padding: 20px;
+    border: 3px solid #ff00ff;
+    box-shadow: 0 0 15px rgba(255,0,255,0.3);
 }
 
 .daily-routines {
@@ -404,9 +528,13 @@ header h1 {
 }
 
 .daily-routines h4 {
-    color: #667eea;
+    background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 10px;
     font-size: 1.1em;
+    text-shadow: 1px 1px 2px rgba(255,0,255,0.3);
 }
 
 .routine-buttons {
@@ -416,21 +544,24 @@ header h1 {
 }
 
 .routine-btn {
-    background: #fff;
-    border: 2px solid #28a745;
-    color: #28a745;
+    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
+    border: 3px solid;
+    border-image: linear-gradient(45deg, #00ffff, #ff00ff) 1;
+    color: #ff00ff;
     padding: 10px;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 0.9em;
     cursor: pointer;
     transition: all 0.2s;
     font-weight: bold;
+    box-shadow: 0 0 10px rgba(255,0,255,0.3);
 }
 
 .routine-btn:hover {
-    background: #28a745;
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 5px 20px rgba(255,0,255,0.6);
 }
 
 .routine-btn:active {
@@ -438,8 +569,13 @@ header h1 {
 }
 
 .actions-area h3 {
-    color: #667eea;
+    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 15px;
+    font-size: 1.5em;
+    text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
 }
 
 .action-buttons {
@@ -449,15 +585,19 @@ header h1 {
 }
 
 .action-btn {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
     color: white;
-    border: none;
+    border: 2px solid #ffffff;
     padding: 15px;
-    border-radius: 10px;
+    border-radius: 15px;
     font-size: 1em;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 0 15px rgba(255,0,255,0.5);
 }
 
 .action-btn:hover {
@@ -483,28 +623,34 @@ header h1 {
 }
 
 .time-control {
-    background: #e9ecef;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #ffe0f5 0%, #e0f5ff 100%);
+    border-radius: 20px;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 3px solid #00ffff;
+    box-shadow: 0 0 15px rgba(0,255,255,0.3);
 }
 
 .time-btn {
-    background: #28a745;
+    background: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%);
     color: white;
-    border: none;
+    border: 2px solid #ffffff;
     padding: 12px 24px;
-    border-radius: 8px;
+    border-radius: 15px;
     font-size: 1.1em;
     cursor: pointer;
     font-weight: bold;
-    transition: background 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0 0 15px rgba(255,0,255,0.5);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
 }
 
 .time-btn:hover {
-    background: #218838;
+    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    transform: scale(1.1);
+    box-shadow: 0 0 25px rgba(255,0,255,0.8);
 }
 
 .time-info {
@@ -519,8 +665,88 @@ header h1 {
 
 .time-info span {
     padding: 5px 10px;
-    background: rgba(255,255,255,0.7);
-    border-radius: 5px;
+    background: linear-gradient(135deg, rgba(255,0,255,0.3), rgba(0,255,255,0.3));
+    border-radius: 10px;
+    border: 2px solid rgba(255,255,255,0.5);
+    box-shadow: 0 0 10px rgba(255,0,255,0.3);
+}
+
+/* Sticker decorations */
+.sticker-decoration {
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+    animation: stickerFloat 4s ease-in-out infinite;
+}
+
+.sticker-top-left {
+    top: -20px;
+    left: 20px;
+    transform: rotate(-15deg);
+}
+
+.sticker-avatar {
+    top: -10px;
+    right: -10px;
+    transform: rotate(20deg);
+}
+
+.sticker-avatar-bottom {
+    bottom: -10px;
+    left: -10px;
+    transform: rotate(-20deg);
+}
+
+.sticker-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 15px rgba(255,0,255,0.5);
+    filter: drop-shadow(0 0 10px rgba(0,255,255,0.5));
+}
+
+.sticker-img-small {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 10px rgba(255,0,255,0.4);
+    filter: drop-shadow(0 0 8px rgba(0,255,255,0.4));
+}
+
+@keyframes stickerFloat {
+    0%, 100% { transform: translateY(0) rotate(var(--rotation, 0deg)); }
+    50% { transform: translateY(-10px) rotate(calc(var(--rotation, 0deg) + 5deg)); }
+}
+
+.sticker-top-left {
+    --rotation: -15deg;
+}
+
+.sticker-avatar {
+    --rotation: 20deg;
+}
+
+.sticker-avatar-bottom {
+    --rotation: -20deg;
+}
+
+/* Action icons */
+.action-icon {
+    width: 24px;
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 5px;
+    display: inline-block;
+    filter: drop-shadow(0 0 5px rgba(255,0,255,0.5));
+}
+
+.routine-btn .action-icon {
+    width: 20px;
+    height: 20px;
 }
 
 @media (max-width: 768px) {
@@ -534,6 +760,16 @@ header h1 {
     
     .action-buttons {
         grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .sticker-img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .sticker-img-small {
+        width: 40px;
+        height: 40px;
     }
 }
 

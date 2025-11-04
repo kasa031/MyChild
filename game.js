@@ -11,7 +11,7 @@ class MyChildGame {
         const savedGame = this.loadGame();
         
         this.child = savedGame ? savedGame.child : {
-            name: this.customization.name || (this.customization.gender === 'girl' ? 'Alma' : 'Ole Jacob'),
+            name: this.customization.name || (this.customization.gender === 'girl' ? 'Jente' : 'Gutt'),
             happiness: 50,
             energy: 80,
             social: 60,
@@ -135,7 +135,7 @@ class MyChildGame {
             console.error('Error loading customization:', e);
             this.customization = {
                 gender: 'boy',
-                name: 'Ole Jacob',
+                name: 'Gutt',
                 age: 7,
                 emoji: '🧒',
                 hairColor: 'brown',
