@@ -85,7 +85,8 @@ class MyChildGame {
             home: { name: "Home", color: "#ffb3ba", image: "images/home.jpg", usePlaceholder: false },
             school: { name: "School", color: "#bae1ff", image: "images/school.jpg", usePlaceholder: false },
             playground: { name: "Playground", color: "#baffc9", image: "images/playground.jpg", usePlaceholder: false },
-            friend: { name: "Friend's House", color: "#ffffba", image: "images/friend.jpg", usePlaceholder: false }
+            friend: { name: "Friend's House", color: "#ffffba", image: "images/friend.jpg", usePlaceholder: false },
+            nature: { name: "Nature", color: "#90EE90", image: "images/nature.jpg", usePlaceholder: false }
         };
         
         // Try to load images automatically (async)
@@ -939,6 +940,29 @@ class MyChildGame {
                 <circle cx="218" cy="215" r="2" fill="#ffd700"/>
                 <!-- Welcome mat -->
                 <rect x="200" y="240" width="20" height="5" fill="#8b4513"/>
+            </svg>`,
+            nature: `<svg width="100%" height="100%" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                <rect width="400" height="300" fill="#87ceeb"/>
+                <!-- Sky gradient -->
+                <rect x="0" y="0" width="400" height="200" fill="#e0f7ff"/>
+                <!-- Ground -->
+                <rect x="0" y="200" width="400" height="100" fill="#90ee90"/>
+                <!-- Trees -->
+                <rect x="50" y="180" width="15" height="30" fill="#8b4513"/>
+                <circle cx="57" cy="180" r="25" fill="#228b22"/>
+                <rect x="150" y="170" width="15" height="40" fill="#8b4513"/>
+                <circle cx="157" cy="170" r="30" fill="#228b22"/>
+                <rect x="280" y="175" width="15" height="35" fill="#8b4513"/>
+                <circle cx="287" cy="175" r="28" fill="#228b22"/>
+                <!-- Flowers -->
+                <circle cx="100" cy="220" r="3" fill="#ff69b4"/>
+                <circle cx="200" cy="230" r="3" fill="#ffd700"/>
+                <circle cx="320" cy="225" r="3" fill="#ff1493"/>
+                <!-- Sun -->
+                <circle cx="350" cy="50" r="25" fill="#ffd700"/>
+                <!-- Butterfly -->
+                <ellipse cx="250" cy="150" rx="8" ry="5" fill="#ff69b4"/>
+                <ellipse cx="255" cy="150" rx="8" ry="5" fill="#ffd700"/>
             </svg>`
         };
         
@@ -1049,7 +1073,13 @@ class MyChildGame {
         } else if (location === "school") {
             this.showChoices([
                 { text: "Attend classes", action: () => this.goToSchool() },
+                { text: "Choose a subject", action: () => this.chooseSchoolSubject() },
                 { text: "Talk to classmates", action: () => this.hangWithFriends() }
+            ]);
+        } else if (location === "nature") {
+            this.showChoices([
+                { text: "Explore nature", action: () => this.goToNature() },
+                { text: "Look for insects", action: () => this.goToNature() }
             ]);
         } else if (location === "playground") {
             this.showChoices([
@@ -2149,6 +2179,377 @@ class MyChildGame {
         this.showMessage("Calling friends helps " + this.child.name + " feel connected and happy!");
         this.performAction();
         this.advanceTime();
+    }
+    
+    cookTogether() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 3) {
+            this.showDialogue("I'm too young to cook... But I can watch!");
+            return;
+        }
+        
+        if (this.child.energy < 15) {
+            this.showDialogue("I'm too tired to cook right now...");
+            return;
+        }
+        
+        // Start cooking minigame
+        this.startCookingGame();
+    }
+    
+    startCookingGame() {
+        const recipes = [
+            {
+                name: "Pannekaker",
+                ingredients: [
+                    { name: "Mel", amount: 2, unit: "dl" },
+                    { name: "Melk", amount: 4, unit: "dl" },
+                    { name: "Egg", amount: 2, unit: "stk" },
+                    { name: "Salt", amount: 0.5, unit: "ts" }
+                ],
+                conversion: {
+                    question: "Hvor mange ml er 2 dl melk?",
+                    answer: "200",
+                    explanation: "1 dl = 100 ml, så 2 dl = 200 ml"
+                }
+            },
+            {
+                name: "Kaker",
+                ingredients: [
+                    { name: "Smør", amount: 100, unit: "g" },
+                    { name: "Sukker", amount: 1.5, unit: "dl" },
+                    { name: "Mel", amount: 3, unit: "dl" },
+                    { name: "Egg", amount: 2, unit: "stk" }
+                ],
+                conversion: {
+                    question: "Hvor mange dl er 500 ml?",
+                    answer: "5",
+                    explanation: "1 dl = 100 ml, så 500 ml = 5 dl"
+                }
+            },
+            {
+                name: "Vafler",
+                ingredients: [
+                    { name: "Mel", amount: 3, unit: "dl" },
+                    { name: "Melk", amount: 5, unit: "dl" },
+                    { name: "Egg", amount: 3, unit: "stk" },
+                    { name: "Smør", amount: 50, unit: "g" }
+                ],
+                conversion: {
+                    question: "Hvor mange ml er 3 dl?",
+                    answer: "300",
+                    explanation: "1 dl = 100 ml, så 3 dl = 300 ml"
+                }
+            }
+        ];
+        
+        const recipe = recipes[Math.floor(Math.random() * recipes.length)];
+        
+        // Show ingredient list
+        let ingredientList = "Ingredienser for " + recipe.name + ":\n";
+        recipe.ingredients.forEach((ing, idx) => {
+            ingredientList += `${idx + 1}. ${ing.amount} ${ing.unit} ${ing.name}\n`;
+        });
+        
+        this.showDialogue("La oss lage " + recipe.name + " sammen! " + ingredientList);
+        
+        // Show conversion question
+        setTimeout(() => {
+            const userAnswer = prompt(recipe.conversion.question + "\n(Svar med tall)");
+            if (userAnswer && userAnswer.trim() === recipe.conversion.answer) {
+                this.showDialogue("Riktig! " + recipe.conversion.explanation + " Vi kan lage " + recipe.name + " nå!");
+                this.adjustStat('happiness', 20);
+                this.adjustStat('learning', 15);
+                this.adjustStat('energy', -10);
+                this.setEmotion('happy', 25);
+                this.setEmotion('curious', 15);
+                this.adjustRelationship(3);
+                
+                // Learning fact about measurements
+                const measurementFacts = [
+                    "💡 Læringsfakta: 1 dl = 100 ml. Det er viktig å kunne konvertere mellom ml, dl og liter når man lager mat!",
+                    "💡 Læringsfakta: 1 liter = 10 dl = 1000 ml. Å forstå måleenheter hjelper oss i hverdagen!",
+                    "💡 Læringsfakta: Når vi lager mat sammen, lærer vi ikke bare måling, men også samarbeid og tålmodighet!"
+                ];
+                setTimeout(() => this.showMessage(measurementFacts[Math.floor(Math.random() * measurementFacts.length)]), 1000);
+                
+                this.showMessage("Cooking together teaches " + this.child.name + " about measurements and teamwork!");
+            } else {
+                this.showDialogue("Hmm, det var ikke riktig. Men det er greit! " + recipe.conversion.explanation + " Vi prøver igjen!");
+                this.adjustStat('happiness', 10);
+                this.adjustStat('learning', 5);
+                this.adjustStat('energy', -8);
+                this.setEmotion('curious', 10);
+                this.adjustRelationship(2);
+                this.showMessage("Learning from mistakes is part of cooking! " + this.child.name + " is still learning!");
+            }
+            
+            this.performAction();
+            this.advanceTime();
+        }, 2000);
+    }
+    
+    exercise() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 6) {
+            this.showDialogue("I'm too young to exercise properly, but I can play and run!");
+            this.playOutside();
+            return;
+        }
+        
+        if (this.child.energy < 25) {
+            this.showDialogue("I'm too tired to exercise right now...");
+            return;
+        }
+        
+        // Start exercise minigame with distance conversion
+        this.startExerciseGame();
+    }
+    
+    startExerciseGame() {
+        const exercises = [
+            {
+                name: "Løpetur",
+                distance: { amount: 2, unit: "km" },
+                conversion: {
+                    question: "Hvor mange meter er 2 km?",
+                    answer: "2000",
+                    explanation: "1 km = 1000 m, så 2 km = 2000 m"
+                }
+            },
+            {
+                name: "Sykling",
+                distance: { amount: 5, unit: "km" },
+                conversion: {
+                    question: "Hvor mange meter er 5 km?",
+                    answer: "5000",
+                    explanation: "1 km = 1000 m, så 5 km = 5000 m"
+                }
+            },
+            {
+                name: "Lange tur",
+                distance: { amount: 1, unit: "mil" },
+                conversion: {
+                    question: "Hvor mange km er 1 mil?",
+                    answer: "10",
+                    explanation: "1 mil = 10 km. Det er en lang tur!"
+                }
+            }
+        ];
+        
+        const exercise = exercises[Math.floor(Math.random() * exercises.length)];
+        
+        this.showDialogue("La oss gå på " + exercise.name + "! Vi skal gå " + exercise.distance.amount + " " + exercise.distance.unit + "!");
+        
+        setTimeout(() => {
+            const userAnswer = prompt(exercise.conversion.question + "\n(Svar med tall)");
+            if (userAnswer && userAnswer.trim() === exercise.conversion.answer) {
+                this.showDialogue("Riktig! " + exercise.conversion.explanation + " La oss begynne!");
+                this.adjustStat('happiness', 18);
+                this.adjustStat('energy', 15);
+                this.adjustStat('learning', 12);
+                this.setEmotion('happy', 20);
+                this.setEmotion('curious', 10);
+                this.adjustRelationship(2);
+                
+                // Learning fact about distance
+                const distanceFacts = [
+                    "💡 Læringsfakta: 1 km = 1000 m. Å forstå avstander hjelper oss å planlegge turer og aktiviteter!",
+                    "💡 Læringsfakta: 1 mil = 10 km. Det er en standard måleenhet i Norge!",
+                    "💡 Læringsfakta: Trening er bra for både kropp og sinn! Det hjelper oss å føle oss sterkere og mer energiske!"
+                ];
+                setTimeout(() => this.showMessage(distanceFacts[Math.floor(Math.random() * distanceFacts.length)]), 1000);
+                
+                this.showMessage("Exercise helps " + this.child.name + " stay healthy and learn about distances!");
+            } else {
+                this.showDialogue("Hmm, det var ikke riktig. Men det er greit! " + exercise.conversion.explanation + " Vi prøver igjen!");
+                this.adjustStat('happiness', 10);
+                this.adjustStat('energy', 10);
+                this.adjustStat('learning', 5);
+                this.setEmotion('curious', 10);
+                this.adjustRelationship(1);
+                this.showMessage("Learning from mistakes is part of exercise! " + this.child.name + " is still learning!");
+            }
+            
+            this.performAction();
+            this.advanceTime();
+        }, 2000);
+    }
+    
+    goToNature() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 15) {
+            this.showDialogue("I'm too tired to explore nature right now...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('learning', 10);
+        this.adjustStat('energy', -10);
+        this.setEmotion('curious', 20);
+        this.setEmotion('happy', 15);
+        this.adjustRelationship(2);
+        
+        let messages = [];
+        if (this.child.age < 5) {
+            messages = [
+                "I like exploring! So many interesting things!",
+                "Nature is fun! I found a bug!",
+                "I love being outside in nature!"
+            ];
+        } else {
+            messages = [
+                "Exploring nature is so interesting! I'm learning about plants and animals.",
+                "I love being in nature! It's peaceful and full of life.",
+                "Nature is amazing! There's so much to discover!",
+                "I found some interesting insects! They're so small but important!"
+            ];
+        }
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Insect facts
+        const insectFacts = [
+            {
+                fact: "💡 Læringsfakta: Insekter er super viktige! De pollinerer planter, bryter ned døde ting, og er mat for andre dyr. Uten insekter ville verden være helt annerledes!",
+                tip: "Hvordan bevare insekter: La noen deler av hagen være vill og ubeskjært. Plant blomster som insekter liker, og bruk ikke for mye kjemikalier."
+            },
+            {
+                fact: "💡 Læringsfakta: Humler er faktisk bedre pollinatorer enn bier! De kan fly i kaldere vær og besøke flere blomster.",
+                tip: "Hvordan hjelpe humler: La noen områder i hagen være gress med blomster. Humler trenger steder å bo og mat året rundt."
+            },
+            {
+                fact: "💡 Læringsfakta: Mange insekter er faktisk nyttige i hagen! Larver av marihøner spiser bladlus, som beskytter plantene våre.",
+                tip: "Hvordan tiltrekke nyttige insekter: Plant blomster som marihøner og andre nyttige insekter liker. La noen døde greiner ligge - de gir hjem til mange små dyr."
+            },
+            {
+                fact: "💡 Læringsfakta: Insekter utgjør over 80% av alle dyr på jorden! De er ekstremt viktige for økosystemet.",
+                tip: "Hvordan bevare insekter: Unngå å bruke mye kjemikalier. La noen områder være naturlige, med blomster og plass for insekter å bo."
+            },
+            {
+                fact: "💡 Læringsfakta: Sommerfugler og møll er viktige pollinatorer! De overfører pollen fra blomst til blomst.",
+                tip: "Hvordan tiltrekke sommerfugler: Plant blomster med nektar, spesielt liljer, lavendel og malurt. La noen larver være - de blir til sommerfugler!"
+            }
+        ];
+        
+        const selectedFact = insectFacts[Math.floor(Math.random() * insectFacts.length)];
+        setTimeout(() => {
+            this.showMessage(selectedFact.fact);
+            setTimeout(() => {
+                this.showMessage("💚 Tips: " + selectedFact.tip);
+            }, 2000);
+        }, 1000);
+        
+        this.showMessage("Exploring nature helps " + this.child.name + " learn about the environment and insects!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    chooseSchoolSubject() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 6) {
+            this.showDialogue("I'm too young for school subjects yet!");
+            return;
+        }
+        
+        const subjects = [
+            {
+                name: "Matematikk",
+                emoji: "🔢",
+                facts: [
+                    "💡 Læringsfakta: Matematikk er overalt! Når vi teller, måler, eller ser på klokken, bruker vi matte.",
+                    "💡 Læringsfakta: Å forstå tall hjelper oss i hverdagen - fra å kjøpe mat til å planlegge turer!",
+                    "💡 Læringsfakta: Matematikk trener hjernen vår til å tenke logisk og løse problemer!"
+                ],
+                game: "Hvor mange er 7 + 5?",
+                answer: "12"
+            },
+            {
+                name: "Naturfag",
+                emoji: "🔬",
+                facts: [
+                    "💡 Læringsfakta: Alt i naturen er koblet sammen! Planter trenger sollys, vann og næring for å vokse.",
+                    "💡 Læringsfakta: Vann går i en syklus - det fordamper fra havet, blir til skyer, og faller som regn!",
+                    "💡 Læringsfakta: Planter produserer oksygen gjennom fotosyntese - det er derfor vi trenger trær!"
+                ],
+                game: "Hva trenger planter for å vokse? (Sol, vann, eller begge?)",
+                answer: "begge"
+            },
+            {
+                name: "Norsk",
+                emoji: "📚",
+                facts: [
+                    "💡 Læringsfakta: Språk hjelper oss å uttrykke følelser og tanker. Når vi lærer nye ord, kan vi bedre forklare hvordan vi har det!",
+                    "💡 Læringsfakta: Å lese bøker utvider vokabularet vårt og hjelper oss å forstå verden bedre.",
+                    "💡 Læringsfakta: Å skrive historier er en kreativ måte å uttrykke seg på - det er som å male med ord!"
+                ],
+                game: "Hvilket ord betyr 'glad'? (Trist, Lykkelig, eller Redd?)",
+                answer: "lykkelig"
+            },
+            {
+                name: "Engelsk",
+                emoji: "🌍",
+                facts: [
+                    "💡 Læringsfakta: Å lære nye språk åpner nye dører! Det hjelper oss å kommunisere med folk fra hele verden.",
+                    "💡 Læringsfakta: Når vi lærer engelsk, kan vi forstå musikk, filmer og bøker fra mange land!",
+                    "💡 Læringsfakta: Å være flerspråklig trener hjernen vår og gjør den mer fleksibel!"
+                ],
+                game: "Hva betyr 'Hello' på norsk? (Hei, Hade, eller Takk?)",
+                answer: "hei"
+            },
+            {
+                name: "Kunst",
+                emoji: "🎨",
+                facts: [
+                    "💡 Læringsfakta: Kunst er en måte å uttrykke følelser på når ord ikke er nok. Det kan være terapeutisk!",
+                    "💡 Læringsfakta: Når vi lager kunst, aktiveres hjernens høyre side - det hjelper med kreativitet og problemløsning!",
+                    "💡 Læringsfakta: Å se på kunst fra andre kan hjelpe oss å forstå deres perspektiv og følelser!"
+                ],
+                game: "Hvilken farge får du når du blander rødt og blått?",
+                answer: "lilla"
+            }
+        ];
+        
+        // Show subject selection
+        const subjectChoice = subjects[Math.floor(Math.random() * subjects.length)];
+        
+        this.showDialogue("I want to learn " + subjectChoice.name + " today! " + subjectChoice.emoji);
+        
+        setTimeout(() => {
+            // Show fact
+            const fact = subjectChoice.facts[Math.floor(Math.random() * subjectChoice.facts.length)];
+            this.showMessage(fact);
+            
+            setTimeout(() => {
+                // Show game/question
+                const userAnswer = prompt(subjectChoice.game + "\n(Skriv ditt svar)");
+                if (userAnswer && userAnswer.toLowerCase().trim() === subjectChoice.answer.toLowerCase()) {
+                    this.showDialogue("Riktig! Jeg lærte mye i " + subjectChoice.name + " i dag!");
+                    this.adjustStat('happiness', 15);
+                    this.adjustStat('learning', 20);
+                    this.adjustStat('energy', -12);
+                    this.setEmotion('happy', 20);
+                    this.setEmotion('curious', 15);
+                    this.adjustRelationship(2);
+                    this.showMessage("Great job learning " + subjectChoice.name + "! " + this.child.name + " is getting smarter!");
+                } else {
+                    this.showDialogue("Hmm, det var ikke riktig. Men jeg lærte noe nytt i " + subjectChoice.name + "!");
+                    this.adjustStat('happiness', 8);
+                    this.adjustStat('learning', 12);
+                    this.adjustStat('energy', -10);
+                    this.setEmotion('curious', 10);
+                    this.adjustRelationship(1);
+                    this.showMessage("Learning from mistakes is important! " + this.child.name + " is still learning!");
+                }
+                
+                this.performAction();
+                this.advanceTime();
+            }, 2000);
+        }, 1000);
     }
     
     advanceTime() {
