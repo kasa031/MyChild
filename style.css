@@ -124,6 +124,10 @@ header h1 {
     animation: titlePulse 2s ease-in-out infinite;
     position: relative;
     z-index: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 @keyframes titlePulse {
@@ -298,6 +302,10 @@ header h1 {
     margin-bottom: 20px;
     font-size: 1.8em;
     text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 .stats {
@@ -315,6 +323,10 @@ header h1 {
     font-weight: bold;
     margin-bottom: 5px;
     color: #555;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: break-word;
 }
 
 .stat-bar {
@@ -467,6 +479,9 @@ header h1 {
     font-size: 1.1em;
     color: #2e7d32;
     font-style: italic;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
 }
 
 .story-message {
@@ -482,6 +497,9 @@ header h1 {
 .story-message p {
     font-size: 1.1em;
     color: #856404;
+    overflow: hidden;
+    word-wrap: break-word;
+    text-overflow: ellipsis;
 }
 
 .choices-area {
@@ -501,6 +519,9 @@ header h1 {
     transition: all 0.2s;
     text-align: left;
     font-weight: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
 }
 
 .choice-btn:hover {
@@ -535,6 +556,10 @@ header h1 {
     margin-bottom: 10px;
     font-size: 1.1em;
     text-shadow: 1px 1px 2px rgba(255,0,255,0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 .routine-buttons {
@@ -555,6 +580,10 @@ header h1 {
     transition: all 0.2s;
     font-weight: bold;
     box-shadow: 0 0 10px rgba(255,0,255,0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: break-word;
 }
 
 .routine-btn:hover {
@@ -576,6 +605,10 @@ header h1 {
     margin-bottom: 15px;
     font-size: 1.5em;
     text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    max-width: 100%;
 }
 
 .action-buttons {
@@ -598,6 +631,10 @@ header h1 {
     font-weight: bold;
     text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
     box-shadow: 0 0 15px rgba(255,0,255,0.5);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    word-wrap: break-word;
 }
 
 .action-btn:hover {

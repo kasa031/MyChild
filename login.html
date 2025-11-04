@@ -16,11 +16,16 @@
             border: 5px solid;
             border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff) 1;
             position: relative;
+            overflow: hidden;
+            word-wrap: break-word;
+            box-sizing: border-box;
         }
         .login-form {
             display: flex;
             flex-direction: column;
             gap: 20px;
+            overflow: hidden;
+            word-wrap: break-word;
         }
         .form-group {
             display: flex;
@@ -30,12 +35,20 @@
         .form-group label {
             font-weight: bold;
             color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            word-wrap: break-word;
         }
         .form-group input {
             padding: 12px;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .form-group input:focus {
             outline: none;
@@ -71,12 +84,15 @@
             border-radius: 20px;
             border: 3px solid #ff00ff;
             box-shadow: 0 0 15px rgba(255,0,255,0.3);
+            overflow: hidden;
+            word-wrap: break-word;
         }
         .customization-options {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
             margin-top: 15px;
+            overflow: hidden;
         }
         .customization-options:has(#startAge) {
             display: flex;
@@ -92,6 +108,10 @@
             font-size: 14px;
             color: #666;
             font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            word-wrap: break-word;
         }
         .option-group select, .option-group input {
             padding: 8px;
@@ -109,6 +129,9 @@
             background-position: right 8px center;
             background-size: 16px;
             padding-right: 32px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .option-group select:focus, .option-group input:focus {
             outline: none;
@@ -166,7 +189,7 @@
         <div style="position: absolute; top: -20px; right: 20px; transform: rotate(15deg); z-index: 10;">
             <img src="images/sticker2000.jpg" alt="2000s sticker" style="width: 70px; height: 70px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 15px rgba(255,0,255,0.5); filter: drop-shadow(0 0 10px rgba(0,255,255,0.5)); animation: float 3s ease-in-out infinite;">
         </div>
-        <h1 style="background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 3px 3px 0px #00ffff, -3px -3px 0px #ff00ff;">MyChild - 2000s Edition</h1>
+        <h1 style="background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 3px 3px 0px #00ffff, -3px -3px 0px #ff00ff; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word; max-width: 100%;">MyChild - 2000s Edition</h1>
         <p style="color: #ff00ff; margin-bottom: 30px; font-weight: bold;">Velg brukernavn eller opprett nytt spill</p>
         <style>
             @keyframes float {
