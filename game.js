@@ -520,6 +520,13 @@ class MyChildGame {
         
         // Add emotion data attribute for CSS animations
         avatar.setAttribute('data-emotion', this.child.currentEmotion);
+        
+        // Add animation class for personality when happy
+        if (this.child.happiness > 70) {
+            avatar.classList.add('animated');
+        } else {
+            avatar.classList.remove('animated');
+        }
     }
     
     loadSceneImages() {
