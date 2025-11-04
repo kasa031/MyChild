@@ -53,7 +53,12 @@ class MyChildGame {
             emoji: this.customization.emoji || '🧒',
             hairColor: this.customization.hairColor || 'brown',
             eyeColor: this.customization.eyeColor || 'brown',
-            style: this.customization.style || 'normal'
+            style: this.customization.style || 'normal',
+            // Profile customization
+            customAvatar: savedGame && savedGame.child && savedGame.child.customAvatar ? savedGame.child.customAvatar : null,
+            avatarType: savedGame && savedGame.child && savedGame.child.avatarType ? savedGame.child.avatarType : 'emoji',
+            bio: savedGame && savedGame.child && savedGame.child.bio ? savedGame.child.bio : '',
+            ownedItems: savedGame && savedGame.child && savedGame.child.ownedItems ? savedGame.child.ownedItems : []
         };
         
         this.day = savedGame ? savedGame.day : 1;
@@ -3591,6 +3596,295 @@ class MyChildGame {
         
         const randomHelp = helpMessages[Math.floor(Math.random() * helpMessages.length)];
         this.showMessage(randomHelp);
+    }
+    
+    openProfile() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'block';
+            
+            // Update profile display
+            this.updateProfileDisplay();
+            
+            // Load badges
+            this.loadBadges();
+            
+            // Load shop items
+            this.loadShopItems();
+        }
+    }
+    
+    closeProfile() {
+        const modal = document.getElementById('profileModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    updateProfileDisplay() {
+        // Update avatar in profile
+        const profileAvatar = document.getElementById('profileAvatar');
+        const currentAvatar = document.querySelector('.child-avatar');
+        if (profileAvatar && currentAvatar) {
+            if (currentAvatar.querySelector('img')) {
+                const img = currentAvatar.querySelector('img').cloneNode(true);
+                profileAvatar.innerHTML = '';
+                profileAvatar.appendChild(img);
+            } else {
+                profileAvatar.textContent = currentAvatar.textContent;
+            }
+        }
+        
+        // Update money
+        const profileMoney = document.getElementById('profileMoney');
+        if (profileMoney) {
+            profileMoney.textContent = this.child.money || 0;
+        }
+        
+        // Load bio
+        const profileBio = document.getElementById('profileBio');
+        if (profileBio) {
+            profileBio.value = this.child.bio || '';
+        }
+    }
+    
+    showAvatarTab(tab) {
+        // Hide all tabs
+        document.querySelectorAll('.avatar-tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        
+        // Remove active from all tab buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Show selected tab
+        if (tab === 'badges') {
+            document.getElementById('badgesTab').classList.add('active');
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+        } else {
+            document.getElementById('uploadTab').classList.add('active');
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+        }
+    }
+    
+    loadBadges() {
+        const badgesGrid = document.getElementById('badgesGrid');
+        if (!badgesGrid) return;
+        
+        // Get earned achievements as badges
+        const earnedBadges = this.achievements || [];
+        
+        // All available badges (from achievements)
+        const allBadges = [
+            { id: 'first_helper', emoji: '🦸', name: 'Hjelper' },
+            { id: 'hero', emoji: '⭐', name: 'Helt' },
+            { id: 'strong', emoji: '💪', name: 'Sterk' },
+            { id: 'scholar', emoji: '📚', name: 'Lærd' },
+            { id: 'wise', emoji: '🧠', name: 'Klok' },
+            { id: 'friend', emoji: '🤝', name: 'Vennlig' },
+            { id: 'emotion_master', emoji: '❤️', name: 'Følelsesmester' },
+            { id: 'mindful', emoji: '🧘', name: 'Oppmerksom' },
+            { id: 'artist', emoji: '🎨', name: 'Kunstner' },
+            { id: 'quiz_master', emoji: '❓', name: 'Quizmester' },
+            { id: 'big_kid', emoji: '🎂', name: 'Stor gutt/jente' },
+            { id: 'double_digits', emoji: '🎉', name: 'Ti år' },
+            { id: 'chef', emoji: '🍳', name: 'Kokk' },
+            { id: 'athlete', emoji: '🏃', name: 'Utøver' },
+            { id: 'nature_explorer', emoji: '🌳', name: 'Naturekspert' },
+            { id: 'student', emoji: '🎓', name: 'Student' }
+        ];
+        
+        badgesGrid.innerHTML = '';
+        
+        allBadges.forEach(badge => {
+            const badgeDiv = document.createElement('div');
+            badgeDiv.className = 'badge-option';
+            if (earnedBadges.includes(badge.id)) {
+                badgeDiv.classList.add('selected');
+                badgeDiv.title = badge.name + ' (Earned!)';
+            } else {
+                badgeDiv.title = badge.name + ' (Not earned yet)';
+                badgeDiv.style.opacity = '0.5';
+            }
+            badgeDiv.textContent = badge.emoji;
+            badgeDiv.onclick = () => {
+                if (earnedBadges.includes(badge.id)) {
+                    this.selectBadge(badge.emoji);
+                } else {
+                    this.showMessage("Du må tjene denne badge først!");
+                }
+            };
+            badgesGrid.appendChild(badgeDiv);
+        });
+        
+        // Add default emoji options
+        const defaultEmojis = ['👶', '🧒', '👧', '👦', '👩', '👨', '🧑', '😊', '😄', '😎', '🤩', '🥳'];
+        defaultEmojis.forEach(emoji => {
+            const emojiDiv = document.createElement('div');
+            emojiDiv.className = 'badge-option';
+            emojiDiv.textContent = emoji;
+            emojiDiv.title = 'Velg emoji';
+            emojiDiv.onclick = () => this.selectBadge(emoji);
+            badgesGrid.appendChild(emojiDiv);
+        });
+    }
+    
+    selectBadge(badge) {
+        // Update avatar
+        const avatar = document.querySelector('.child-avatar');
+        if (avatar) {
+            avatar.innerHTML = badge;
+            avatar.style.background = 'linear-gradient(135deg, #ff00ff 0%, #00ffff 100%)';
+        }
+        
+        // Update profile display
+        const profileAvatar = document.getElementById('profileAvatar');
+        if (profileAvatar) {
+            profileAvatar.textContent = badge;
+        }
+        
+        // Save to child
+        this.child.customAvatar = badge;
+        this.child.avatarType = 'badge';
+        this.saveGame();
+        
+        this.showMessage("Avatar oppdatert!");
+    }
+    
+    handleAvatarUpload(event) {
+        const file = event.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Create canvas to resize image
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const size = 200; // Avatar size
+                    canvas.width = size;
+                    canvas.height = size;
+                    
+                    // Draw image centered
+                    ctx.drawImage(img, 0, 0, size, size);
+                    
+                    // Convert to data URL
+                    const dataUrl = canvas.toDataURL('image/png');
+                    
+                    // Update avatar
+                    const avatar = document.querySelector('.child-avatar');
+                    if (avatar) {
+                        avatar.innerHTML = '';
+                        const imgElement = document.createElement('img');
+                        imgElement.src = dataUrl;
+                        imgElement.style.width = '100%';
+                        imgElement.style.height = '100%';
+                        imgElement.style.borderRadius = '50%';
+                        imgElement.style.objectFit = 'cover';
+                        avatar.appendChild(imgElement);
+                    }
+                    
+                    // Update profile display
+                    const profileAvatar = document.getElementById('profileAvatar');
+                    if (profileAvatar) {
+                        profileAvatar.innerHTML = '';
+                        const imgElement = document.createElement('img');
+                        imgElement.src = dataUrl;
+                        imgElement.style.width = '100%';
+                        imgElement.style.height = '100%';
+                        imgElement.style.borderRadius = '50%';
+                        imgElement.style.objectFit = 'cover';
+                        profileAvatar.appendChild(imgElement);
+                    }
+                    
+                    // Save to child
+                    this.child.customAvatar = dataUrl;
+                    this.child.avatarType = 'upload';
+                    this.saveGame();
+                    
+                    this.showMessage("Avatar opplastet!");
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            this.showMessage("Vennligst velg et bilde!");
+        }
+    }
+    
+    saveProfile() {
+        const bio = document.getElementById('profileBio');
+        if (bio) {
+            this.child.bio = bio.value;
+            this.saveGame();
+            this.showMessage("Bio lagret!");
+        }
+    }
+    
+    loadShopItems() {
+        const shopItems = document.getElementById('shopItems');
+        if (!shopItems) return;
+        
+        const items = [
+            { id: 'hat', name: 'Lue', emoji: '🧢', price: 50 },
+            { id: 'glasses', name: 'Briller', emoji: '👓', price: 75 },
+            { id: 'watch', name: 'Klokke', emoji: '⌚', price: 100 },
+            { id: 'backpack', name: 'Ryggsekk', emoji: '🎒', price: 150 },
+            { id: 'toy', name: 'Leksak', emoji: '🧸', price: 200 },
+            { id: 'book', name: 'Spesialbok', emoji: '📖', price: 250 },
+            { id: 'camera', name: 'Kamera', emoji: '📷', price: 300 },
+            { id: 'game', name: 'Spill', emoji: '🎮', price: 400 }
+        ];
+        
+        shopItems.innerHTML = '';
+        
+        items.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'shop-item';
+            
+            const owned = this.child.ownedItems && this.child.ownedItems.includes(item.id);
+            if (owned) {
+                itemDiv.classList.add('owned');
+            }
+            
+            itemDiv.innerHTML = `
+                <div class="shop-item-icon">${item.emoji}</div>
+                <div class="shop-item-name">${item.name}</div>
+                <div class="shop-item-price">${item.price} kr</div>
+            `;
+            
+            itemDiv.onclick = () => {
+                if (!owned) {
+                    this.buyItem(item);
+                } else {
+                    this.showMessage("Du eier allerede dette!");
+                }
+            };
+            
+            shopItems.appendChild(itemDiv);
+        });
+    }
+    
+    buyItem(item) {
+        if (this.child.money >= item.price) {
+            this.child.money -= item.price;
+            if (!this.child.ownedItems) {
+                this.child.ownedItems = [];
+            }
+            this.child.ownedItems.push(item.id);
+            
+            // Update money display
+            this.updateDisplay();
+            this.updateProfileDisplay();
+            this.loadShopItems();
+            
+            this.showMessage(`Du kjøpte ${item.name} for ${item.price} kr!`);
+            this.saveGame();
+        } else {
+            this.showMessage(`Du har ikke nok penger! Du trenger ${item.price} kr, men har bare ${this.child.money} kr.`);
+        }
     }
 }
 

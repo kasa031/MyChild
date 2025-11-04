@@ -54,7 +54,7 @@
                 <div class="sticker-decoration sticker-avatar">
                     <img src="images/stickerbaby1.jpg" alt="Baby sticker" class="sticker-img-small">
                 </div>
-                <div class="child-avatar">👶</div>
+                <div class="child-avatar" onclick="game.openProfile()" title="Klikk for å redigere profil" style="cursor: pointer;">👶</div>
                 <h2 id="childName">Your Child</h2>
                 <div class="sticker-decoration sticker-avatar-bottom">
                     <img src="images/stickerbaby2.jpg" alt="Baby sticker 2" class="sticker-img-small">
@@ -167,8 +167,8 @@
                 <div class="daily-routines">
                     <h4>Daily Care</h4>
                     <div class="routine-buttons">
-                        <button class="routine-btn" onclick="game.feedChild()">
-                            <img src="images/babybottle.png" alt="Feed" class="action-icon"> Feed
+                        <button class="routine-btn feed-btn" onclick="game.feedChild()">
+                            <img src="images/babybottle.png" alt="Feed" class="action-icon feed-icon"> <span class="btn-text">Feed</span>
                         </button>
                         <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
                         <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
@@ -235,6 +235,60 @@
             }
         });
     </script>
+    
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal" style="display: none;">
+        <div class="modal-content profile-modal">
+            <div class="modal-header">
+                <h2>Profilredigering</h2>
+                <span class="close-modal" onclick="game.closeProfile()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="profile-section">
+                    <h3>Avatar</h3>
+                    <div class="avatar-options">
+                        <div class="current-avatar" id="currentAvatarDisplay">
+                            <div class="child-avatar-large" id="profileAvatar">👶</div>
+                            <p>Nåværende avatar</p>
+                        </div>
+                        <div class="avatar-choices">
+                            <h4>Velg avatar:</h4>
+                            <div class="avatar-tabs">
+                                <button class="tab-btn active" onclick="game.showAvatarTab('badges')">Badges</button>
+                                <button class="tab-btn" onclick="game.showAvatarTab('upload')">Last opp bilde</button>
+                            </div>
+                            <div id="badgesTab" class="avatar-tab-content active">
+                                <div class="badges-grid" id="badgesGrid">
+                                    <!-- Badges will be populated here -->
+                                </div>
+                            </div>
+                            <div id="uploadTab" class="avatar-tab-content">
+                                <input type="file" id="avatarUpload" accept="image/*" onchange="game.handleAvatarUpload(event)" style="display: none;">
+                                <button class="btn-primary" onclick="document.getElementById('avatarUpload').click()">Velg bilde</button>
+                                <p style="font-size: 0.9em; margin-top: 10px; color: #666;">Last opp ditt eget bilde som avatar</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>Om meg</h3>
+                    <textarea id="profileBio" rows="4" placeholder="Skriv litt om deg selv..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #ff00ff; font-family: inherit;"></textarea>
+                    <button class="btn-primary" onclick="game.saveProfile()" style="margin-top: 10px;">Lagre bio</button>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>Butikk 💰</h3>
+                    <div class="money-display-profile">
+                        <p>Du har: <span id="profileMoney">0</span> kr</p>
+                    </div>
+                    <div class="shop-items" id="shopItems">
+                        <!-- Shop items will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 
