@@ -3465,7 +3465,7 @@ class MyChildGame {
                 message: this.language === 'no' ? "Fysisk mobbing-hendelse." : "Physical bullying incident.",
                 choices: [
                     { 
-                        text: "Are you okay? We need to tell someone about this.", 
+                        text: this.language === 'no' ? "Er du okay? Vi må fortelle noen om dette." : "Are you okay? We need to tell someone about this.", 
                         effect: () => { 
                             this.setEmotion('scared', 25);
                             this.setEmotion('sad', 20);
@@ -3474,27 +3474,29 @@ class MyChildGame {
                             this.adjustRelationship(6);
                             this.child.resilience = Math.min(100, this.child.resilience + 5);
                             this.memory.push({day: this.day, event: "Physical bullying - got help", positive: true});
-                            this.showDialogue("I'm okay... Thank you for caring. I'm scared but I know you'll help me."); 
+                            const msg = this.language === 'no' ? "Jeg er okay... Takk for at du bryr deg. Jeg er redd, men jeg vet at du vil hjelpe meg." : "I'm okay... Thank you for caring. I'm scared but I know you'll help me.";
+                            this.showDialogue(msg); 
                         } 
                     },
                     { 
-                        text: "You're brave. Stand up for yourself next time.", 
+                        text: this.language === 'no' ? "Du er modig. Stå opp for deg selv neste gang." : "You're brave. Stand up for yourself next time.", 
                         effect: () => { 
                             this.setEmotion('angry', 20);
                             this.setEmotion('scared', 15);
                             this.adjustStat('happiness', -10);
                             this.child.resilience = Math.min(100, this.child.resilience + 2);
-                            this.showDialogue("I'll try... I want to be brave. But it's scary."); 
+                            const msg = this.language === 'no' ? "Jeg skal prøve... Jeg vil være modig. Men det er skummelt." : "I'll try... I want to be brave. But it's scary.";
+                            this.showDialogue(msg); 
                         } 
                     }
                 ]
             },
             {
-                dialogue: "Everyone laughed at me in class today... I wanted to disappear.",
-                message: "Embarrassment and social bullying.",
+                dialogue: this.language === 'no' ? "Alle lo av meg i klassen i dag... Jeg ville bare forsvinne." : "Everyone laughed at me in class today... I wanted to disappear.",
+                message: this.language === 'no' ? "Flauhet og sosial mobbing." : "Embarrassment and social bullying.",
                 choices: [
                     { 
-                        text: "I'm here for you. Those feelings are valid. Let's talk about it.", 
+                        text: this.language === 'no' ? "Jeg er her for deg. De følelsene er gyldige. La oss snakke om det." : "I'm here for you. Those feelings are valid. Let's talk about it.", 
                         effect: () => { 
                             this.setEmotion('embarrassed', 30);
                             this.setEmotion('sad', 20);
@@ -3503,27 +3505,29 @@ class MyChildGame {
                             this.adjustRelationship(4);
                             this.child.resilience = Math.min(100, this.child.resilience + 3);
                             this.copingActivities.push({day: this.day, activity: 'talk', helpful: true});
-                            this.showDialogue("I feel so embarrassed... But talking to you helps. I don't feel so alone."); 
+                            const msg = this.language === 'no' ? "Jeg føler meg så flau... Men å snakke med deg hjelper. Jeg føler meg ikke så alene." : "I feel so embarrassed... But talking to you helps. I don't feel so alone.";
+                            this.showDialogue(msg); 
                         } 
                     },
                     { 
-                        text: "Don't worry about what others think. You're special.", 
+                        text: this.language === 'no' ? "Ikke bekymre deg for hva andre tenker. Du er spesiell." : "Don't worry about what others think. You're special.", 
                         effect: () => { 
                             this.setEmotion('embarrassed', 20);
                             this.setEmotion('happy', 10);
                             this.adjustStat('happiness', -5);
                             this.child.resilience = Math.min(100, this.child.resilience + 2);
-                            this.showDialogue("Thank you... I know you see me for who I am."); 
+                            const msg = this.language === 'no' ? "Takk... Jeg vet at du ser meg for den jeg er." : "Thank you... I know you see me for who I am.";
+                            this.showDialogue(msg); 
                         } 
                     }
                 ]
             },
             {
-                dialogue: "I came back stronger today. I told them to stop, and they actually did.",
-                message: "Alex stood up for themselves!",
+                dialogue: this.language === 'no' ? "Jeg kom tilbake sterkere i dag. Jeg sa til dem å stoppe, og de gjorde det faktisk." : "I came back stronger today. I told them to stop, and they actually did.",
+                message: this.language === 'no' ? this.child.name + " sto opp for seg selv!" : this.child.name + " stood up for themselves!",
                 choices: [
                     { 
-                        text: "I'm so proud of you! That took courage! You're perfect just as you are!", 
+                        text: this.language === 'no' ? "Jeg er så stolt av deg! Det krevde mot! Du er perfekt akkurat som du er!" : "I'm so proud of you! That took courage! You're perfect just as you are!", 
                         effect: () => { 
                             this.setEmotion('happy', 30);
                             this.setEmotion('surprised', 15);
@@ -3534,29 +3538,31 @@ class MyChildGame {
                             this.adjustRelationship(8);
                             this.child.resilience = Math.min(100, this.child.resilience + 10);
                             this.memory.push({day: this.day, event: "Stood up to bullies - succeeded!", positive: true});
-                            this.showDialogue("I did it! I can't believe it worked! I feel so much stronger now! You're right - I am good enough just as I am!"); 
+                            const msg = this.language === 'no' ? "Jeg gjorde det! Jeg kan ikke tro det fungerte! Jeg føler meg så mye sterkere nå! Du har rett - jeg er god nok akkurat som jeg er!" : "I did it! I can't believe it worked! I feel so much stronger now! You're right - I am good enough just as I am!";
+                            this.showDialogue(msg); 
                             this.saveGame();
                         } 
                     },
                     { 
-                        text: "That's my brave child! You're learning to handle this.", 
+                        text: this.language === 'no' ? "Det er min modige unge! Du lærer å håndtere dette." : "That's my brave child! You're learning to handle this.", 
                         effect: () => { 
                             this.setEmotion('happy', 20);
                             this.setEmotion('surprised', 10);
                             this.adjustStat('happiness', 15);
                             this.adjustStat('social', 8);
                             this.child.resilience = Math.min(100, this.child.resilience + 8);
-                            this.showDialogue("I'm learning... I'm getting stronger. Thank you for believing in me."); 
+                            const msg = this.language === 'no' ? "Jeg lærer... Jeg blir sterkere. Takk for at du tror på meg." : "I'm learning... I'm getting stronger. Thank you for believing in me.";
+                            this.showDialogue(msg); 
                         } 
                     }
                 ]
             },
             {
-                dialogue: "I pretended I didn't care, but I'm really hurt inside...",
-                message: "Alex is hiding their feelings.",
+                dialogue: this.language === 'no' ? "Jeg latet som jeg ikke brydde meg, men jeg er virkelig såret på innsiden..." : "I pretended I didn't care, but I'm really hurt inside...",
+                message: this.language === 'no' ? this.child.name + " skjuler følelsene sine." : this.child.name + " is hiding their feelings.",
                 choices: [
                     { 
-                        text: "It's okay to feel hurt. Your feelings matter. Let's talk.", 
+                        text: this.language === 'no' ? "Det er okay å føle seg såret. Følelsene dine betyr noe. La oss snakke." : "It's okay to feel hurt. Your feelings matter. Let's talk.", 
                         effect: () => { 
                             this.setEmotion('sad', 25);
                             this.setEmotion('anxious', -15);
@@ -3564,17 +3570,19 @@ class MyChildGame {
                             this.adjustRelationship(6);
                             this.child.resilience = Math.min(100, this.child.resilience + 4);
                             this.copingActivities.push({day: this.day, activity: 'talk', helpful: true});
-                            this.showDialogue("Thank you... It's hard to show how I really feel. But with you, I can."); 
+                            const msg = this.language === 'no' ? "Takk... Det er vanskelig å vise hvordan jeg virkelig føler. Men med deg, kan jeg." : "Thank you... It's hard to show how I really feel. But with you, I can.";
+                            this.showDialogue(msg); 
                         } 
                     },
                     { 
-                        text: "You're strong. But you don't have to hide your feelings with me.", 
+                        text: this.language === 'no' ? "Du er sterk. Men du trenger ikke skjule følelsene dine med meg." : "You're strong. But you don't have to hide your feelings with me.", 
                         effect: () => { 
                             this.setEmotion('sad', 15);
                             this.adjustStat('happiness', -5);
                             this.adjustRelationship(4);
                             this.child.resilience = Math.min(100, this.child.resilience + 3);
-                            this.showDialogue("I know... I'm just scared of being vulnerable. But I trust you."); 
+                            const msg = this.language === 'no' ? "Jeg vet... Jeg er bare redd for å være sårbar. Men jeg stoler på deg." : "I know... I'm just scared of being vulnerable. But I trust you.";
+                            this.showDialogue(msg); 
                         } 
                     }
                 ]
@@ -3586,7 +3594,41 @@ class MyChildGame {
     }
     
     triggerNarrativeEvent() {
-        const events = [
+        const events = this.language === 'no' ? [
+            {
+                dialogue: "Jeg fant en kul leke i butikken! Kan jeg beholde den?",
+                message: "Barnet ditt fant noe interessant!",
+                choices: [
+                    { text: "Selvfølgelig! Du kan beholde den.", effect: () => { 
+                        this.adjustStat('happiness', 15); 
+                        this.adjustRelationship(3);
+                        this.memory.push({day: this.day, event: "Got toy", positive: true});
+                        this.showDialogue("Takk så mye! Jeg elsker den!"); 
+                    } },
+                    { text: "Kanskje senere, la oss snakke om det.", effect: () => { 
+                        this.adjustStat('happiness', 5); 
+                        this.adjustRelationship(-1);
+                        this.showDialogue("Ok, jeg forstår."); 
+                    } }
+                ]
+            },
+            {
+                dialogue: "En klassekamerat inviterte meg til bursdagsfeiringen sin! Kan jeg dra?",
+                message: "Sosial mulighet!",
+                choices: [
+                    { text: "Ja, det høres gøy ut!", effect: () => { this.adjustStat('social', 20); this.adjustStat('happiness', 15); this.showDialogue("Jippi! Jeg er så spent! Jeg skal ha det så bra!"); } },
+                    { text: "Vi får se, la oss sjekke timeplanen.", effect: () => { this.adjustStat('social', 5); this.showDialogue("Jeg håper jeg kan dra..."); } }
+                ]
+            },
+            {
+                dialogue: "Jeg har problemer med leksene mine. Kan du hjelpe meg?",
+                message: "Barnet ditt trenger hjelp med læring.",
+                choices: [
+                    { text: "Selvfølgelig! La oss jobbe sammen med det.", effect: () => { this.adjustStat('learning', 15); this.adjustStat('happiness', 10); this.showDialogue("Takk! Nå forstår jeg det!"); } },
+                    { text: "Prøv å finne ut av det først, så spør hvis du trenger hjelp.", effect: () => { this.adjustStat('learning', 5); this.showDialogue("Ok, jeg skal prøve mitt beste."); } }
+                ]
+            },
+        ] : [
             {
                 dialogue: "I found a cool toy at the store! Can I keep it?",
                 message: "Your child found something interesting!",
@@ -3621,11 +3663,20 @@ class MyChildGame {
                 ]
             },
             {
-                dialogue: "I want to learn how to use the computer! Can you teach me?",
-                message: "Interest in 2000s technology!",
+                dialogue: this.language === 'no' ? "Jeg vil lære å bruke datamaskinen! Kan du lære meg?" : "I want to learn how to use the computer! Can you teach me?",
+                message: this.language === 'no' ? "Interesse for 2000-talls teknologi!" : "Interest in 2000s technology!",
                 choices: [
-                    { text: "Absolutely! Let's explore the computer together.", effect: () => { this.adjustStat('learning', 20); this.adjustStat('happiness', 15); this.showDialogue("This is so cool! I love learning about computers!"); } },
-                    { text: "Maybe later, we're busy right now.", effect: () => { this.adjustStat('learning', 3); this.showDialogue("I'll wait then..."); } }
+                    { text: this.language === 'no' ? "Absolutt! La oss utforske datamaskinen sammen." : "Absolutely! Let's explore the computer together.", effect: () => { 
+                        this.adjustStat('learning', 20); 
+                        this.adjustStat('happiness', 15); 
+                        const msg = this.language === 'no' ? "Dette er så kult! Jeg elsker å lære om datamaskiner!" : "This is so cool! I love learning about computers!";
+                        this.showDialogue(msg); 
+                    } },
+                    { text: this.language === 'no' ? "Kanskje senere, vi er opptatt akkurat nå." : "Maybe later, we're busy right now.", effect: () => { 
+                        this.adjustStat('learning', 3); 
+                        const msg = this.language === 'no' ? "Jeg venter da..." : "I'll wait then...";
+                        this.showDialogue(msg); 
+                    } }
                 ]
             },
             {
