@@ -44,6 +44,10 @@ class MyChildGame {
             mindfulnessPractices: savedGame && savedGame.mindfulnessPractices ? savedGame.mindfulnessPractices : 0,
             artCreated: savedGame && savedGame.artCreated ? savedGame.artCreated : 0,
             quizzesCompleted: savedGame && savedGame.quizzesCompleted ? savedGame.quizzesCompleted : 0,
+            cookedMeals: savedGame && savedGame.cookedMeals ? savedGame.cookedMeals : 0,
+            exercisesCompleted: savedGame && savedGame.exercisesCompleted ? savedGame.exercisesCompleted : 0,
+            natureExplorations: savedGame && savedGame.natureExplorations ? savedGame.natureExplorations : 0,
+            subjectsStudied: savedGame && savedGame.subjectsStudied ? savedGame.subjectsStudied : {},
             // Character customization
             gender: this.customization.gender || 'boy',
             emoji: this.customization.emoji || '🧒',
@@ -179,6 +183,16 @@ class MyChildGame {
                     }
                     if (parsed.quizzesCompleted !== undefined && parsed.child) {
                         parsed.child.quizzesCompleted = parsed.quizzesCompleted;
+                    }
+                    if (parsed.hasSeenTutorial !== undefined) {
+                        parsed.hasSeenTutorial = parsed.hasSeenTutorial;
+                    }
+                    // Restore activity tracking
+                    if (parsed.child) {
+                        if (parsed.cookedMeals !== undefined) parsed.child.cookedMeals = parsed.cookedMeals;
+                        if (parsed.exercisesCompleted !== undefined) parsed.child.exercisesCompleted = parsed.exercisesCompleted;
+                        if (parsed.natureExplorations !== undefined) parsed.child.natureExplorations = parsed.natureExplorations;
+                        if (parsed.subjectsStudied !== undefined) parsed.child.subjectsStudied = parsed.subjectsStudied;
                     }
                     return parsed;
                 } else {
@@ -519,25 +533,52 @@ class MyChildGame {
     }
     
     updateDisplay() {
-        // Update stats
-        document.getElementById('happinessValue').textContent = this.child.happiness;
-        document.getElementById('energyValue').textContent = this.child.energy;
-        document.getElementById('socialValue').textContent = this.child.social;
-        document.getElementById('learningValue').textContent = this.child.learning;
-        document.getElementById('hungerValue').textContent = this.child.hunger;
+        // Update stats with animation
+        const updateStatWithAnimation = (elementId, value) => {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const oldValue = parseInt(element.textContent) || 0;
+                if (oldValue !== value) {
+                    // Add animation class
+                    element.classList.add('stat-updating');
+                    element.textContent = value;
+                    // Remove animation class after animation
+                    setTimeout(() => element.classList.remove('stat-updating'), 500);
+                } else {
+                    element.textContent = value;
+                }
+            }
+        };
         
-        // Update bars
-        document.getElementById('happinessBar').style.width = this.child.happiness + '%';
-        document.getElementById('energyBar').style.width = this.child.energy + '%';
-        document.getElementById('socialBar').style.width = this.child.social + '%';
-        document.getElementById('learningBar').style.width = this.child.learning + '%';
+        updateStatWithAnimation('happinessValue', this.child.happiness);
+        updateStatWithAnimation('energyValue', this.child.energy);
+        updateStatWithAnimation('socialValue', this.child.social);
+        updateStatWithAnimation('learningValue', this.child.learning);
+        updateStatWithAnimation('hungerValue', this.child.hunger);
+        
+        // Update bars with smooth transition
+        const updateBar = (barId, value) => {
+            const bar = document.getElementById(barId);
+            if (bar) {
+                bar.style.transition = 'width 0.5s ease';
+                bar.style.width = value + '%';
+            }
+        };
+        
+        updateBar('happinessBar', this.child.happiness);
+        updateBar('energyBar', this.child.energy);
+        updateBar('socialBar', this.child.social);
+        updateBar('learningBar', this.child.learning);
         
         const hungerBar = document.getElementById('hungerBar');
-        hungerBar.style.width = this.child.hunger + '%';
-        if (this.child.hunger < 30) {
-            hungerBar.classList.add('low');
-        } else {
-            hungerBar.classList.remove('low');
+        if (hungerBar) {
+            hungerBar.style.transition = 'width 0.5s ease';
+            hungerBar.style.width = this.child.hunger + '%';
+            if (this.child.hunger < 30) {
+                hungerBar.classList.add('low');
+            } else {
+                hungerBar.classList.remove('low');
+            }
         }
         
         // Update time
