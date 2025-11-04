@@ -3252,51 +3252,105 @@ class MyChildGame {
         
         this.updateDisplay();
         this.saveGame(); // Auto-save at end of day
-        this.showMessage(`Day ${this.day} begins! Time for new adventures in the 2000s. Remember: ${this.child.name} is perfect just as ${this.child.gender === 'girl' ? 'she' : 'he'} is, and so is everyone else!`);
+        const dayMsg = this.language === 'no'
+            ? `Dag ${this.day} begynner! Tid for nye eventyr i 2000-tallet. Husk: ${this.child.name} er perfekt akkurat som ${this.child.gender === 'girl' ? 'hun' : 'han'} er, og det er alle andre også!`
+            : `Day ${this.day} begins! Time for new adventures in the 2000s. Remember: ${this.child.name} is perfect just as ${this.child.gender === 'girl' ? 'she' : 'he'} is, and so is everyone else!`;
+        this.showMessage(dayMsg);
     }
     
     checkSuccessMilestones() {
         // Show hope and progress messages
         if (this.child.helpingOthers === 5 && this.child.age >= 12) {
-            this.showDialogue("I've helped five people now... I'm becoming someone who makes a difference. This feels amazing!");
-            this.showMessage("🎉 Alex is becoming a hero! Helping others gives purpose and strength!");
+            const dialogue = this.language === 'no'
+                ? "Jeg har hjulpet fem personer nå... Jeg blir noen som gjør en forskjell. Dette føles fantastisk!"
+                : "I've helped five people now... I'm becoming someone who makes a difference. This feels amazing!";
+            const message = this.language === 'no'
+                ? "🎉 " + this.child.name + " blir en helt! Å hjelpe andre gir formål og styrke!"
+                : "🎉 " + this.child.name + " is becoming a hero! Helping others gives purpose and strength!";
+            this.showDialogue(dialogue);
+            this.showMessage(message);
         }
         
         if (this.child.studyLevel === 50 && this.child.age >= 12) {
-            this.showDialogue("I'm really getting good at studying! I can see my future opening up... The kids who mocked me don't know what I'm building.");
-            this.showMessage("💪 Alex's hard work is paying off! Success comes from dedication!");
+            const dialogue = this.language === 'no'
+                ? "Jeg blir virkelig god på å studere! Jeg kan se fremtiden min åpne seg... Barna som hånte meg vet ikke hva jeg bygger."
+                : "I'm really getting good at studying! I can see my future opening up... The kids who mocked me don't know what I'm building.";
+            const message = this.language === 'no'
+                ? "💪 " + this.child.name + "s harde arbeid lønner seg! Suksess kommer fra dedikasjon!"
+                : "💪 " + this.child.name + "'s hard work is paying off! Success comes from dedication!";
+            this.showDialogue(dialogue);
+            this.showMessage(message);
         }
         
         if (this.child.careerProgress >= 50 && this.child.age >= 14) {
-            this.showDialogue("I'm starting to see opportunities... All this work is leading somewhere. I'm not who they said I was.");
-            this.showMessage("✨ Alex is building a bright future! The story isn't over - it's just beginning!");
+            const dialogue = this.language === 'no'
+                ? "Jeg begynner å se muligheter... Alt dette arbeidet leder til noe. Jeg er ikke den de sa jeg var."
+                : "I'm starting to see opportunities... All this work is leading somewhere. I'm not who they said I was.";
+            const message = this.language === 'no'
+                ? "✨ " + this.child.name + " bygger en lys fremtid! Historien er ikke over - den begynner bare!"
+                : "✨ " + this.child.name + " is building a bright future! The story isn't over - it's just beginning!";
+            this.showDialogue(dialogue);
+            this.showMessage(message);
         }
         
         if (this.child.goodChoices > this.child.shortTermChoices * 2 && this.child.age >= 12) {
-            this.showDialogue("I'm making good choices... Prioritizing my future over short-term fun. I know it's worth it.");
-            this.showMessage("🌟 Alex is learning the value of long-term thinking! These choices will shape the future!");
+            const dialogue = this.language === 'no'
+                ? "Jeg tar gode valg... Prioriterer fremtiden min fremfor kortsiktig moro. Jeg vet det er verdt det."
+                : "I'm making good choices... Prioritizing my future over short-term fun. I know it's worth it.";
+            const message = this.language === 'no'
+                ? "🌟 " + this.child.name + " lærer verdien av langsiktig tenkning! Disse valgene vil forme fremtiden!"
+                : "🌟 " + this.child.name + " is learning the value of long-term thinking! These choices will shape the future!";
+            this.showDialogue(dialogue);
+            this.showMessage(message);
         }
     }
     
     showFinalSuccessMessage() {
         let successStory = "";
+        let finalMessage = "";
         
         if (this.child.helpingOthers > 20) {
-            successStory = "I've grown up through the whole 2000s! I've helped over 20 people... I became the person I needed when I was younger. The bullies who said I'd never amount to anything? They were wrong. I'm a hero now, and I'm just getting started.";
+            successStory = this.language === 'no'
+                ? "Jeg har vokst opp gjennom hele 2000-tallet! Jeg har hjulpet over 20 personer... Jeg ble den personen jeg trengte da jeg var yngre. Bøllene som sa jeg aldri ville bli noe? De tok feil. Jeg er en helt nå, og jeg er bare i gang."
+                : "I've grown up through the whole 2000s! I've helped over 20 people... I became the person I needed when I was younger. The bullies who said I'd never amount to anything? They were wrong. I'm a hero now, and I'm just getting started.";
+            finalMessage = this.language === 'no'
+                ? "🌟 " + this.child.name + "s historie viser at med støtte, hardt arbeid og gode valg kan alle overvinne utfordringer og finne suksess! Fremtiden er aldri skrevet i stein - den bygges av valgene vi tar i dag!"
+                : "🌟 " + this.child.name + "'s story shows that with support, hard work, and good choices, anyone can overcome challenges and find success! The future is never set in stone - it's built by the choices we make today!";
         } else if (this.child.studyLevel > 80 && this.child.careerProgress > 70) {
-            successStory = "I've grown up through the whole 2000s! All that studying paid off... I'm successful, smart, and making money. The kids who called me a loser? They can see me now - successful, happy, and building my future. Hard work wins.";
+            successStory = this.language === 'no'
+                ? "Jeg har vokst opp gjennom hele 2000-tallet! Alt det studiet betalte seg... Jeg er vellykket, smart og tjener penger. Barna som kalte meg taper? De kan se meg nå - vellykket, lykkelig og bygger min fremtid. Hardt arbeid vinner."
+                : "I've grown up through the whole 2000s! All that studying paid off... I'm successful, smart, and making money. The kids who called me a loser? They can see me now - successful, happy, and building my future. Hard work wins.";
+            finalMessage = this.language === 'no'
+                ? "🌟 " + this.child.name + "s historie viser at med støtte, hardt arbeid og gode valg kan alle overvinne utfordringer og finne suksess! Fremtiden er aldri skrevet i stein - den bygges av valgene vi tar i dag!"
+                : "🌟 " + this.child.name + "'s story shows that with support, hard work, and good choices, anyone can overcome challenges and find success! The future is never set in stone - it's built by the choices we make today!";
         } else if (this.child.resilience > 90) {
-            successStory = "I've grown up through the whole 2000s! I'm stronger than I ever imagined. I faced challenges, I grew, and I learned that I'm capable of amazing things. The story isn't written in stone - I wrote my own story.";
+            successStory = this.language === 'no'
+                ? "Jeg har vokst opp gjennom hele 2000-tallet! Jeg er sterkere enn jeg noen gang kunne forestille meg. Jeg møtte utfordringer, jeg vokste, og jeg lærte at jeg er i stand til fantastiske ting. Historien er ikke skrevet i stein - jeg skrev min egen historie."
+                : "I've grown up through the whole 2000s! I'm stronger than I ever imagined. I faced challenges, I grew, and I learned that I'm capable of amazing things. The story isn't written in stone - I wrote my own story.";
+            finalMessage = this.language === 'no'
+                ? "🌟 " + this.child.name + "s historie viser at med støtte, hardt arbeid og gode valg kan alle overvinne utfordringer og finne suksess! Fremtiden er aldri skrevet i stein - den bygges av valgene vi tar i dag!"
+                : "🌟 " + this.child.name + "'s story shows that with support, hard work, and good choices, anyone can overcome challenges and find success! The future is never set in stone - it's built by the choices we make today!";
         } else if (this.child.goodChoices > this.child.shortTermChoices) {
-            successStory = "I've grown up through the 2000s! I made good choices, even when they were hard. I prioritized my future, and now I'm reaping the rewards. Success doesn't come from taking the easy path - it comes from working hard.";
+            successStory = this.language === 'no'
+                ? "Jeg har vokst opp gjennom 2000-tallet! Jeg tok gode valg, selv når de var vanskelige. Jeg prioriterte fremtiden min, og nå høster jeg belønningene. Suksess kommer ikke fra å ta den enkle veien - den kommer fra hardt arbeid."
+                : "I've grown up through the 2000s! I made good choices, even when they were hard. I prioritized my future, and now I'm reaping the rewards. Success doesn't come from taking the easy path - it comes from working hard.";
+            finalMessage = this.language === 'no'
+                ? "🌟 " + this.child.name + "s historie viser at med støtte, hardt arbeid og gode valg kan alle overvinne utfordringer og finne suksess! Fremtiden er aldri skrevet i stein - den bygges av valgene vi tar i dag!"
+                : "🌟 " + this.child.name + "'s story shows that with support, hard work, and good choices, anyone can overcome challenges and find success! The future is never set in stone - it's built by the choices we make today!";
         }
         
         if (successStory) {
             this.showDialogue(successStory);
-            this.showMessage("🌟 Alex's story shows that with support, hard work, and good choices, anyone can overcome challenges and find success! The future is never set in stone - it's built by the choices we make today!");
+            this.showMessage(finalMessage);
         } else {
-            this.showDialogue("I've grown up through the whole 2000s! What a journey!");
-            this.showMessage("Your child has grown up through the 2000s! What an amazing journey!");
+            const defaultDialogue = this.language === 'no'
+                ? "Jeg har vokst opp gjennom hele 2000-tallet! For en reise!"
+                : "I've grown up through the whole 2000s! What a journey!";
+            const defaultMessage = this.language === 'no'
+                ? "Barnet ditt har vokst opp gjennom 2000-tallet! For en fantastisk reise!"
+                : "Your child has grown up through the 2000s! What an amazing journey!";
+            this.showDialogue(defaultDialogue);
+            this.showMessage(defaultMessage);
         }
     }
     
@@ -3993,7 +4047,9 @@ class MyChildGame {
         
         // Growing Up - Reached age milestones
         if (this.child.age === 5 && !this.achievements.includes('big_kid')) {
-            newAchievements.push({ id: 'big_kid', name: 'Stor Gutt/Jente', description: 'Du er 5 år gammel!', icon: '🎂' });
+            const name = this.language === 'no' ? 'Stor Gutt/Jente' : 'Big Kid';
+            const desc = this.language === 'no' ? 'Du er 5 år gammel!' : 'You are 5 years old!';
+            newAchievements.push({ id: 'big_kid', name: name, description: desc, icon: '🎂' });
             this.achievements.push('big_kid');
         }
         
