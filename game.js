@@ -3460,10 +3460,9 @@ class MyChildGame {
                     }
                 ]
             },
-        ];
             {
-                dialogue: "They pushed me today... I didn't know what to do.",
-                message: "Physical bullying incident.",
+                dialogue: this.language === 'no' ? "De dytte meg i dag... Jeg visste ikke hva jeg skulle gjøre." : "They pushed me today... I didn't know what to do.",
+                message: this.language === 'no' ? "Fysisk mobbing-hendelse." : "Physical bullying incident.",
                 choices: [
                     { 
                         text: "Are you okay? We need to tell someone about this.", 
