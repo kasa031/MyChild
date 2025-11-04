@@ -487,7 +487,20 @@ class MyChildGame {
             }
         }
         
-        // Use custom emoji from character customization
+        // Try to use custom SVG renderer first
+        if (window.CharacterRenderer) {
+            try {
+                const renderer = new CharacterRenderer();
+                const svg = renderer.renderCharacter(this.child, emotion);
+                avatar.innerHTML = '';
+                avatar.appendChild(svg);
+                return;
+            } catch (e) {
+                console.log('SVG rendering failed, using emoji fallback:', e);
+            }
+        }
+        
+        // Fallback to emoji
         let baseEmoji = this.child.emoji || '🧒';
         
         // If no custom emoji, use age-appropriate default
@@ -503,9 +516,10 @@ class MyChildGame {
             }
         }
         
-        // For emotion display, we'll use the base emoji but could add emotion indicators
-        // For now, keep the custom emoji but show emotion through text/context
         avatar.textContent = baseEmoji;
+        
+        // Add emotion data attribute for CSS animations
+        avatar.setAttribute('data-emotion', this.child.currentEmotion);
     }
     
     loadSceneImages() {

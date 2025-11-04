@@ -99,6 +99,13 @@ header h1 {
     justify-content: center;
     border: 3px solid #667eea;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.child-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
 }
 
 .child-avatar img {
@@ -106,6 +113,57 @@ header h1 {
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.child-avatar svg {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+}
+
+/* Animation for character avatar when happy */
+.child-avatar.animated {
+    animation: characterPulse 2s ease-in-out infinite;
+}
+
+@keyframes characterPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+/* Subtle animation for emotions */
+.child-avatar[data-emotion="happy"] {
+    animation: gentlePulse 2s ease-in-out infinite;
+}
+
+.child-avatar[data-emotion="sad"] {
+    opacity: 0.85;
+}
+
+.child-avatar[data-emotion="angry"] {
+    animation: slightShake 0.5s ease-in-out infinite;
+}
+
+.child-avatar[data-emotion="excited"] {
+    animation: gentleBounce 1s ease-in-out infinite;
+}
+
+@keyframes gentlePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+}
+
+@keyframes slightShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+@keyframes gentleBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
 }
 
 .child-status h2 {
