@@ -64,6 +64,10 @@
             gap: 15px;
             margin-top: 15px;
         }
+        .customization-options:has(#startAge) {
+            display: flex;
+            justify-content: center;
+        }
         .option-group {
             display: flex;
             flex-direction: column;
@@ -167,8 +171,11 @@
                         <label>Navn:</label>
                         <input type="text" id="childName" name="childName" placeholder="Navn (valgfritt)">
                     </div>
-                    
-                    <div class="option-group">
+                </div>
+                
+                <!-- Alder midt mellom de to øverste -->
+                <div class="customization-options" style="margin-top: 15px; justify-content: center;">
+                    <div class="option-group" style="max-width: 200px; margin: 0 auto;">
                         <label>Alder (start):</label>
                         <select id="startAge" name="startAge">
                             <option value="7">7 år</option>
