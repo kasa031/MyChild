@@ -146,22 +146,22 @@
                 </div>
 
                 <div class="actions-area" id="actionsArea">
-                    <h3>Activities</h3>
+                    <h3 data-translate="activities">Aktiviteter</h3>
                     <div class="action-buttons">
                         <button class="action-btn" onclick="game.goToLocation('playground')">
-                            <img src="images/playoutside.png" alt="Playground" class="action-icon"> Playground
+                            <img src="images/playoutside.png" alt="Playground" class="action-icon"> <span data-translate="playground">Lekegrind</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('nature')">
-                            🌳 Nature
+                            🌳 <span data-translate="nature">Natur</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('school')">
-                            🏫 School
+                            🏫 <span data-translate="school">Skole</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('home')">
-                            🏠 Home
+                            🏠 <span data-translate="home">Hjem</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('friend')">
-                            👥 Friend's House
+                            👥 <span data-translate="friend">Venns hus</span>
                         </button>
                     </div>
                 <div class="daily-routines">
@@ -192,7 +192,7 @@
                     </div>
                     <h4>Free Time (Choose Wisely)</h4>
                     <div class="routine-buttons">
-                        <button class="routine-btn" onclick="game.watchTikTok()">📱 TikTok</button>
+                        <button class="routine-btn" onclick="game.readBooks()" id="readBooksBtn">📚 <span data-translate="readBooks">Les bøker</span></button>
                         <button class="routine-btn" onclick="game.playVideoGames()">🎮 Games</button>
                         <button class="routine-btn" onclick="game.quizAboutEmotions()">❓ Emotion Quiz</button>
                         <button class="routine-btn" onclick="game.listenToMusic()">

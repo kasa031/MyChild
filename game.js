@@ -79,6 +79,10 @@ class MyChildGame {
         this.lastFactDay = savedGame ? savedGame.lastFactDay : 0; // Track last day a fact was shown
         this.dailyTipShown = savedGame ? savedGame.dailyTipShown : false; // Track if daily tip was shown today
         this.hasSeenTutorial = savedGame ? savedGame.hasSeenTutorial : false; // Track if user has seen tutorial
+        this.language = savedGame ? (savedGame.language || 'no') : 'no'; // Language: 'no' or 'en'
+        
+        // Initialize translations
+        this.initTranslations();
         
         // Initialize customization if not loaded
         this.customization = this.customization || {
@@ -353,6 +357,165 @@ class MyChildGame {
         setTimeout(() => this.showDailyLearning(), 2000);
         
         this.checkForEvents();
+    }
+    
+    initTranslations() {
+        this.translations = {
+            no: {
+                timeNames: ["Morgen", "Ettermiddag", "Kveld", "Natt"],
+                stats: {
+                    happiness: "Lykke",
+                    energy: "Energi",
+                    social: "Sosial",
+                    learning: "Læring",
+                    hunger: "Sult"
+                },
+                activities: {
+                    feed: "Fôr",
+                    bathe: "Bad",
+                    play: "Lek",
+                    read: "Les",
+                    mindfulness: "Mindfulness",
+                    draw: "Tegn/Lag",
+                    cook: "Lag mat",
+                    daydream: "Drøm",
+                    talk: "Snakk",
+                    learnEmotions: "Lær følelser",
+                    study: "Studer",
+                    volunteer: "Frivillig",
+                    help: "Hjelp andre",
+                    exercise: "Trening",
+                    quiz: "Følelses-quiz",
+                    music: "Hør musikk",
+                    call: "Ring venn",
+                    playground: "Lekegrind",
+                    nature: "Natur",
+                    school: "Skole",
+                    home: "Hjem",
+                    friend: "Venns hus"
+                },
+                messages: {
+                    welcome: "Velkommen! Ta vare på barnet ditt i 2000-tallet.",
+                    saved: "Lagret",
+                    actionsRemaining: "Handlinger igjen",
+                    goToNextDay: "Gå til neste dag"
+                }
+            },
+            en: {
+                timeNames: ["Morning", "Afternoon", "Evening", "Night"],
+                stats: {
+                    happiness: "Happiness",
+                    energy: "Energy",
+                    social: "Social",
+                    learning: "Learning",
+                    hunger: "Hunger"
+                },
+                activities: {
+                    feed: "Feed",
+                    bathe: "Bathe",
+                    play: "Play",
+                    read: "Read",
+                    mindfulness: "Mindfulness",
+                    draw: "Draw/Create",
+                    cook: "Cook Together",
+                    daydream: "Daydream",
+                    talk: "Talk",
+                    learnEmotions: "Learn Emotions",
+                    study: "Study Hard",
+                    volunteer: "Volunteer",
+                    help: "Help Others",
+                    exercise: "Exercise",
+                    quiz: "Emotion Quiz",
+                    music: "Listen Music",
+                    call: "Call Friend",
+                    playground: "Playground",
+                    nature: "Nature",
+                    school: "School",
+                    home: "Home",
+                    friend: "Friend's House"
+                },
+                messages: {
+                    welcome: "Welcome! Take care of your child in the 2000s.",
+                    saved: "Saved",
+                    actionsRemaining: "Actions remaining",
+                    goToNextDay: "Go to next day"
+                }
+            }
+        };
+    }
+    
+    t(key, ...args) {
+        // Translation helper - supports nested keys like 'stats.happiness'
+        const keys = key.split('.');
+        let translation = this.translations[this.language];
+        
+        for (const k of keys) {
+            if (translation && translation[k]) {
+                translation = translation[k];
+            } else {
+                // Fallback to Norwegian if translation not found
+                translation = this.translations.no;
+                for (const k2 of keys) {
+                    if (translation && translation[k2]) {
+                        translation = translation[k2];
+                    } else {
+                        return key; // Return key if not found
+                    }
+                }
+                break;
+            }
+        }
+        
+        // If translation is a function, call it with args
+        if (typeof translation === 'function') {
+            return translation(...args);
+        }
+        
+        // If translation is a string, format it
+        if (typeof translation === 'string' && args.length > 0) {
+            return translation.replace(/{(\d+)}/g, (match, index) => {
+                return args[index] || match;
+            });
+        }
+        
+        return translation;
+    }
+    
+    setLanguage(lang) {
+        this.language = lang;
+        this.saveGame();
+        
+        // Update language radio buttons
+        document.querySelectorAll('input[name="language"]').forEach(radio => {
+            radio.checked = radio.value === lang;
+        });
+        
+        this.updateAllTexts();
+        this.showMessage(this.language === 'no' ? 'Språk endret til norsk!' : 'Language changed to English!');
+    }
+    
+    updateAllTexts() {
+        // Update all UI texts based on language
+        this.updateDisplay();
+        // Update time names
+        const timeElement = document.getElementById('currentTime');
+        if (timeElement) {
+            timeElement.textContent = this.t('timeNames')[this.timeOfDay];
+        }
+        // Update stats labels
+        const statLabels = document.querySelectorAll('.stat-label');
+        statLabels.forEach(label => {
+            const statType = label.textContent.split(':')[0];
+            // Update based on stat type
+        });
+        // Update button texts
+        this.updateButtonTexts();
+    }
+    
+    updateButtonTexts() {
+        // Update all button texts
+        const buttons = document.querySelectorAll('.routine-btn, .action-btn');
+        // This will be handled by individual update functions
     }
     
     showTutorial() {
