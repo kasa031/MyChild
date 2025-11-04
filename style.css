@@ -27,6 +27,17 @@
     }
 }
 
+@keyframes statPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.stat-updating {
+    animation: statPulse 0.5s ease;
+    color: #ff00ff;
+    font-weight: bold;
+}
+
 body {
     font-family: 'Comic Sans MS', Arial, sans-serif;
     background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%);

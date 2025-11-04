@@ -66,9 +66,10 @@ class MyChildGame {
             this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
             this.copingActivities = savedGame ? savedGame.copingActivities : []; // Track activities that help Alex cope
             this.achievements = savedGame ? savedGame.achievements : []; // Track achievements
-            this.factsShown = savedGame ? savedGame.factsShown : []; // Track which facts have been shown
-            this.lastFactDay = savedGame ? savedGame.lastFactDay : 0; // Track last day a fact was shown
-            this.dailyTipShown = savedGame ? savedGame.dailyTipShown : false; // Track if daily tip was shown today
+        this.factsShown = savedGame ? savedGame.factsShown : []; // Track which facts have been shown
+        this.lastFactDay = savedGame ? savedGame.lastFactDay : 0; // Track last day a fact was shown
+        this.dailyTipShown = savedGame ? savedGame.dailyTipShown : false; // Track if daily tip was shown today
+        this.hasSeenTutorial = savedGame ? savedGame.hasSeenTutorial : false; // Track if user has seen tutorial
         
         // Initialize customization if not loaded
         this.customization = this.customization || {
@@ -226,6 +227,10 @@ class MyChildGame {
                     mindfulnessPractices: this.child.mindfulnessPractices || 0,
                     artCreated: this.child.artCreated || 0,
                     quizzesCompleted: this.child.quizzesCompleted || 0,
+                    cookedMeals: this.child.cookedMeals || 0,
+                    exercisesCompleted: this.child.exercisesCompleted || 0,
+                    natureExplorations: this.child.natureExplorations || 0,
+                    subjectsStudied: this.child.subjectsStudied || {},
                     lastSaved: new Date().toISOString() // Save timestamp
                 };
             
@@ -320,10 +325,58 @@ class MyChildGame {
         // Start with initial emotional check
         this.updateEmotionalState();
         
+        // Show tutorial for new players
+        if (!this.hasSeenTutorial && this.day === 1 && this.actionsToday === 0) {
+            setTimeout(() => this.showTutorial(), 1500);
+        }
+        
         // Show daily learning fact or tip
         setTimeout(() => this.showDailyLearning(), 2000);
         
         this.checkForEvents();
+    }
+    
+    showTutorial() {
+        this.hasSeenTutorial = true;
+        this.saveGame();
+        
+        const tutorialSteps = [
+            {
+                title: "Velkommen til MyChild! 👶",
+                message: "Dette er et omsorgsspill hvor du tar vare på et barn som vokser opp i 2000-tallet. Ta vare på barnet ved å fylle statsene!",
+                duration: 4000
+            },
+            {
+                title: "Stats 📊",
+                message: "Happiness, Energy, Social, Learning og Hunger er viktige stats. Sørg for at de ikke blir for lave!",
+                duration: 4000
+            },
+            {
+                title: "Aktiviteter 🎮",
+                message: "Prøv ulike aktiviteter - Feed, Play, Read, Cook, Exercise og mer! Hver aktivitet gir læringsfakta og lærer barnet noe nytt!",
+                duration: 4000
+            },
+            {
+                title: "Tips 💡",
+                message: "Spillet lærer bort om følelser, psykologi, mat, natur og mer! Se etter læringsfakta som dukker opp under aktiviteter.",
+                duration: 4000
+            }
+        ];
+        
+        let currentStep = 0;
+        
+        const showNextStep = () => {
+            if (currentStep < tutorialSteps.length) {
+                const step = tutorialSteps[currentStep];
+                this.showMessage("📖 " + step.title + " - " + step.message);
+                currentStep++;
+                if (currentStep < tutorialSteps.length) {
+                    setTimeout(showNextStep, step.duration);
+                }
+            }
+        };
+        
+        showNextStep();
     }
     
     showDailyLearning() {
@@ -2285,6 +2338,11 @@ class MyChildGame {
                 this.showMessage("Learning from mistakes is part of cooking! " + this.child.name + " is still learning!");
             }
             
+            // Track cooking
+            if (!this.child.cookedMeals) this.child.cookedMeals = 0;
+            this.child.cookedMeals++;
+            this.checkAchievements();
+            
             this.performAction();
             this.advanceTime();
         }, 2000);
@@ -2373,6 +2431,11 @@ class MyChildGame {
                 this.showMessage("Learning from mistakes is part of exercise! " + this.child.name + " is still learning!");
             }
             
+            // Track exercise
+            if (!this.child.exercisesCompleted) this.child.exercisesCompleted = 0;
+            this.child.exercisesCompleted++;
+            this.checkAchievements();
+            
             this.performAction();
             this.advanceTime();
         }, 2000);
@@ -2444,6 +2507,12 @@ class MyChildGame {
         }, 1000);
         
         this.showMessage("Exploring nature helps " + this.child.name + " learn about the environment and insects!");
+        
+        // Track nature exploration
+        if (!this.child.natureExplorations) this.child.natureExplorations = 0;
+        this.child.natureExplorations++;
+        this.checkAchievements();
+        
         this.performAction();
         this.advanceTime();
     }
@@ -2545,6 +2614,14 @@ class MyChildGame {
                     this.adjustRelationship(1);
                     this.showMessage("Learning from mistakes is important! " + this.child.name + " is still learning!");
                 }
+                
+                // Track subject studied
+                if (!this.child.subjectsStudied) this.child.subjectsStudied = {};
+                if (!this.child.subjectsStudied[subjectChoice.name]) {
+                    this.child.subjectsStudied[subjectChoice.name] = 0;
+                }
+                this.child.subjectsStudied[subjectChoice.name]++;
+                this.checkAchievements();
                 
                 this.performAction();
                 this.advanceTime();
@@ -3455,6 +3532,24 @@ class MyChildGame {
         // Show in dialogue too
         this.showDialogue(`🎉 ${achievement.name}! ${achievement.description}`);
         this.showMessage(`Achievement Unlocked: ${achievement.name}!`);
+    }
+    
+    showHelp() {
+        const helpMessages = [
+            "💡 Tips: Fyll statsene regelmessig! Hunger går ned hver dag, så sørg for å fôre barnet.",
+            "💡 Tips: Prøv ulike aktiviteter! Hver aktivitet gir læringsfakta og lærer barnet noe nytt.",
+            "💡 Tips: Balance er viktig! Mange aktiviteter gir læring, men husk også å la barnet hvile.",
+            "💡 Tips: Når du går til neste dag, får du nye handlinger. Planlegg dagen din!",
+            "💡 Tips: Hver aktivitet har læringsmomenter - se etter læringsfakta som dukker opp!",
+            "💡 Tips: Achievements låses opp når du gjør spesielle ting. Prøv å få alle!",
+            "💡 Tips: Barnet vokser opp - nye aktiviteter låses opp når barnet blir eldre.",
+            "💡 Tips: Skolefag gir ekstra læring. Prøv alle fagene for å lære mer!",
+            "💡 Tips: Matlaging og trening lærer praktiske ferdigheter som måling og avstand.",
+            "💡 Tips: Nature-aktiviteter lærer om miljø og insekter. Utforsk ofte!"
+        ];
+        
+        const randomHelp = helpMessages[Math.floor(Math.random() * helpMessages.length)];
+        this.showMessage(randomHelp);
     }
 }
 
