@@ -165,41 +165,41 @@
                         </button>
                     </div>
                 <div class="daily-routines">
-                    <h4>Daily Care</h4>
+                    <h4 data-translate="dailyCare">Daglig omsorg</h4>
                     <div class="routine-buttons">
                         <button class="routine-btn feed-btn" onclick="game.feedChild()">
-                            <img src="images/babybottle.png" alt="Feed" class="action-icon feed-icon"> <span class="btn-text">Feed</span>
+                            <img src="images/babybottle.png" alt="Feed" class="action-icon feed-icon"> <span class="btn-text" data-translate="feed">Fôr</span>
                         </button>
-                        <button class="routine-btn" onclick="game.batheChild()">🛁 Bathe</button>
-                        <button class="routine-btn" onclick="game.playWithChild()">🎮 Play</button>
-                        <button class="routine-btn" onclick="game.readToChild()">📖 Read</button>
-                        <button class="routine-btn" onclick="game.practiceMindfulness()">🧘 Mindfulness</button>
-                        <button class="routine-btn" onclick="game.drawOrCreate()">🎨 Draw/Create</button>
-                        <button class="routine-btn" onclick="game.cookTogether()">🍳 Cook Together</button>
+                        <button class="routine-btn" onclick="game.batheChild()">🛁 <span data-translate="bathe">Bad</span></button>
+                        <button class="routine-btn" onclick="game.playWithChild()">🎮 <span data-translate="play">Lek</span></button>
+                        <button class="routine-btn" onclick="game.readToChild()">📖 <span data-translate="read">Les</span></button>
+                        <button class="routine-btn" onclick="game.practiceMindfulness()">🧘 <span data-translate="mindfulness">Mindfulness</span></button>
+                        <button class="routine-btn" onclick="game.drawOrCreate()">🎨 <span data-translate="draw">Tegn/Lag</span></button>
+                        <button class="routine-btn" onclick="game.cookTogether()">🍳 <span data-translate="cook">Lag mat</span></button>
                     </div>
-                    <h4>Support & Coping</h4>
+                    <h4 data-translate="support">Støtte og mestring</h4>
                     <div class="routine-buttons">
-                        <button class="routine-btn" onclick="game.daydream()">💭 Daydream</button>
-                        <button class="routine-btn" onclick="game.talkToCaringAdult()">💬 Talk</button>
-                        <button class="routine-btn" onclick="game.learnAboutEmotions()">❤️ Learn Emotions</button>
+                        <button class="routine-btn" onclick="game.daydream()">💭 <span data-translate="daydream">Drøm</span></button>
+                        <button class="routine-btn" onclick="game.talkToCaringAdult()">💬 <span data-translate="talk">Snakk</span></button>
+                        <button class="routine-btn" onclick="game.learnAboutEmotions()">❤️ <span data-translate="learnEmotions">Lær følelser</span></button>
                     </div>
-                    <h4>Growth & Choices</h4>
+                    <h4 data-translate="growth">Vekst og valg</h4>
                     <div class="routine-buttons">
-                        <button class="routine-btn" onclick="game.studyHard()">📚 Study Hard</button>
-                        <button class="routine-btn" onclick="game.volunteer()">🤝 Volunteer</button>
-                        <button class="routine-btn" onclick="game.helpOthers()">🦸 Help Others</button>
-                        <button class="routine-btn" onclick="game.exercise()">🏃 Exercise</button>
+                        <button class="routine-btn" onclick="game.studyHard()">📚 <span data-translate="study">Studer</span></button>
+                        <button class="routine-btn" onclick="game.volunteer()">🤝 <span data-translate="volunteer">Frivillig</span></button>
+                        <button class="routine-btn" onclick="game.helpOthers()">🦸 <span data-translate="help">Hjelp andre</span></button>
+                        <button class="routine-btn" onclick="game.exercise()">🏃 <span data-translate="exercise">Trening</span></button>
                     </div>
-                    <h4>Free Time (Choose Wisely)</h4>
+                    <h4 data-translate="freeTime">Fritid</h4>
                     <div class="routine-buttons">
                         <button class="routine-btn" onclick="game.readBooks()" id="readBooksBtn">📚 <span data-translate="readBooks">Les bøker</span></button>
-                        <button class="routine-btn" onclick="game.playVideoGames()">🎮 Games</button>
-                        <button class="routine-btn" onclick="game.quizAboutEmotions()">❓ Emotion Quiz</button>
+                        <button class="routine-btn" onclick="game.playVideoGames()">🎮 <span data-translate="games">Spill</span></button>
+                        <button class="routine-btn" onclick="game.quizAboutEmotions()">❓ <span data-translate="quiz">Følelses-quiz</span></button>
                         <button class="routine-btn" onclick="game.listenToMusic()">
-                            <img src="images/cd.png" alt="Music" class="action-icon" style="width: 20px; height: 20px;"> Listen Music
+                            <img src="images/cd.png" alt="Music" class="action-icon" style="width: 20px; height: 20px;"> <span data-translate="music">Hør musikk</span>
                         </button>
                         <button class="routine-btn" onclick="game.callFriend()">
-                            <img src="images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;"> Call Friend
+                            <img src="images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;"> <span data-translate="call">Ring venn</span>
                         </button>
                     </div>
                 </div>
@@ -272,13 +272,27 @@
                 </div>
                 
                 <div class="profile-section">
+                    <h3 data-translate="language">Språk</h3>
+                    <div class="language-selector">
+                        <label>
+                            <input type="radio" name="language" value="no" onchange="game.setLanguage('no')" checked>
+                            <span>🇳🇴 Norsk</span>
+                        </label>
+                        <label>
+                            <input type="radio" name="language" value="en" onchange="game.setLanguage('en')">
+                            <span>🇬🇧 English</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
                     <h3>Om meg</h3>
                     <textarea id="profileBio" rows="4" placeholder="Skriv litt om deg selv..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #ff00ff; font-family: inherit;"></textarea>
                     <button class="btn-primary" onclick="game.saveProfile()" style="margin-top: 10px;">Lagre bio</button>
                 </div>
                 
                 <div class="profile-section">
-                    <h3>Butikk 💰</h3>
+                    <h3 data-translate="shop">Butikk</h3> 💰
                     <div class="money-display-profile">
                         <p>Du har: <span id="profileMoney">0</span> kr</p>
                     </div>

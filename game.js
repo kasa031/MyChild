@@ -497,25 +497,103 @@ class MyChildGame {
     updateAllTexts() {
         // Update all UI texts based on language
         this.updateDisplay();
+        
         // Update time names
         const timeElement = document.getElementById('currentTime');
         if (timeElement) {
             timeElement.textContent = this.t('timeNames')[this.timeOfDay];
         }
-        // Update stats labels
-        const statLabels = document.querySelectorAll('.stat-label');
-        statLabels.forEach(label => {
-            const statType = label.textContent.split(':')[0];
-            // Update based on stat type
+        
+        // Update elements with data-translate attribute
+        document.querySelectorAll('[data-translate]').forEach(element => {
+            const key = element.getAttribute('data-translate');
+            const translation = this.getTranslation(key);
+            if (translation) {
+                element.textContent = translation;
+            }
         });
-        // Update button texts
-        this.updateButtonTexts();
+        
+        // Update specific UI elements
+        const yearLabel = document.querySelector('.year-display');
+        if (yearLabel) {
+            yearLabel.innerHTML = (this.language === 'no' ? 'År: ' : 'Year: ') + '<span id="currentYear">' + this.year + '</span>';
+        }
     }
     
-    updateButtonTexts() {
-        // Update all button texts
-        const buttons = document.querySelectorAll('.routine-btn, .action-btn');
-        // This will be handled by individual update functions
+    getTranslation(key) {
+        // Simple translation lookup
+        const translations = {
+            no: {
+                welcome: "Velkommen! Ta vare på barnet ditt i 2000-tallet.",
+                activities: "Aktiviteter",
+                playground: "Lekegrind",
+                nature: "Natur",
+                school: "Skole",
+                home: "Hjem",
+                friend: "Venns hus",
+                dailyCare: "Daglig omsorg",
+                feed: "Fôr",
+                bathe: "Bad",
+                play: "Lek",
+                read: "Les",
+                mindfulness: "Mindfulness",
+                draw: "Tegn/Lag",
+                cook: "Lag mat",
+                support: "Støtte og mestring",
+                daydream: "Drøm",
+                talk: "Snakk",
+                learnEmotions: "Lær følelser",
+                growth: "Vekst og valg",
+                study: "Studer",
+                volunteer: "Frivillig",
+                help: "Hjelp andre",
+                exercise: "Trening",
+                freeTime: "Fritid",
+                readBooks: "Les bøker",
+                games: "Spill",
+                quiz: "Følelses-quiz",
+                music: "Hør musikk",
+                call: "Ring venn",
+                language: "Språk",
+                shop: "Butikk"
+            },
+            en: {
+                welcome: "Welcome! Take care of your child in the 2000s.",
+                activities: "Activities",
+                playground: "Playground",
+                nature: "Nature",
+                school: "School",
+                home: "Home",
+                friend: "Friend's House",
+                dailyCare: "Daily Care",
+                feed: "Feed",
+                bathe: "Bathe",
+                play: "Play",
+                read: "Read",
+                mindfulness: "Mindfulness",
+                draw: "Draw/Create",
+                cook: "Cook Together",
+                support: "Support & Coping",
+                daydream: "Daydream",
+                talk: "Talk",
+                learnEmotions: "Learn Emotions",
+                growth: "Growth & Choices",
+                study: "Study Hard",
+                volunteer: "Volunteer",
+                help: "Help Others",
+                exercise: "Exercise",
+                freeTime: "Free Time",
+                readBooks: "Read Books",
+                games: "Games",
+                quiz: "Emotion Quiz",
+                music: "Listen Music",
+                call: "Call Friend",
+                language: "Language",
+                shop: "Shop"
+            }
+        };
+        
+        return translations[this.language] && translations[this.language][key] ? translations[this.language][key] : key;
     }
     
     showTutorial() {
@@ -2049,27 +2127,52 @@ class MyChildGame {
         this.advanceTime();
     }
     
-    watchTikTok() {
+    readBooks() {
         if (!this.canPerformAction()) return;
         
-        // Short-term pleasure, but long-term cost
-        this.adjustStat('happiness', 8);
-        this.adjustStat('energy', -5);
-        this.adjustStat('learning', -2);
-        this.child.studyLevel = Math.max(0, this.child.studyLevel - 1);
-        this.child.shortTermChoices++;
-        this.setEmotion('happy', 10);
-        this.setEmotion('anxious', 5); // Can create anxiety/FOMO
+        // Reading books is positive activity
+        this.adjustStat('happiness', 12);
+        this.adjustStat('learning', 15);
+        this.adjustStat('energy', -8);
+        this.setEmotion('happy', 15);
+        this.setEmotion('curious', 20);
+        this.adjustRelationship(2);
+        this.child.goodChoices++;
         
-        const messages = [
-            "This is fun... But I know I probably should be doing something else.",
-            "I'm scrolling... It's entertaining but... I feel a bit empty?",
-            "Time flies when I'm watching these videos... Maybe too much?",
-            "This is nice for a break, but I know I have goals.",
-            "I'm relaxing, but I'm not really building anything..."
+        const messages = this.language === 'no' ? [
+            "Jeg leste en bok... Det var så interessant! Jeg lærte mye.",
+            "Jeg elsker å lese! Det gjør meg smartere og gladere.",
+            "Lesing er så rolig og givende. Jeg vil lese mer!",
+            "Bøker er fantastiske! De tar meg med på eventyr.",
+            "Jeg lærte noe nytt i dag gjennom lesing!"
+        ] : [
+            "I read a book... It was so interesting! I learned a lot.",
+            "I love reading! It makes me smarter and happier.",
+            "Reading is so calming and rewarding. I want to read more!",
+            "Books are amazing! They take me on adventures.",
+            "I learned something new today through reading!"
         ];
         this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        this.showMessage("Short-term entertainment is fine, but balance is key. " + this.child.name + " knows there are more productive choices.");
+        
+        const msg = this.language === 'no' 
+            ? "Lesing bøker gir læring og glede! " + this.child.name + " lærer mye gjennom lesing!"
+            : "Reading books provides learning and joy! " + this.child.name + " learns a lot through reading!";
+        this.showMessage(msg);
+        
+        // Learning fact about reading
+        if (Math.random() < 0.3) {
+            const facts = this.language === 'no' ? [
+                "💡 Læringsfakta: Lesing forbedrer ordforrådet og hjelper hjernen vår å utvikle seg!",
+                "💡 Læringsfakta: Når vi leser, skaper hjernen nye baner som hjelper oss å huske bedre.",
+                "💡 Læringsfakta: Lesing kan være rolig og redusere stress. Det er perfekt før leggetid!"
+            ] : [
+                "💡 Learning Fact: Reading improves vocabulary and helps our brain develop!",
+                "💡 Learning Fact: When we read, our brain creates new pathways that help us remember better.",
+                "💡 Learning Fact: Reading can be calming and reduce stress. It's perfect before bedtime!"
+            ];
+            setTimeout(() => this.showMessage(facts[Math.floor(Math.random() * facts.length)]), 1000);
+        }
+        
         this.performAction();
         this.advanceTime();
     }
