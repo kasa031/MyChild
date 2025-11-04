@@ -325,16 +325,27 @@ class MyChildGame {
         } else {
             let ageAppropriateDialogue = "";
             if (this.child.age < 1) {
-                ageAppropriateDialogue = "Hi... I'm " + this.child.name + ". I'm just a baby in the year 2000. I'll grow up with your help and support!";
+                ageAppropriateDialogue = this.language === 'no'
+                    ? "Hei... Jeg er " + this.child.name + ". Jeg er bare en baby i år 2000. Jeg vil vokse opp med din hjelp og støtte!"
+                    : "Hi... I'm " + this.child.name + ". I'm just a baby in the year 2000. I'll grow up with your help and support!";
             } else if (this.child.age < 5) {
-                ageAppropriateDialogue = "Hi! I'm " + this.child.name + ". I'm " + this.child.age + " years old in the 2000s. Everything is new and exciting!";
+                ageAppropriateDialogue = this.language === 'no'
+                    ? "Hei! Jeg er " + this.child.name + ". Jeg er " + this.child.age + " år gammel i 2000-tallet. Alt er nytt og spennende!"
+                    : "Hi! I'm " + this.child.name + ". I'm " + this.child.age + " years old in the 2000s. Everything is new and exciting!";
             } else if (this.child.age < 7) {
-                ageAppropriateDialogue = "Hi... I'm " + this.child.name + ". I'm " + this.child.age + " years old. I'm getting ready for school soon!";
+                ageAppropriateDialogue = this.language === 'no'
+                    ? "Hei... Jeg er " + this.child.name + ". Jeg er " + this.child.age + " år gammel. Jeg forbereder meg på skolen snart!"
+                    : "Hi... I'm " + this.child.name + ". I'm " + this.child.age + " years old. I'm getting ready for school soon!";
             } else {
-                ageAppropriateDialogue = "Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. But I know I'm good enough just as I am, and so is everyone else.";
+                ageAppropriateDialogue = this.language === 'no' 
+                    ? "Hei... Jeg er " + this.child.name + ". Å begynne på skolen i 2000-tallet er... vel, det kan være komplisert noen ganger. Men jeg vet at jeg er god nok akkurat som jeg er, og det er alle andre også."
+                    : "Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. But I know I'm good enough just as I am, and so is everyone else.";
             }
             this.showDialogue(ageAppropriateDialogue);
-            this.showMessage("Welcome! You are now taking care of " + this.child.name + " in the year 2000. " + this.child.name + " is " + this.child.age + " years old. " + this.child.name + " faces challenges, but remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is. With your support and the right choices, " + this.child.name + " can grow stronger, help others, and find success. Every choice matters - both for today and tomorrow.");
+            const welcomeMsg = this.language === 'no'
+                ? "Velkommen! Du tar nå vare på " + this.child.name + " i år 2000. " + this.child.name + " er " + this.child.age + " år gammel. " + this.child.name + " møter utfordringer, men husk: " + this.child.name + " er perfekt akkurat som " + (this.child.gender === 'girl' ? 'hun' : 'han') + " er. Med din støtte og riktige valg kan " + this.child.name + " vokse sterkere, hjelpe andre og finne suksess. Hvert valg teller - både for i dag og i morgen."
+                : "Welcome! You are now taking care of " + this.child.name + " in the year 2000. " + this.child.name + " is " + this.child.age + " years old. " + this.child.name + " faces challenges, but remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is. With your support and the right choices, " + this.child.name + " can grow stronger, help others, and find success. Every choice matters - both for today and tomorrow.";
+            this.showMessage(welcomeMsg);
         }
         
         // Show image loading message
