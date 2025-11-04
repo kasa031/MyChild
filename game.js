@@ -339,7 +339,10 @@ class MyChildGame {
         
         // Show image loading message
         if (this.locations.home.usePlaceholder) {
-            this.showMessage("Tip: Add images to the 'images' folder (home.jpg, school.jpg, playground.jpg, friend.jpg) for better visuals!");
+            const tipMsg = this.language === 'no'
+                ? "Tips: Legg til bilder i 'images' mappen (home.jpg, school.jpg, playground.jpg, friend.jpg) for bedre visuell opplevelse!"
+                : "Tip: Add images to the 'images' folder (home.jpg, school.jpg, playground.jpg, friend.jpg) for better visuals!";
+            this.showMessage(tipMsg);
         }
         
         // Initialize background music
@@ -555,7 +558,8 @@ class MyChildGame {
                 music: "Hør musikk",
                 call: "Ring venn",
                 language: "Språk",
-                shop: "Butikk"
+                shop: "Butikk",
+                nextDay: "Neste dag →"
             },
             en: {
                 welcome: "Welcome! Take care of your child in the 2000s.",
@@ -589,7 +593,8 @@ class MyChildGame {
                 music: "Listen Music",
                 call: "Call Friend",
                 language: "Language",
-                shop: "Shop"
+                shop: "Shop",
+                nextDay: "Next Day →"
             }
         };
         
