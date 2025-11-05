@@ -42,6 +42,17 @@ Et livssimulasjonsspill inspirert av "Mitt barn, livets børn" men med mindre fo
 - Ingen eksterne avhengigheter
 - Fungerer i alle moderne nettlesere
 
+## 🔒 Sikkerhet
+
+**VIKTIG:** Dette prosjektet bruker API-nøkler. For å beskytte dine nøkler:
+
+1. **Aldri committ `api-config.js`** - Denne filen er i `.gitignore`
+2. **Bruk `api-config.local.js`** for lokale nøkler (også i .gitignore)
+3. **Se `SECURITY.md`** for detaljerte sikkerhetsregler
+4. **Hvis du har committet en nøkkel ved feil:** Rotér nøkkelen umiddelbart hos API-leverandøren
+
+Les mer i [SECURITY.md](SECURITY.md)
+
 ## Spesielle funksjoner (likt originalen)
 
 ### Daglig omsorg (som originalen)

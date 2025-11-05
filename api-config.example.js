@@ -5,9 +5,9 @@ const APIConfig = {
     // Image/Illustration API settings
     imageAPI: {
         enabled: false, // Set to true when configured
-        provider: null, // 'dalle', 'midjourney', 'stable-diffusion', 'custom', etc.
-        apiKey: '', // Your API key here
-        baseURL: '', // API endpoint URL
+        provider: null, // 'openrouter', 'dalle', 'midjourney', 'stable-diffusion', 'custom', etc.
+        apiKey: '', // Your API key here - NEVER commit this file with real keys!
+        baseURL: '', // API endpoint URL (e.g., 'https://openrouter.ai/api/v1' for OpenRouter)
         
         // Professional illustration style
         style: 'professional watercolor illustration, warm colors, 2000s aesthetic, detailed, artistic',
@@ -16,7 +16,9 @@ const APIConfig = {
         generateImage: async function(prompt, location) {
             const fullPrompt = `${prompt}, ${this.style}, high quality illustration`;
             
-            if (this.provider === 'dalle') {
+            if (this.provider === 'openrouter') {
+                return await this.callOpenRouter(fullPrompt);
+            } else if (this.provider === 'dalle') {
                 return await this.callDALLE(fullPrompt);
             } else if (this.provider === 'stable-diffusion') {
                 return await this.callStableDiffusion(fullPrompt);
@@ -25,6 +27,40 @@ const APIConfig = {
             }
             
             return null;
+        },
+        
+        // Example: OpenRouter API implementation
+        callOpenRouter: async function(prompt) {
+            try {
+                const response = await fetch(`${this.baseURL || 'https://openrouter.ai/api/v1'}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${this.apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin,
+                        'X-Title': 'MyChild Game'
+                    },
+                    body: JSON.stringify({
+                        model: 'black-forest-labs/flux-1.1-pro', // Or another image model
+                        messages: [
+                            {
+                                role: 'user',
+                                content: prompt
+                            }
+                        ]
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                return data.imageUrl || data.url || (data.choices && data.choices[0]?.message?.content);
+            } catch (error) {
+                console.error('OpenRouter API error:', error);
+                return null;
+            }
         },
         
         // Example: OpenAI DALL-E implementation

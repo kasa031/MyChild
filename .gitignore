@@ -22,6 +22,27 @@ package-lock.json
 *.temp
 
 # API configuration (contains sensitive keys)
+# NEVER commit files with API keys, passwords, or tokens!
 api-config.js
 api-config.local.js
+*.env
+*.env.local
+*.env.*.local
+.env
+.env.local
+
+# API keys and secrets
+**/secrets/
+**/keys/
+*.key
+*.pem
+*.p12
+*.jks
+config.json
+secrets.json
+
+# Sensitive data
+credentials.json
+*.secret
+*.token
 

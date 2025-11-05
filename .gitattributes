@@ -1,0 +1,8 @@
+# Prevent accidental commits of sensitive files
+api-config.js filter=gitignore
+api-config.local.js filter=gitignore
+*.env filter=gitignore
+*.env.local filter=gitignore
+secrets.json filter=gitignore
+credentials.json filter=gitignore
+
