@@ -1693,6 +1693,32 @@ class MyChildGame {
     feedChild() {
         if (!this.canPerformAction()) return;
         
+        // Check if we have food (money to buy food) - like original game
+        // Food costs more as child gets older
+        const foodCost = this.child.age < 5 ? 3 : this.child.age < 10 ? 5 : this.child.age < 14 ? 8 : 12;
+        
+        if (this.child.money < foodCost) {
+            const noMoneyMsg = this.language === 'no'
+                ? "Vi har ikke nok penger for mat... Vi trenger " + foodCost + " kroner, men har bare " + this.child.money + " kroner. Kanskje jeg burde jobbe først?"
+                : "We don't have enough money for food... We need " + foodCost + " kroner, but only have " + this.child.money + " kroner. Maybe I should work first?";
+            this.showDialogue(noMoneyMsg);
+            this.showMessage(this.language === 'no' 
+                ? "💡 Tips: Jobb for å tjene penger så du kan kjøpe mat! Mat er viktig!"
+                : "💡 Tip: Work to earn money so you can buy food! Food is important!");
+            return;
+        }
+        
+        // Cost money to feed (like original game - critical resource management)
+        this.child.money = Math.max(0, this.child.money - foodCost);
+        
+        // Show cost message
+        if (this.child.age >= 5) {
+            const costMsg = this.language === 'no'
+                ? "Kjøpte mat for " + foodCost + " kroner. Gjenstående: " + this.child.money + " kroner."
+                : "Bought food for " + foodCost + " kroner. Remaining: " + this.child.money + " kroner.";
+            setTimeout(() => this.showMessage(costMsg), 500);
+        }
+        
         this.adjustStat('hunger', 35);
         this.adjustStat('happiness', 10);
         this.adjustStat('energy', 5);
@@ -3525,10 +3551,21 @@ class MyChildGame {
                             this.setEmotion('anxious', 15);
                             this.adjustStat('happiness', -10);
                             this.adjustStat('social', -5);
-                            this.adjustRelationship(5);
-                            this.child.resilience = Math.min(100, this.child.resilience + 3);
-                            this.memory.push({day: this.day, event: "Bullying - talked about it", positive: true});
+                            this.adjustRelationship(8); // Stronger relationship boost
+                            this.child.resilience = Math.min(100, this.child.resilience + 5); // More resilience
+                            // Permanent memory - affects future events
+                            this.memory.push({
+                                day: this.day, 
+                                event: "Bullying - talked about it", 
+                                positive: true,
+                                choiceType: "supportive_listening",
+                                lastingEffect: true
+                            });
+                            // This choice makes future bullying easier to handle
+                            this.child.bullyingCopingMethod = "talking";
                             this.showDialogue("Takk for at du hører... Det hjelper å snakke om det. Jeg føler meg litt bedre. Jeg vet at jeg er god nok, selv om de sier slemme ting."); 
+                            // Lasting effect - child will remember this support
+                            this.child.lastSupportiveChoice = this.day;
                             this.saveGame();
                         } 
                     },
@@ -3537,20 +3574,42 @@ class MyChildGame {
                         effect: () => { 
                             this.setEmotion('sad', 15);
                             this.setEmotion('angry', 10);
-                            this.adjustStat('happiness', -5);
+                            this.adjustStat('happiness', -8); // More negative impact
+                            this.adjustRelationship(2); // Less relationship boost
                             this.child.resilience = Math.min(100, this.child.resilience + 2);
-                            this.showDialogue("Jeg skal prøve å være sterk... men det er vanskelig noen ganger."); 
+                            // Memory of this choice
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - told to be strong",
+                                positive: false,
+                                choiceType: "dismissive",
+                                lastingEffect: true
+                            });
+                            this.child.bullyingCopingMethod = "suppression";
+                            this.showDialogue("Jeg skal prøve å være sterk... men det er vanskelig noen ganger. Jeg føler at jeg må holde det inne."); 
                         } 
                     },
                     { 
                         text: "Kanskje vi burde snakke med læreren om dette.", 
                         effect: () => { 
-                            this.setEmotion('anxious', 10);
-                            this.setEmotion('scared', 5);
-                            this.adjustStat('happiness', -5);
-                            this.adjustStat('social', -3);
-                            this.child.resilience = Math.min(100, this.child.resilience + 1);
-                            this.showDialogue("Jeg er redd... hva hvis de blir sinte? Men... kanskje det er det riktige å gjøre."); 
+                            this.setEmotion('anxious', 15); // More anxiety
+                            this.setEmotion('scared', 10);
+                            this.adjustStat('happiness', -8);
+                            this.adjustStat('social', -5); // More social impact
+                            this.adjustRelationship(3);
+                            this.child.resilience = Math.min(100, this.child.resilience + 4); // Good resilience boost
+                            // Memory - this is a brave choice
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - considered telling teacher",
+                                positive: true,
+                                choiceType: "seeking_help",
+                                lastingEffect: true
+                            });
+                            this.child.bullyingCopingMethod = "seeking_help";
+                            // Future bullying might be less severe if teacher gets involved
+                            this.child.teacherInvolved = true;
+                            this.showDialogue("Jeg er redd... hva hvis de blir sinte? Men... kanskje det er det riktige å gjøre. Jeg vil prøve."); 
                         } 
                     }
                 ]
