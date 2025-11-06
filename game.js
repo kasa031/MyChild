@@ -1034,6 +1034,46 @@ class MyChildGame {
         }
     }
     
+    updateEmotionDisplay() {
+        // Show child's current emotion (like original game)
+        const emotionDisplay = document.getElementById('emotionDisplay');
+        const emotionText = document.getElementById('emotionText');
+        
+        if (!emotionDisplay || !emotionText) return;
+        
+        const emotions = this.child.emotionalState;
+        const maxEmotion = Object.entries(emotions).reduce((a, b) => emotions[a[0]] > emotions[b[1]] ? a : b);
+        
+        if (maxEmotion[1] > 30) {
+            const emotionNames = {
+                happy: this.language === 'no' ? '😊 Glad' : '😊 Happy',
+                sad: this.language === 'no' ? '😢 Lei seg' : '😢 Sad',
+                angry: this.language === 'no' ? '😠 Sint' : '😠 Angry',
+                scared: this.language === 'no' ? '😨 Redd' : '😨 Scared',
+                anxious: this.language === 'no' ? '😰 Engstelig' : '😰 Anxious',
+                surprised: this.language === 'no' ? '😲 Overrasket' : '😲 Surprised',
+                embarrassed: this.language === 'no' ? '😳 Flau' : '😳 Embarrassed',
+                curious: this.language === 'no' ? '🤔 Nysgjerrig' : '🤔 Curious'
+            };
+            
+            emotionText.textContent = emotionNames[maxEmotion[0]] || maxEmotion[0];
+            emotionDisplay.style.display = 'block';
+            
+            // Color based on emotion
+            if (maxEmotion[0] === 'happy' || maxEmotion[0] === 'curious') {
+                emotionDisplay.style.background = 'rgba(76, 175, 80, 0.3)';
+            } else if (maxEmotion[0] === 'sad' || maxEmotion[0] === 'anxious') {
+                emotionDisplay.style.background = 'rgba(33, 150, 243, 0.3)';
+            } else if (maxEmotion[0] === 'angry' || maxEmotion[0] === 'scared') {
+                emotionDisplay.style.background = 'rgba(244, 67, 54, 0.3)';
+            } else {
+                emotionDisplay.style.background = 'rgba(255, 255, 255, 0.3)';
+            }
+        } else {
+            emotionDisplay.style.display = 'none';
+        }
+    }
+    
     async updateAvatar() {
         const avatar = document.querySelector('.child-avatar');
         
@@ -3550,8 +3590,8 @@ class MyChildGame {
         
         const events = this.language === 'no' ? [
             {
-                dialogue: "Noen barn på skolen... de sa slemme ting i dag. Det gjorde vondt. Men jeg vet at jeg er god nok akkurat som jeg er.",
-                message: this.child.name + " opplevde mobbing på skolen, men husker at " + pronoun + " er perfekt akkurat som " + pronoun + " er.",
+                dialogue: "Noen barn på skolen... de sa slemme ting i dag. De sa at jeg var annerledes, at jeg ikke hørte hjemme. Det gjorde vondt. Men jeg vet at jeg er god nok akkurat som jeg er. Alle barn fortjener kjærlighet og respekt, uansett hvor de kommer fra eller hvem de er.",
+                message: this.child.name + " opplevde mobbing på skolen. " + (this.language === 'no' ? "Historien viser oss at alle barn fortjener kjærlighet, uansett bakgrunn." : "History shows us that all children deserve love, regardless of background."),
                 choices: [
                     { 
                         text: "Jeg er så lei meg. Fortell meg hva som skjedde. Du er trygg her.", 
