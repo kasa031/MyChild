@@ -3449,8 +3449,8 @@ class MyChildGame {
         this.updateDisplay();
         this.saveGame(); // Auto-save at end of day
         const dayMsg = this.language === 'no'
-            ? `Dag ${this.day} begynner! Tid for nye eventyr i 2000-tallet. Husk: ${this.child.name} er perfekt akkurat som ${this.child.gender === 'girl' ? 'hun' : 'han'} er, og det er alle andre også!`
-            : `Day ${this.day} begins! Time for new adventures in the 2000s. Remember: ${this.child.name} is perfect just as ${this.child.gender === 'girl' ? 'she' : 'he'} is, and so is everyone else!`;
+            ? `Dag ${this.day} begynner! Tid for nye eventyr i 2000-tallet. Husk: ${this.child.name} er perfekt akkurat som ${this.child.gender === 'girl' ? 'hun' : 'han'} er, og det er alle andre også! Hver dag er en mulighet til å bygge en bedre fremtid, uansett fortid.`
+            : `Day ${this.day} begins! Time for new adventures in the 2000s. Remember: ${this.child.name} is perfect just as ${this.child.gender === 'girl' ? 'she' : 'he'} is, and so is everyone else! Each day is an opportunity to build a better future, regardless of the past.`;
         this.showMessage(dayMsg);
     }
     
