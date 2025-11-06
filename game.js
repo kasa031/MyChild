@@ -64,7 +64,11 @@ class MyChildGame {
             customAvatar: savedGame && savedGame.child && savedGame.child.customAvatar ? savedGame.child.customAvatar : null,
             avatarType: savedGame && savedGame.child && savedGame.child.avatarType ? savedGame.child.avatarType : 'emoji',
             bio: savedGame && savedGame.child && savedGame.child.bio ? savedGame.child.bio : '',
-            ownedItems: savedGame && savedGame.child && savedGame.child.ownedItems ? savedGame.child.ownedItems : []
+            ownedItems: savedGame && savedGame.child && savedGame.child.ownedItems ? savedGame.child.ownedItems : [],
+            // Bullying tracking (like original - important for narrative)
+            bullyingCopingMethod: savedGame && savedGame.child && savedGame.child.bullyingCopingMethod ? savedGame.child.bullyingCopingMethod : null,
+            teacherInvolved: savedGame && savedGame.child && savedGame.child.teacherInvolved ? savedGame.child.teacherInvolved : false,
+            lastSupportiveChoice: savedGame && savedGame.child && savedGame.child.lastSupportiveChoice ? savedGame.child.lastSupportiveChoice : null
         };
         
         this.day = savedGame ? savedGame.day : 1;
