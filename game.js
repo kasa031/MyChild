@@ -34,8 +34,14 @@ class MyChildGame {
             },
             // Career and success system
             studyLevel: 0, // Study dedication (0-100)
-            money: 0, // Money earned through work
+            money: 20, // Starting money (like original - need to manage resources)
             careerProgress: 0, // Career development (0-100)
+            // Track daily routines (like original - must do these)
+            lastFed: 0, // Day when child was last fed
+            lastBathed: 0, // Day when child was last bathed
+            lastPlayed: 0, // Day when child was last played with
+            daysWithoutFood: 0, // Track consecutive days without food
+            daysWithoutBath: 0, // Track consecutive days without bath
             helpingOthers: 0, // Times Alex helped others (hero counter)
             goodChoices: 0, // Count of good long-term choices
             shortTermChoices: 0, // Count of short-term pleasure choices
@@ -612,6 +618,11 @@ class MyChildGame {
                 cook: "Cook Together",
                 support: "Support & Coping",
                 daydream: "Daydream",
+                cognitiveTherapy: "Cognitive Therapy",
+                learning: "Learning & Development",
+                environment: "Environment",
+                economics: "Economics",
+                ethics: "Ethics & Philosophy",
                 talk: "Talk",
                 learnEmotions: "Learn Emotions",
                 growth: "Growth & Choices",
