@@ -69,7 +69,7 @@ class MyChildGame {
         this.pendingEvent = savedGame ? savedGame.pendingEvent : null;
         this.dialogueQueue = savedGame ? savedGame.dialogueQueue : [];
         this.actionsToday = savedGame ? savedGame.actionsToday : 0;
-        this.maxActionsPerDay = 6; // Like original - limited actions per day
+        this.maxActionsPerDay = 5; // Like original - limited actions per day (reduced from 6 to make it more challenging)
         this.memory = savedGame ? savedGame.memory : []; // Track important events and choices
         this.relationship = savedGame ? savedGame.relationship : 50; // Relationship strength (hidden stat)
             this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
@@ -3306,21 +3306,39 @@ class MyChildGame {
         // Check for success milestones
         this.checkSuccessMilestones();
         
-        // Natural stat changes (like original game)
-        this.adjustStat('energy', -5);
-        this.adjustStat('hunger', -10); // Hunger decreases each day (important!)
+        // Natural stat changes (like original game - more challenging)
+        this.adjustStat('energy', -8); // More energy loss per day
+        this.adjustStat('hunger', -12); // Hunger decreases faster (more important!)
         
-        // Low hunger affects happiness
+        // Low hunger affects happiness more severely (like original)
         if (this.child.hunger < 30) {
-            this.adjustStat('happiness', -5);
-            this.setEmotion('anxious', 5);
+            this.adjustStat('happiness', -8);
+            this.setEmotion('anxious', 8);
+            if (this.child.hunger < 15) {
+                // Critical hunger - child is suffering
+                const criticalMsg = this.language === 'no'
+                    ? this.child.name + " er veldig sulten! Dette påvirker " + (this.child.gender === 'girl' ? 'henne' : 'ham') + " mye."
+                    : this.child.name + " is very hungry! This is affecting " + (this.child.gender === 'girl' ? 'her' : 'him') + " a lot.";
+                this.showMessage("⚠️ " + criticalMsg);
+            }
         }
         
-        // Low happiness can affect other stats
+        // Low happiness can affect other stats more (like original)
         if (this.child.happiness < 20) {
-            this.adjustStat('social', -2);
-            this.adjustRelationship(-1);
-            this.setEmotion('sad', 10);
+            this.adjustStat('social', -3);
+            this.adjustStat('learning', -2);
+            this.adjustRelationship(-2);
+            this.setEmotion('sad', 15);
+        }
+        
+        // Bullying incidents have lasting effects (like original)
+        if (this.bullyingIncidents > 0 && this.child.age >= 7) {
+            // Recent bullying affects child more
+            const daysSinceLastBullying = this.day - (this.memory.filter(m => m.event && m.event.includes("Bullying")).pop()?.day || 0);
+            if (daysSinceLastBullying < 3) {
+                this.adjustStat('happiness', -3);
+                this.setEmotion('anxious', 5);
+            }
         }
         
         // High relationship provides passive benefits
@@ -3458,17 +3476,33 @@ class MyChildGame {
     }
     
     checkForEvents() {
-        // Bullying incidents happen at school (more likely if resilience is low)
-        if (this.currentLocation === 'school' && Math.random() < 0.3) {
-            const bullyingChance = this.child.resilience < 50 ? 0.4 : 0.2;
-            if (Math.random() < bullyingChance) {
-                this.triggerBullyingEvent();
-                return;
-            }
+        // Bullying incidents happen more frequently (like original game - central to story)
+        // Higher chance at school, but can happen anywhere
+        let bullyingChance = 0;
+        if (this.currentLocation === 'school') {
+            // Much higher chance at school (like original)
+            bullyingChance = this.child.resilience < 50 ? 0.6 : 0.4;
+        } else if (this.currentLocation === 'playground') {
+            // Can also happen at playground
+            bullyingChance = this.child.resilience < 50 ? 0.4 : 0.25;
+        } else {
+            // Lower chance elsewhere, but still possible
+            bullyingChance = this.child.resilience < 30 ? 0.2 : 0.1;
+        }
+        
+        // More frequent if child is older (school age)
+        if (this.child.age >= 7) {
+            bullyingChance *= 1.5;
+        }
+        
+        // Check for bullying first (more important than narrative events)
+        if (Math.random() < bullyingChance) {
+            this.triggerBullyingEvent();
+            return;
         }
         
         // Narrative events - more frequent if relationship is good
-        const eventChance = this.relationship > 70 ? 0.6 : 0.4;
+        const eventChance = this.relationship > 70 ? 0.5 : 0.3;
         if (Math.random() < eventChance) {
             this.triggerNarrativeEvent();
         }
