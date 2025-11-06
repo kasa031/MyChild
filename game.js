@@ -403,6 +403,10 @@ class MyChildGame {
                     daydream: "Drøm",
                     talk: "Snakk",
                     learnEmotions: "Lær følelser",
+                    cognitiveTherapy: "Kognitiv terapi",
+                    environment: "Miljøvern",
+                    economics: "Økonomi",
+                    ethics: "Etikk & Filosofi",
                     study: "Studer",
                     volunteer: "Frivillig",
                     help: "Hjelp andre",
@@ -444,6 +448,10 @@ class MyChildGame {
                     daydream: "Daydream",
                     talk: "Talk",
                     learnEmotions: "Learn Emotions",
+                    cognitiveTherapy: "Cognitive Therapy",
+                    environment: "Environment",
+                    economics: "Economics",
+                    ethics: "Ethics & Philosophy",
                     study: "Study Hard",
                     volunteer: "Volunteer",
                     help: "Help Others",
@@ -566,6 +574,11 @@ class MyChildGame {
                 daydream: "Drøm",
                 talk: "Snakk",
                 learnEmotions: "Lær følelser",
+                cognitiveTherapy: "Kognitiv terapi",
+                learning: "Læring og utvikling",
+                environment: "Miljøvern",
+                economics: "Økonomi",
+                ethics: "Etikk & Filosofi",
                 growth: "Vekst og valg",
                 study: "Studer",
                 volunteer: "Frivillig",
@@ -1769,6 +1782,10 @@ class MyChildGame {
             setTimeout(() => this.showMessage(costMsg), 500);
         }
         
+        // Track that child was fed (like original - important for daily routine)
+        this.child.lastFed = this.day;
+        this.child.daysWithoutFood = 0;
+        
         this.adjustStat('hunger', 35);
         this.adjustStat('happiness', 10);
         this.adjustStat('energy', 5);
@@ -1818,8 +1835,13 @@ class MyChildGame {
     batheChild() {
         if (!this.canPerformAction()) return;
         
+        // Track that child was bathed (like original - important for daily routine)
+        this.child.lastBathed = this.day;
+        this.child.daysWithoutBath = 0;
+        
         this.adjustStat('happiness', 8);
         this.adjustStat('energy', -5);
+        this.adjustStat('social', 2); // Clean child is more social
         this.adjustRelationship(1);
         
         const messages = [
@@ -1849,9 +1871,16 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         if (this.child.energy < 10) {
-            this.showDialogue("I'm too tired to play right now...");
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å leke akkurat nå..."
+                : "I'm too tired to play right now...";
+            this.showDialogue(tiredMsg);
             return;
         }
+        
+        // Track that child was played with (like original - important for daily routine)
+        this.child.lastPlayed = this.day;
+        
         this.adjustStat('happiness', 20);
         this.adjustStat('social', 10);
         this.adjustStat('energy', -10);
@@ -2359,6 +2388,432 @@ class MyChildGame {
         if (!this.child.mindfulnessPractices) this.child.mindfulnessPractices = 0;
         this.child.mindfulnessPractices++;
         this.checkAchievements();
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    cognitiveTherapy() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å fokusere akkurat nå..."
+                : "I'm too tired to focus right now...";
+            this.showDialogue(tiredMsg);
+            return;
+        }
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('learning', 12);
+        this.adjustStat('energy', -8);
+        this.setEmotion('happy', 20);
+        this.setEmotion('anxious', -25);
+        this.setEmotion('sad', -15);
+        this.child.resilience = Math.min(100, this.child.resilience + 5);
+        this.adjustRelationship(3);
+        
+        const therapyTopics = this.language === 'no' ? [
+            {
+                topic: "Negative tanker",
+                description: "Vi kan lære å gjenkjenne negative tanker og utfordre dem. 'Jeg er ikke god nok' kan bli til 'Jeg gjør mitt beste, og det er nok.'",
+                dialogue: "Jeg lærte i dag at mine tanker ikke alltid er sannheten. Jeg kan utfordre negative tanker!"
+            },
+            {
+                topic: "Kognitiv omstrukturering",
+                description: "Å endre hvordan vi tenker om situasjoner kan endre hvordan vi føler. Dette kalles kognitiv omstrukturering.",
+                dialogue: "Jeg lærte at jeg kan se på situasjoner fra en annen vinkel. Det hjelper meg å føle meg bedre."
+            },
+            {
+                topic: "Selvmedfølelse",
+                description: "Å være snill mot oss selv når vi gjør feil er viktig. Vi fortjener samme medfølelse vi gir andre.",
+                dialogue: "Jeg lærte at jeg kan være snill mot meg selv, akkurat som jeg er mot andre. Det føles godt."
+            },
+            {
+                topic: "Tankefeller",
+                description: "Noen ganger faller vi i 'tankefeller' som 'alt-eller-ingenting-tenkning' eller 'katastrofetenkning'. Vi kan lære å gjenkjenne dem.",
+                dialogue: "Jeg lærte om tankefeller i dag. Nå kan jeg se når jeg tenker på måter som ikke hjelper meg."
+            },
+            {
+                topic: "Bevis og motbevis",
+                description: "Når vi har en negativ tanke, kan vi spørre: 'Hva er beviset for dette? Hva er beviset mot dette?' Dette hjelper oss å tenke mer balansert.",
+                dialogue: "Jeg lærte å spørre meg selv om bevis for mine tanker. Det hjelper meg å tenke mer realistisk."
+            }
+        ] : [
+            {
+                topic: "Negative thoughts",
+                description: "We can learn to recognize negative thoughts and challenge them. 'I'm not good enough' can become 'I'm doing my best, and that's enough.'",
+                dialogue: "I learned today that my thoughts aren't always the truth. I can challenge negative thoughts!"
+            },
+            {
+                topic: "Cognitive restructuring",
+                description: "Changing how we think about situations can change how we feel. This is called cognitive restructuring.",
+                dialogue: "I learned that I can look at situations from a different angle. It helps me feel better."
+            },
+            {
+                topic: "Self-compassion",
+                description: "Being kind to ourselves when we make mistakes is important. We deserve the same compassion we give others.",
+                dialogue: "I learned that I can be kind to myself, just like I am to others. It feels good."
+            },
+            {
+                topic: "Thinking traps",
+                description: "Sometimes we fall into 'thinking traps' like 'all-or-nothing thinking' or 'catastrophizing'. We can learn to recognize them.",
+                dialogue: "I learned about thinking traps today. Now I can see when I'm thinking in ways that don't help me."
+            },
+            {
+                topic: "Evidence and counter-evidence",
+                description: "When we have a negative thought, we can ask: 'What's the evidence for this? What's the evidence against this?' This helps us think more balanced.",
+                dialogue: "I learned to ask myself about evidence for my thoughts. It helps me think more realistically."
+            }
+        ];
+        
+        const topic = therapyTopics[Math.floor(Math.random() * therapyTopics.length)];
+        this.showDialogue(topic.dialogue);
+        setTimeout(() => {
+            const factMsg = this.language === 'no'
+                ? "💡 Kognitiv terapi: " + topic.topic + " - " + topic.description
+                : "💡 Cognitive Therapy: " + topic.topic + " - " + topic.description;
+            this.showMessage(factMsg);
+        }, 1000);
+        
+        const successMsg = this.language === 'no'
+            ? "Kognitiv terapi hjelper " + this.child.name + " å forstå og endre negative tankemønstre!"
+            : "Cognitive therapy helps " + this.child.name + " understand and change negative thought patterns!";
+        this.showMessage(successMsg);
+        this.copingActivities.push({day: this.day, activity: 'cognitive_therapy', helpful: true});
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    learnEnvironment() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å lære akkurat nå..."
+                : "I'm too tired to learn right now...";
+            this.showDialogue(tiredMsg);
+            return;
+        }
+        
+        this.adjustStat('learning', 18);
+        this.adjustStat('happiness', 12);
+        this.adjustStat('energy', -8);
+        this.setEmotion('curious', 20);
+        this.setEmotion('happy', 15);
+        this.child.goodChoices++;
+        this.adjustRelationship(2);
+        
+        const envTopics = this.language === 'no' ? [
+            {
+                topic: "Klimaendringer",
+                description: "Jorden vår blir varmere på grunn av drivhusgasser. Vi kan hjelpe ved å bruke mindre energi, gå mer, og velge miljøvennlige alternativer.",
+                dialogue: "Jeg lærte om klimaendringer i dag. Jeg vil hjelpe til med å ta vare på planeten vår!"
+            },
+            {
+                topic: "Resirkulering",
+                description: "Å resirkulere betyr å gjenbruke materialer i stedet for å kaste dem. Dette reduserer søppel og sparer ressurser.",
+                dialogue: "Jeg lærte at resirkulering er viktig! Jeg kan hjelpe ved å sortere søppel riktig."
+            },
+            {
+                topic: "Biodiversitet",
+                description: "Biodiversitet betyr variasjonen av liv på jorden. Når arter dør ut, påvirker det hele økosystemet. Vi må beskytte naturen!",
+                dialogue: "Jeg lærte om biodiversitet. Alle dyr og planter er viktige for balansen i naturen!"
+            },
+            {
+                topic: "Ren energi",
+                description: "Solenergi, vindkraft og vannkraft er fornybare energikilder som ikke forurenser. De er bedre for miljøet enn fossile brenstoffer.",
+                dialogue: "Jeg lærte om ren energi i dag. Det er viktig å bruke fornybare energikilder!"
+            },
+            {
+                topic: "Vannbevaring",
+                description: "Rent vann er en begrenset ressurs. Vi kan spare vann ved å dusje kortere, reparere lekkasjer, og ikke la vannet renne unødvendig.",
+                dialogue: "Jeg lærte at vann er verdifullt! Jeg skal være mer forsiktig med å ikke kaste bort vann."
+            },
+            {
+                topic: "Plastforurensning",
+                description: "Plast i havet skader dyr og miljø. Vi kan redusere plastforbruket ved å bruke gjenbrukbare poser, flasker og bestikk.",
+                dialogue: "Jeg lærte om plastforurensning. Jeg vil prøve å bruke mindre plast!"
+            }
+        ] : [
+            {
+                topic: "Climate change",
+                description: "Our Earth is getting warmer due to greenhouse gases. We can help by using less energy, walking more, and choosing eco-friendly options.",
+                dialogue: "I learned about climate change today. I want to help take care of our planet!"
+            },
+            {
+                topic: "Recycling",
+                description: "Recycling means reusing materials instead of throwing them away. This reduces waste and saves resources.",
+                dialogue: "I learned that recycling is important! I can help by sorting waste correctly."
+            },
+            {
+                topic: "Biodiversity",
+                description: "Biodiversity means the variety of life on Earth. When species go extinct, it affects the whole ecosystem. We must protect nature!",
+                dialogue: "I learned about biodiversity. All animals and plants are important for nature's balance!"
+            },
+            {
+                topic: "Clean energy",
+                description: "Solar, wind, and hydro power are renewable energy sources that don't pollute. They're better for the environment than fossil fuels.",
+                dialogue: "I learned about clean energy today. It's important to use renewable energy sources!"
+            },
+            {
+                topic: "Water conservation",
+                description: "Clean water is a limited resource. We can save water by taking shorter showers, fixing leaks, and not letting water run unnecessarily.",
+                dialogue: "I learned that water is precious! I'll be more careful not to waste water."
+            },
+            {
+                topic: "Plastic pollution",
+                description: "Plastic in the ocean harms animals and the environment. We can reduce plastic use by using reusable bags, bottles, and utensils.",
+                dialogue: "I learned about plastic pollution. I'll try to use less plastic!"
+            }
+        ];
+        
+        const topic = envTopics[Math.floor(Math.random() * envTopics.length)];
+        this.showDialogue(topic.dialogue);
+        setTimeout(() => {
+            const factMsg = this.language === 'no'
+                ? "🌍 Miljøvern: " + topic.topic + " - " + topic.description
+                : "🌍 Environment: " + topic.topic + " - " + topic.description;
+            this.showMessage(factMsg);
+        }, 1000);
+        
+        const successMsg = this.language === 'no'
+            ? "Miljøvern-læring hjelper " + this.child.name + " å forstå viktigheten av å ta vare på planeten!"
+            : "Environmental learning helps " + this.child.name + " understand the importance of caring for the planet!";
+        this.showMessage(successMsg);
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    learnEconomics() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 5) {
+            const tooYoungMsg = this.language === 'no'
+                ? "Jeg er for liten til å lære om penger ennå..."
+                : "I'm too young to learn about money yet...";
+            this.showDialogue(tooYoungMsg);
+            return;
+        }
+        
+        if (this.child.energy < 10) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å lære akkurat nå..."
+                : "I'm too tired to learn right now...";
+            this.showDialogue(tiredMsg);
+            return;
+        }
+        
+        this.adjustStat('learning', 15);
+        this.adjustStat('happiness', 10);
+        this.adjustStat('energy', -8);
+        this.setEmotion('curious', 18);
+        this.child.goodChoices++;
+        this.adjustRelationship(2);
+        
+        const econTopics = this.language === 'no' ? [
+            {
+                topic: "Spare penger",
+                description: "Å spare penger betyr å sette av litt hver måned. Dette gir oss en trygghet og mulighet til å kjøpe større ting senere. 'Spare i tide, er å spare i tide!'",
+                dialogue: "Jeg lærte om sparing i dag! Jeg skal prøve å spare litt av pengene mine."
+            },
+            {
+                topic: "Budsjett",
+                description: "Et budsjett er en plan for hvordan vi bruker pengene våre. Vi setter av penger til mat, husleie, sparing og gøy. Dette hjelper oss å ikke bruke mer enn vi har.",
+                dialogue: "Jeg lærte om budsjett! Nå forstår jeg bedre hvordan jeg skal bruke pengene mine."
+            },
+            {
+                topic: "Behov vs. ønsker",
+                description: "Behov er ting vi må ha for å overleve (mat, hus, klær). Ønsker er ting vi vil ha, men ikke trenger. Det er viktig å prioritere behov først.",
+                dialogue: "Jeg lærte forskjellen mellom behov og ønsker. Det hjelper meg å ta bedre valg!"
+            },
+            {
+                topic: "Rente",
+                description: "Når vi låner penger, må vi betale tilbake mer enn vi lånte - det ekstra beløpet kalles rente. Når vi sparer, kan vi få rente på pengene våre!",
+                dialogue: "Jeg lærte om rente i dag. Det er viktig å forstå når man låner eller sparer!"
+            },
+            {
+                topic: "Inntekt og utgifter",
+                description: "Inntekt er penger vi tjener (fra jobb). Utgifter er penger vi bruker. For å ha penger igjen, må inntekten være større enn utgiftene!",
+                dialogue: "Jeg lærte om inntekt og utgifter. Nå forstår jeg bedre hvordan økonomi fungerer!"
+            },
+            {
+                topic: "Gjeld",
+                description: "Gjeld er penger vi skylder andre. Det er viktig å unngå unødvendig gjeld, og hvis vi har gjeld, bør vi betale den tilbake så raskt som mulig.",
+                dialogue: "Jeg lærte om gjeld. Det er viktig å være forsiktig med å låne penger!"
+            }
+        ] : [
+            {
+                topic: "Saving money",
+                description: "Saving money means setting aside a little each month. This gives us security and the ability to buy bigger things later. 'Save for a rainy day!'",
+                dialogue: "I learned about saving today! I'll try to save some of my money."
+            },
+            {
+                topic: "Budget",
+                description: "A budget is a plan for how we use our money. We set aside money for food, rent, savings, and fun. This helps us not spend more than we have.",
+                dialogue: "I learned about budgets! Now I understand better how to use my money."
+            },
+            {
+                topic: "Needs vs. wants",
+                description: "Needs are things we must have to survive (food, shelter, clothes). Wants are things we'd like to have but don't need. It's important to prioritize needs first.",
+                dialogue: "I learned the difference between needs and wants. It helps me make better choices!"
+            },
+            {
+                topic: "Interest",
+                description: "When we borrow money, we must pay back more than we borrowed - the extra amount is called interest. When we save, we can earn interest on our money!",
+                dialogue: "I learned about interest today. It's important to understand when borrowing or saving!"
+            },
+            {
+                topic: "Income and expenses",
+                description: "Income is money we earn (from work). Expenses are money we spend. To have money left, income must be greater than expenses!",
+                dialogue: "I learned about income and expenses. Now I understand better how finances work!"
+            },
+            {
+                topic: "Debt",
+                description: "Debt is money we owe others. It's important to avoid unnecessary debt, and if we have debt, we should pay it back as quickly as possible.",
+                dialogue: "I learned about debt. It's important to be careful about borrowing money!"
+            }
+        ];
+        
+        const topic = econTopics[Math.floor(Math.random() * econTopics.length)];
+        this.showDialogue(topic.dialogue);
+        setTimeout(() => {
+            const factMsg = this.language === 'no'
+                ? "💰 Personlig økonomi: " + topic.topic + " - " + topic.description
+                : "💰 Personal Finance: " + topic.topic + " - " + topic.description;
+            this.showMessage(factMsg);
+        }, 1000);
+        
+        // Apply learning to current money situation
+        if (this.child.money > 0 && Math.random() < 0.3) {
+            const appliedMsg = this.language === 'no'
+                ? "💡 Praktisk: Du har " + this.child.money + " kroner. Husk å spare litt og bruke resten klokt!"
+                : "💡 Practical: You have " + this.child.money + " kroner. Remember to save some and spend the rest wisely!";
+            setTimeout(() => this.showMessage(appliedMsg), 2000);
+        }
+        
+        const successMsg = this.language === 'no'
+            ? "Økonomi-læring hjelper " + this.child.name + " å ta bedre økonomiske valg!"
+            : "Economics learning helps " + this.child.name + " make better financial decisions!";
+        this.showMessage(successMsg);
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    learnEthics() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 6) {
+            const tooYoungMsg = this.language === 'no'
+                ? "Jeg er for liten til å tenke på store spørsmål ennå..."
+                : "I'm too young to think about big questions yet...";
+            this.showDialogue(tooYoungMsg);
+            return;
+        }
+        
+        if (this.child.energy < 10) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å tenke dypt akkurat nå..."
+                : "I'm too tired to think deeply right now...";
+            this.showDialogue(tiredMsg);
+            return;
+        }
+        
+        this.adjustStat('learning', 20);
+        this.adjustStat('happiness', 12);
+        this.adjustStat('energy', -10);
+        this.setEmotion('curious', 25);
+        this.setEmotion('happy', 15);
+        this.child.goodChoices++;
+        this.child.resilience = Math.min(100, this.child.resilience + 3);
+        this.adjustRelationship(3);
+        
+        const ethicsTopics = this.language === 'no' ? [
+            {
+                topic: "Retten og galt",
+                description: "Etikk handler om å tenke på hva som er rett og galt. Noen ganger er det ikke lett å vite, men vi kan spørre: 'Hva ville jeg ønsket at andre gjorde mot meg?'",
+                dialogue: "Jeg tenker på hva som er rett og galt i dag. Det er viktig å være snill mot andre."
+            },
+            {
+                topic: "Empati",
+                description: "Empati betyr å forstå hvordan andre føler. Når vi setter oss i andres sted, kan vi bedre forstå dem og være snillere.",
+                dialogue: "Jeg lærte om empati. Jeg vil prøve å forstå hvordan andre føler seg!"
+            },
+            {
+                topic: "Retten og plikten",
+                description: "Vi har rettigheter (ting vi fortjener), men vi har også plikter (ting vi bør gjøre). For eksempel: Vi har rett på respekt, men vi har også plikt til å respektere andre.",
+                dialogue: "Jeg lærte om rettigheter og plikter. Alle fortjener respekt, og jeg skal respektere andre også!"
+            },
+            {
+                topic: "Retten og galt i historien",
+                description: "Gjennom historien har mennesker tenkt på hva som er rett og galt. Noen tenkere sa: 'Behandle andre som du vil bli behandlet' - dette kalles den gylne regel.",
+                dialogue: "Jeg lærte om den gylne regelen: Behandle andre som du vil bli behandlet. Det er en god regel!"
+            },
+            {
+                topic: "Forskjeller og likhet",
+                description: "Alle mennesker er forskjellige, men vi er også like på mange måter. Vi fortjener alle respekt og kjærlighet, uansett hvem vi er eller hvor vi kommer fra.",
+                dialogue: "Jeg lærte at alle mennesker fortjener respekt, uansett hvem de er. Det er viktig!"
+            },
+            {
+                topic: "Valg og konsekvenser",
+                description: "Hvert valg vi tar har konsekvenser - både for oss selv og for andre. Det er viktig å tenke på hvordan våre valg påvirker andre mennesker.",
+                dialogue: "Jeg lærte at mine valg påvirker andre. Jeg vil prøve å ta gode valg!"
+            },
+            {
+                topic: "Sannhet og ærlighet",
+                description: "Å være ærlig betyr å si sannheten. Noen ganger er det vanskelig, men ærlighet bygger tillit og gjør relasjoner sterkere.",
+                dialogue: "Jeg lærte at ærlighet er viktig. Det bygger tillit mellom mennesker!"
+            }
+        ] : [
+            {
+                topic: "Right and wrong",
+                description: "Ethics is about thinking about what's right and wrong. Sometimes it's not easy to know, but we can ask: 'What would I want others to do to me?'",
+                dialogue: "I'm thinking about what's right and wrong today. It's important to be kind to others."
+            },
+            {
+                topic: "Empathy",
+                description: "Empathy means understanding how others feel. When we put ourselves in others' shoes, we can better understand them and be kinder.",
+                dialogue: "I learned about empathy. I'll try to understand how others feel!"
+            },
+            {
+                topic: "Rights and duties",
+                description: "We have rights (things we deserve), but we also have duties (things we should do). For example: We have the right to respect, but we also have a duty to respect others.",
+                dialogue: "I learned about rights and duties. Everyone deserves respect, and I should respect others too!"
+            },
+            {
+                topic: "Right and wrong in history",
+                description: "Throughout history, people have thought about what's right and wrong. Some thinkers said: 'Treat others as you want to be treated' - this is called the golden rule.",
+                dialogue: "I learned about the golden rule: Treat others as you want to be treated. That's a good rule!"
+            },
+            {
+                topic: "Differences and similarities",
+                description: "All humans are different, but we're also similar in many ways. We all deserve respect and love, regardless of who we are or where we come from.",
+                dialogue: "I learned that all humans deserve respect, regardless of who they are. That's important!"
+            },
+            {
+                topic: "Choices and consequences",
+                description: "Every choice we make has consequences - both for ourselves and for others. It's important to think about how our choices affect other people.",
+                dialogue: "I learned that my choices affect others. I'll try to make good choices!"
+            },
+            {
+                topic: "Truth and honesty",
+                description: "Being honest means telling the truth. Sometimes it's difficult, but honesty builds trust and makes relationships stronger.",
+                dialogue: "I learned that honesty is important. It builds trust between people!"
+            }
+        ];
+        
+        const topic = ethicsTopics[Math.floor(Math.random() * ethicsTopics.length)];
+        this.showDialogue(topic.dialogue);
+        setTimeout(() => {
+            const factMsg = this.language === 'no'
+                ? "🤔 Etikk & Filosofi: " + topic.topic + " - " + topic.description
+                : "🤔 Ethics & Philosophy: " + topic.topic + " - " + topic.description;
+            this.showMessage(factMsg);
+        }, 1000);
+        
+        const successMsg = this.language === 'no'
+            ? "Etikk og filosofi hjelper " + this.child.name + " å tenke dypt om viktige spørsmål!"
+            : "Ethics and philosophy help " + this.child.name + " think deeply about important questions!";
+        this.showMessage(successMsg);
         this.performAction();
         this.advanceTime();
     }
@@ -3385,6 +3840,55 @@ class MyChildGame {
         // Natural stat changes (like original game - more challenging)
         this.adjustStat('energy', -8); // More energy loss per day
         this.adjustStat('hunger', -12); // Hunger decreases faster (more important!)
+        
+        // Track daily routines - consequences for skipping (like original)
+        const daysSinceFed = this.day - (this.child.lastFed || 0);
+        const daysSinceBathed = this.day - (this.child.lastBathed || 0);
+        const daysSincePlayed = this.day - (this.child.lastPlayed || 0);
+        
+        // Critical: Must feed child regularly (like original)
+        if (daysSinceFed > 1) {
+            this.child.daysWithoutFood = (this.child.daysWithoutFood || 0) + 1;
+            this.adjustStat('hunger', -15); // Extra hunger loss
+            this.adjustStat('happiness', -10);
+            this.setEmotion('anxious', 10);
+            if (daysSinceFed > 2) {
+                const hungryMsg = this.language === 'no'
+                    ? this.child.name + " har ikke spist på " + daysSinceFed + " dager! Dette er kritisk!"
+                    : this.child.name + " hasn't eaten in " + daysSinceFed + " days! This is critical!";
+                this.showMessage("⚠️ " + hungryMsg);
+                this.adjustStat('energy', -10);
+                this.adjustStat('happiness', -15);
+            }
+        } else {
+            this.child.daysWithoutFood = 0;
+        }
+        
+        // Must bathe child regularly (like original)
+        if (daysSinceBathed > 2) {
+            this.child.daysWithoutBath = (this.child.daysWithoutBath || 0) + 1;
+            this.adjustStat('happiness', -5);
+            this.adjustStat('social', -3); // Poor hygiene affects social interactions
+            if (daysSinceBathed > 3) {
+                const dirtyMsg = this.language === 'no'
+                    ? this.child.name + " trenger et bad. Dette påvirker " + (this.child.gender === 'girl' ? 'henne' : 'ham') + " negativt."
+                    : this.child.name + " needs a bath. This is affecting " + (this.child.gender === 'girl' ? 'her' : 'him') + " negatively.";
+                this.showMessage("⚠️ " + dirtyMsg);
+            }
+        } else {
+            this.child.daysWithoutBath = 0;
+        }
+        
+        // Must play with child regularly (like original)
+        if (daysSincePlayed > 3) {
+            this.adjustStat('happiness', -8);
+            this.adjustRelationship(-2);
+            this.setEmotion('sad', 10);
+            const lonelyMsg = this.language === 'no'
+                ? this.child.name + " føler seg ensom... Vi har ikke lekt sammen på lenge."
+                : this.child.name + " feels lonely... We haven't played together in a while.";
+            this.showMessage("💔 " + lonelyMsg);
+        }
         
         // Low hunger affects happiness more severely (like original)
         if (this.child.hunger < 30) {
