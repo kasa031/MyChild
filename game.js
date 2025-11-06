@@ -397,6 +397,7 @@ class MyChildGame {
                     read: "Les",
                     mindfulness: "Mindfulness",
                     draw: "Tegn/Lag",
+                    work: "Jobb",
                     cook: "Lag mat",
                     daydream: "Drøm",
                     talk: "Snakk",
@@ -437,6 +438,7 @@ class MyChildGame {
                     read: "Read",
                     mindfulness: "Mindfulness",
                     draw: "Draw/Create",
+                    work: "Work",
                     cook: "Cook Together",
                     daydream: "Daydream",
                     talk: "Talk",
@@ -2572,78 +2574,113 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         if (this.child.age < 3) {
-            this.showDialogue("I'm too young to cook... But I can watch!");
+            const youngMsg = this.language === 'no' 
+                ? "Jeg er for ung til å lage mat... Men jeg kan se på!"
+                : "I'm too young to cook... But I can watch!";
+            this.showDialogue(youngMsg);
             return;
         }
         
         if (this.child.energy < 15) {
-            this.showDialogue("I'm too tired to cook right now...");
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å lage mat akkurat nå..."
+                : "I'm too tired to cook right now...";
+            this.showDialogue(tiredMsg);
             return;
         }
         
-        // Start cooking minigame
+        // Start cooking minigame (with ingredient costs)
         this.startCookingGame();
     }
     
     startCookingGame() {
+        // Ingredient prices (like original game - must buy ingredients)
+        const ingredientPrices = {
+            "Mel": 5,      // per dl
+            "Melk": 3,     // per dl
+            "Egg": 8,      // per stk
+            "Smør": 12,    // per 100g
+            "Sukker": 4,   // per dl
+            "Salt": 2      // per ts
+        };
+        
         const recipes = [
             {
-                name: "Pannekaker",
+                name: this.language === 'no' ? "Pannekaker" : "Pancakes",
                 ingredients: [
-                    { name: "Mel", amount: 2, unit: "dl" },
-                    { name: "Melk", amount: 4, unit: "dl" },
-                    { name: "Egg", amount: 2, unit: "stk" },
-                    { name: "Salt", amount: 0.5, unit: "ts" }
+                    { name: "Mel", amount: 2, unit: "dl", price: ingredientPrices["Mel"] * 2 },
+                    { name: "Melk", amount: 4, unit: "dl", price: ingredientPrices["Melk"] * 4 },
+                    { name: "Egg", amount: 2, unit: "stk", price: ingredientPrices["Egg"] * 2 },
+                    { name: "Salt", amount: 0.5, unit: "ts", price: ingredientPrices["Salt"] * 0.5 }
                 ],
                 conversion: {
-                    question: "Hvor mange ml er 2 dl melk?",
+                    question: this.language === 'no' ? "Hvor mange ml er 2 dl melk?" : "How many ml is 2 dl milk?",
                     answer: "200",
-                    explanation: "1 dl = 100 ml, så 2 dl = 200 ml"
+                    explanation: this.language === 'no' ? "1 dl = 100 ml, så 2 dl = 200 ml" : "1 dl = 100 ml, so 2 dl = 200 ml"
                 }
             },
             {
-                name: "Kaker",
+                name: this.language === 'no' ? "Kaker" : "Cakes",
                 ingredients: [
-                    { name: "Smør", amount: 100, unit: "g" },
-                    { name: "Sukker", amount: 1.5, unit: "dl" },
-                    { name: "Mel", amount: 3, unit: "dl" },
-                    { name: "Egg", amount: 2, unit: "stk" }
+                    { name: "Smør", amount: 100, unit: "g", price: ingredientPrices["Smør"] },
+                    { name: "Sukker", amount: 1.5, unit: "dl", price: ingredientPrices["Sukker"] * 1.5 },
+                    { name: "Mel", amount: 3, unit: "dl", price: ingredientPrices["Mel"] * 3 },
+                    { name: "Egg", amount: 2, unit: "stk", price: ingredientPrices["Egg"] * 2 }
                 ],
                 conversion: {
-                    question: "Hvor mange dl er 500 ml?",
+                    question: this.language === 'no' ? "Hvor mange dl er 500 ml?" : "How many dl is 500 ml?",
                     answer: "5",
-                    explanation: "1 dl = 100 ml, så 500 ml = 5 dl"
+                    explanation: this.language === 'no' ? "1 dl = 100 ml, så 500 ml = 5 dl" : "1 dl = 100 ml, so 500 ml = 5 dl"
                 }
             },
             {
-                name: "Vafler",
+                name: this.language === 'no' ? "Vafler" : "Waffles",
                 ingredients: [
-                    { name: "Mel", amount: 3, unit: "dl" },
-                    { name: "Melk", amount: 5, unit: "dl" },
-                    { name: "Egg", amount: 3, unit: "stk" },
-                    { name: "Smør", amount: 50, unit: "g" }
+                    { name: "Mel", amount: 3, unit: "dl", price: ingredientPrices["Mel"] * 3 },
+                    { name: "Melk", amount: 5, unit: "dl", price: ingredientPrices["Melk"] * 5 },
+                    { name: "Egg", amount: 3, unit: "stk", price: ingredientPrices["Egg"] * 3 },
+                    { name: "Smør", amount: 50, unit: "g", price: ingredientPrices["Smør"] * 0.5 }
                 ],
                 conversion: {
-                    question: "Hvor mange ml er 3 dl?",
+                    question: this.language === 'no' ? "Hvor mange ml er 3 dl?" : "How many ml is 3 dl?",
                     answer: "300",
-                    explanation: "1 dl = 100 ml, så 3 dl = 300 ml"
+                    explanation: this.language === 'no' ? "1 dl = 100 ml, så 3 dl = 300 ml" : "1 dl = 100 ml, so 3 dl = 300 ml"
                 }
             }
         ];
         
         const recipe = recipes[Math.floor(Math.random() * recipes.length)];
         
-        // Show ingredient list
+        // Calculate total cost
+        const totalCost = recipe.ingredients.reduce((sum, ing) => sum + ing.price, 0);
+        
+        // Check if player has enough money (like original game)
+        if (this.child.money < totalCost) {
+            const noMoneyMsg = this.language === 'no'
+                ? "Vi har ikke nok penger for ingrediensene... Vi trenger " + totalCost + " kroner, men har bare " + this.child.money + " kroner. Kanskje vi kan jobbe litt først?"
+                : "We don't have enough money for the ingredients... We need " + totalCost + " kroner, but only have " + this.child.money + " kroner. Maybe we can work a bit first?";
+            this.showDialogue(noMoneyMsg);
+            this.showMessage(this.language === 'no' 
+                ? "💡 Tips: Jobb for å tjene penger så du kan kjøpe ingredienser!"
+                : "💡 Tip: Work to earn money so you can buy ingredients!");
+            return;
+        }
+        
+        // Show ingredient list with prices
         const ingredientLabel = this.language === 'no' ? "Ingredienser for " : "Ingredients for ";
-        let ingredientList = ingredientLabel + recipe.name + ":\n";
+        let ingredientList = ingredientLabel + recipe.name + " (Totalt: " + totalCost + " kr):\n";
         recipe.ingredients.forEach((ing, idx) => {
-            ingredientList += `${idx + 1}. ${ing.amount} ${ing.unit} ${ing.name}\n`;
+            ingredientList += `${idx + 1}. ${ing.amount} ${ing.unit} ${ing.name} - ${ing.price} kr\n`;
         });
         
         const cookDialogue = this.language === 'no'
-            ? "La oss lage " + recipe.name + " sammen! " + ingredientList
-            : "Let's make " + recipe.name + " together! " + ingredientList;
+            ? "La oss lage " + recipe.name + " sammen! " + ingredientList + "\nSkal vi kjøpe ingrediensene? (Vi har " + this.child.money + " kr)"
+            : "Let's make " + recipe.name + " together! " + ingredientList + "\nShould we buy the ingredients? (We have " + this.child.money + " kr)";
         this.showDialogue(cookDialogue);
+        
+        // Deduct money for ingredients (like original game)
+        this.child.money -= totalCost;
+        this.updateDisplay();
         
         // Show conversion question
         const promptText = this.language === 'no'
@@ -2704,6 +2741,72 @@ class MyChildGame {
             this.performAction();
             this.advanceTime();
         }, 2000);
+    }
+    
+    work() {
+        if (!this.canPerformAction()) return;
+        
+        // Work requires minimum age (like original game)
+        if (this.child.age < 14) {
+            const tooYoungMsg = this.language === 'no'
+                ? "Jeg er for ung til å jobbe... Jeg må være minst 14 år."
+                : "I'm too young to work... I need to be at least 14 years old.";
+            this.showDialogue(tooYoungMsg);
+            return;
+        }
+        
+        if (this.child.energy < 20) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å jobbe akkurat nå... Jeg trenger mer energi."
+                : "I'm too tired to work right now... I need more energy.";
+            this.showDialogue(tiredMsg);
+            return;
+        }
+        
+        // Different jobs based on age and study level (like original game)
+        let jobType, earnings, energyCost;
+        
+        if (this.child.age >= 14 && this.child.age < 16) {
+            // Part-time jobs for younger teens
+            jobType = this.language === 'no' ? "Deltidsjobb (avisbud)" : "Part-time job (paper delivery)";
+            earnings = 15 + Math.floor(this.child.studyLevel / 10);
+            energyCost = 25;
+        } else if (this.child.age >= 16 && this.child.studyLevel < 50) {
+            // Basic jobs
+            jobType = this.language === 'no' ? "Deltidsjobb (butikk)" : "Part-time job (store)";
+            earnings = 25 + Math.floor(this.child.studyLevel / 5);
+            energyCost = 30;
+        } else if (this.child.age >= 16 && this.child.studyLevel >= 50) {
+            // Better jobs for those who studied
+            jobType = this.language === 'no' ? "Deltidsjobb (kontor)" : "Part-time job (office)";
+            earnings = 40 + Math.floor(this.child.studyLevel / 3);
+            energyCost = 25;
+        } else {
+            // Adult jobs
+            jobType = this.language === 'no' ? "Fulltidsjobb" : "Full-time job";
+            earnings = 60 + Math.floor(this.child.careerProgress / 2);
+            energyCost = 35;
+        }
+        
+        // Earn money (like original game)
+        this.child.money += earnings;
+        this.adjustStat('energy', -energyCost);
+        this.adjustStat('happiness', -5); // Work is tiring
+        this.child.careerProgress = Math.min(100, this.child.careerProgress + 2);
+        
+        const workMsg = this.language === 'no'
+            ? "Jeg jobbet som " + jobType + " og tjente " + earnings + " kroner! Jeg er litt trøtt, men det var verdt det."
+            : "I worked as " + jobType + " and earned " + earnings + " kroner! I'm a bit tired, but it was worth it.";
+        this.showDialogue(workMsg);
+        
+        const moneyMsg = this.language === 'no'
+            ? "💰 Du har nå " + this.child.money + " kroner. Bruk dem klokt!"
+            : "💰 You now have " + this.child.money + " kroner. Use them wisely!";
+        this.showMessage(moneyMsg);
+        
+        this.updateDisplay();
+        this.performAction();
+        this.advanceTime();
     }
     
     exercise() {
