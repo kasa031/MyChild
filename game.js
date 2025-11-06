@@ -859,6 +859,9 @@ class MyChildGame {
         // Update child name
         document.getElementById('childName').textContent = this.child.name;
         
+        // Update emotion display (like original - show child's feelings)
+        this.updateEmotionDisplay();
+        
         // Update money display if child has money
         const moneyDisplay = document.getElementById('moneyDisplay');
         const moneyValue = document.getElementById('moneyValue');
@@ -994,11 +997,12 @@ class MyChildGame {
     }
     
     updateEmotionalState() {
-        // Update Alex's current emotion based on emotional states
+        // Update Alex's current emotion based on emotional states (like original - more reactive)
         const emotions = this.child.emotionalState;
         const maxEmotion = Object.entries(emotions).reduce((a, b) => emotions[a[0]] > emotions[b[1]] ? a : b);
         
-        if (maxEmotion[1] > 30) {
+        // More sensitive emotion detection (like original game)
+        if (maxEmotion[1] > 25) { // Lowered threshold for stronger reactions
             this.child.currentEmotion = maxEmotion[0];
         } else if (this.child.happiness < 30) {
             this.child.currentEmotion = 'sad';
@@ -1008,12 +1012,17 @@ class MyChildGame {
             this.child.currentEmotion = 'neutral';
         }
         
-        // Emotional states naturally fade over time
+        // Emotional states fade slower (like original - emotions last longer)
         Object.keys(emotions).forEach(emotion => {
             if (emotions[emotion] > 0) {
-                emotions[emotion] = Math.max(0, emotions[emotion] - 2);
+                // Strong emotions fade slower
+                const fadeRate = emotions[emotion] > 50 ? 1 : 1.5;
+                emotions[emotion] = Math.max(0, emotions[emotion] - fadeRate);
             }
         });
+        
+        // Update avatar to show emotion visually
+        this.updateAvatar();
     }
     
     setEmotion(emotion, intensity = 30) {
