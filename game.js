@@ -343,9 +343,10 @@ class MyChildGame {
                     ? "Hei... Jeg er " + this.child.name + ". Jeg er " + this.child.age + " år gammel. Jeg forbereder meg på skolen snart!"
                     : "Hi... I'm " + this.child.name + ". I'm " + this.child.age + " years old. I'm getting ready for school soon!";
             } else {
+                // Historical reference - like original game (post-WW2 context)
                 ageAppropriateDialogue = this.language === 'no' 
-                    ? "Hei... Jeg er " + this.child.name + ". Å begynne på skolen i 2000-tallet er... vel, det kan være komplisert noen ganger. Men jeg vet at jeg er god nok akkurat som jeg er, og det er alle andre også."
-                    : "Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. But I know I'm good enough just as I am, and so is everyone else.";
+                    ? "Hei... Jeg er " + this.child.name + ". Å begynne på skolen i 2000-tallet er... vel, det kan være komplisert noen ganger. Noen ganger føler jeg at jeg er annerledes, at folk ser på meg annerledes. Men jeg vet at jeg er god nok akkurat som jeg er, og det er alle andre også. Historien vår er ikke skrevet i stein - vi kan skape vår egen fremtid."
+                    : "Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. Sometimes I feel different, like people see me differently. But I know I'm good enough just as I am, and so is everyone else. Our story isn't written in stone - we can create our own future.";
             }
             this.showDialogue(ageAppropriateDialogue);
             const welcomeMsg = this.language === 'no'
