@@ -904,6 +904,14 @@ header h1 {
 }
 
 /* Action icons */
+/* Image optimization */
+img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: optimize-quality;
+    will-change: auto; /* Only when needed */
+}
+
 .action-icon {
     width: 24px;
     height: 24px;
@@ -911,6 +919,7 @@ header h1 {
     margin-right: 5px;
     display: inline-block;
     filter: drop-shadow(0 0 5px rgba(255,0,255,0.5));
+    object-fit: contain; /* Preserve aspect ratio */
 }
 
 .routine-btn .action-icon {
