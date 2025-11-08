@@ -502,6 +502,12 @@ class MyChildGame {
     }
     
     getTranslation(key) {
+        // Use TranslationManager for translations
+        return this.translationManager.t(this.language, key);
+    }
+    
+    // Legacy method - kept for compatibility
+    _getTranslation(key) {
         // Simple translation lookup
         const translations = {
             no: {
