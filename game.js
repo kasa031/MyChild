@@ -5297,32 +5297,117 @@ class MyChildGame {
     }
     
     showHelp() {
-        const helpMessages = this.language === 'no' ? [
-            "💡 Tips: Fyll statsene regelmessig! Hunger går ned hver dag, så sørg for å fôre barnet.",
-            "💡 Tips: Prøv ulike aktiviteter! Hver aktivitet gir læringsfakta og lærer barnet noe nytt.",
-            "💡 Tips: Balanse er viktig! Mange aktiviteter gir læring, men husk også å la barnet hvile.",
-            "💡 Tips: Når du går til neste dag, får du nye handlinger. Planlegg dagen din!",
-            "💡 Tips: Hver aktivitet har læringsmomenter - se etter læringsfakta som dukker opp!",
-            "💡 Tips: Prestasjoner låses opp når du gjør spesielle ting. Prøv å få alle!",
-            "💡 Tips: Barnet vokser opp - nye aktiviteter låses opp når barnet blir eldre.",
-            "💡 Tips: Skolefag gir ekstra læring. Prøv alle fagene for å lære mer!",
-            "💡 Tips: Matlaging og trening lærer praktiske ferdigheter som måling og avstand.",
-            "💡 Tips: Nature-aktiviteter lærer om miljø og insekter. Utforsk ofte!"
-        ] : [
-            "💡 Tip: Fill stats regularly! Hunger goes down every day, so make sure to feed the child.",
-            "💡 Tip: Try different activities! Each activity gives learning facts and teaches the child something new.",
-            "💡 Tip: Balance is important! Many activities give learning, but also remember to let the child rest.",
-            "💡 Tip: When you go to the next day, you get new actions. Plan your day!",
-            "💡 Tip: Each activity has learning moments - look for learning facts that appear!",
-            "💡 Tip: Achievements unlock when you do special things. Try to get them all!",
-            "💡 Tip: The child grows up - new activities unlock when the child gets older.",
-            "💡 Tip: School subjects give extra learning. Try all subjects to learn more!",
-            "💡 Tip: Cooking and exercise teach practical skills like measurement and distance.",
-            "💡 Tip: Nature activities teach about environment and insects. Explore often!"
-        ];
+        const helpModal = document.getElementById('helpModal');
+        if (helpModal) {
+            helpModal.style.display = 'block';
+            this.updateHelpContent();
+        } else {
+            // Fallback to simple message if modal doesn't exist
+            const helpMessages = this.language === 'no' ? [
+                "💡 Tips: Fyll statsene regelmessig! Hunger går ned hver dag, så sørg for å fôre barnet.",
+                "💡 Tips: Prøv ulike aktiviteter! Hver aktivitet gir læringsfakta og lærer barnet noe nytt.",
+                "💡 Tips: Balanse er viktig! Mange aktiviteter gir læring, men husk også å la barnet hvile.",
+                "💡 Tips: Når du går til neste dag, får du nye handlinger. Planlegg dagen din!",
+                "💡 Tips: Hver aktivitet har læringsmomenter - se etter læringsfakta som dukker opp!",
+                "💡 Tips: Prestasjoner låses opp når du gjør spesielle ting. Prøv å få alle!",
+                "💡 Tips: Barnet vokser opp - nye aktiviteter låses opp når barnet blir eldre.",
+                "💡 Tips: Skolefag gir ekstra læring. Prøv alle fagene for å lære mer!",
+                "💡 Tips: Matlaging og trening lærer praktiske ferdigheter som måling og avstand.",
+                "💡 Tips: Nature-aktiviteter lærer om miljø og insekter. Utforsk ofte!"
+            ] : [
+                "💡 Tip: Fill stats regularly! Hunger goes down every day, so make sure to feed the child.",
+                "💡 Tip: Try different activities! Each activity gives learning facts and teaches the child something new.",
+                "💡 Tip: Balance is important! Many activities give learning, but also remember to let the child rest.",
+                "💡 Tip: When you go to the next day, you get new actions. Plan your day!",
+                "💡 Tip: Each activity has learning moments - look for learning facts that appear!",
+                "💡 Tip: Achievements unlock when you do special things. Try to get them all!",
+                "💡 Tip: The child grows up - new activities unlock when the child gets older.",
+                "💡 Tip: School subjects give extra learning. Try all subjects to learn more!",
+                "💡 Tip: Cooking and exercise teach practical skills like measurement and distance.",
+                "💡 Tip: Nature activities teach about environment and insects. Explore often!"
+            ];
+            
+            const randomHelp = helpMessages[Math.floor(Math.random() * helpMessages.length)];
+            this.showMessage(randomHelp);
+        }
+    }
+    
+    closeHelp() {
+        const helpModal = document.getElementById('helpModal');
+        if (helpModal) {
+            helpModal.style.display = 'none';
+        }
+    }
+    
+    updateHelpContent() {
+        const helpContent = document.getElementById('helpContent');
+        if (!helpContent) return;
         
-        const randomHelp = helpMessages[Math.floor(Math.random() * helpMessages.length)];
-        this.showMessage(randomHelp);
+        const isNorwegian = this.language === 'no';
+        
+        const helpData = {
+            basics: {
+                title: isNorwegian ? 'Grunnleggende' : 'Basics',
+                items: [
+                    { icon: '🍽️', text: isNorwegian ? 'Fôr barnet regelmessig - hunger synker hver dag' : 'Feed the child regularly - hunger decreases every day' },
+                    { icon: '🛁', text: isNorwegian ? 'Bad barnet for hygiene og glede' : 'Bathe the child for hygiene and happiness' },
+                    { icon: '😴', text: isNorwegian ? 'La barnet hvile for å få energi tilbake' : 'Let the child rest to regain energy' },
+                    { icon: '⏰', text: isNorwegian ? 'Du har 5 handlinger per dag - planlegg nøye' : 'You have 5 actions per day - plan carefully' },
+                    { icon: '💰', text: isNorwegian ? 'Jobb for å tjene penger til mat og ingredienser' : 'Work to earn money for food and ingredients' }
+                ]
+            },
+            activities: {
+                title: isNorwegian ? 'Aktiviteter' : 'Activities',
+                items: [
+                    { icon: '🏫', text: isNorwegian ? 'Skole: Les bøker, gjør oppgaver, ta prøver' : 'School: Read books, do assignments, take tests' },
+                    { icon: '🎮', text: isNorwegian ? 'Lekegrind: Lek med venner og få sosial trening' : 'Playground: Play with friends and get social training' },
+                    { icon: '🍳', text: isNorwegian ? 'Matlaging: Kjøp ingredienser og lag mat sammen' : 'Cooking: Buy ingredients and cook together' },
+                    { icon: '🌳', text: isNorwegian ? 'Natur: Utforsk og lær om miljøet' : 'Nature: Explore and learn about the environment' },
+                    { icon: '📚', text: isNorwegian ? 'Les bøker for læring og lykke' : 'Read books for learning and happiness' }
+                ]
+            },
+            stats: {
+                title: isNorwegian ? 'Statistikker' : 'Statistics',
+                items: [
+                    { icon: '😊', text: isNorwegian ? 'Happiness: Barnets lykke og velvære' : 'Happiness: Child\'s joy and well-being' },
+                    { icon: '⚡', text: isNorwegian ? 'Energy: Nødvendig for aktiviteter' : 'Energy: Required for activities' },
+                    { icon: '👥', text: isNorwegian ? 'Social: Sosial utvikling og vennskap' : 'Social: Social development and friendships' },
+                    { icon: '📖', text: isNorwegian ? 'Learning: Kunnskap og utvikling' : 'Learning: Knowledge and development' },
+                    { icon: '🍽️', text: isNorwegian ? 'Hunger: Må fylles regelmessig' : 'Hunger: Must be filled regularly' }
+                ]
+            },
+            tips: {
+                title: isNorwegian ? 'Tips og triks' : 'Tips & Tricks',
+                items: [
+                    { icon: '💡', text: isNorwegian ? 'Balanser aktiviteter - ikke bare læring, men også glede' : 'Balance activities - not just learning, but also joy' },
+                    { icon: '💡', text: isNorwegian ? 'Prestasjoner låses opp når du gjør spesielle ting' : 'Achievements unlock when you do special things' },
+                    { icon: '💡', text: isNorwegian ? 'Barnet vokser opp - nye aktiviteter låses opp med alder' : 'Child grows up - new activities unlock with age' },
+                    { icon: '💡', text: isNorwegian ? 'Valg har konsekvenser - tenk på lang sikt' : 'Choices have consequences - think long-term' },
+                    { icon: '💡', text: isNorwegian ? 'Spillet lagres automatisk hvert 30. sekund' : 'Game saves automatically every 30 seconds' }
+                ]
+            }
+        };
+        
+        let html = '<div class="help-sections">';
+        
+        Object.entries(helpData).forEach(([key, section]) => {
+            html += `
+                <div class="help-section">
+                    <h3>${section.title}</h3>
+                    <ul class="help-list">
+                        ${section.items.map(item => `
+                            <li>
+                                <span class="help-icon">${item.icon}</span>
+                                <span class="help-text">${item.text}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+        });
+        
+        html += '</div>';
+        helpContent.innerHTML = html;
     }
     
     openProfile() {
