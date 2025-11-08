@@ -6398,13 +6398,27 @@ class MyChildGame {
             { question: "Hva er hovedstaden i Norge?", answer: "Oslo", subject: "Geografi" },
             { question: "Hvor mange dager er det i en uke?", answer: "7", subject: "Generelt" },
             { question: "Hva er 3 × 4?", answer: "12", subject: "Matematikk" },
-            { question: "Hvilket dyr sier 'mjau'?", answer: "Katt", subject: "Naturfag" }
+            { question: "Hvilket dyr sier 'mjau'?", answer: "Katt", subject: "Naturfag" },
+            { question: "Hva er 10 - 4?", answer: "6", subject: "Matematikk" },
+            { question: "Hvor mange måneder er det i et år?", answer: "12", subject: "Generelt" },
+            { question: "Hvilken farge får vi når vi blander rødt og blått?", answer: "Lilla", subject: "Kunst" },
+            { question: "Hva er 2 × 5?", answer: "10", subject: "Matematikk" },
+            { question: "Hvilket dyr er kjent for å være 'kongens av jungelen'?", answer: "Løve", subject: "Naturfag" },
+            { question: "Hva er 8 + 3?", answer: "11", subject: "Matematikk" },
+            { question: "Hvor mange fingre har en hånd?", answer: "5", subject: "Generelt" }
         ] : [
             { question: "What is 5 + 7?", answer: "12", subject: "Math" },
             { question: "What is the capital of Norway?", answer: "Oslo", subject: "Geography" },
             { question: "How many days are in a week?", answer: "7", subject: "General" },
             { question: "What is 3 × 4?", answer: "12", subject: "Math" },
-            { question: "Which animal says 'meow'?", answer: "Cat", subject: "Science" }
+            { question: "Which animal says 'meow'?", answer: "Cat", subject: "Science" },
+            { question: "What is 10 - 4?", answer: "6", subject: "Math" },
+            { question: "How many months are in a year?", answer: "12", subject: "General" },
+            { question: "What color do we get when mixing red and blue?", answer: "Purple", subject: "Art" },
+            { question: "What is 2 × 5?", answer: "10", subject: "Math" },
+            { question: "Which animal is known as 'king of the jungle'?", answer: "Lion", subject: "Science" },
+            { question: "What is 8 + 3?", answer: "11", subject: "Math" },
+            { question: "How many fingers are on one hand?", answer: "5", subject: "General" }
         ];
         
         const assignment = assignments[Math.floor(Math.random() * assignments.length)];
@@ -6510,12 +6524,24 @@ class MyChildGame {
             { q: "Hva er 8 + 9?", options: ["15", "16", "17", "18"], correct: 2 },
             { q: "Hvilken farge får vi når vi blander rødt og blått?", options: ["Grønn", "Lilla", "Gul", "Oransje"], correct: 1 },
             { q: "Hvor mange ben har en katt?", options: ["2", "3", "4", "6"], correct: 2 },
-            { q: "Hva er hovedstaden i Norge?", options: ["Bergen", "Trondheim", "Oslo", "Stavanger"], correct: 2 }
+            { q: "Hva er hovedstaden i Norge?", options: ["Bergen", "Trondheim", "Oslo", "Stavanger"], correct: 2 },
+            { q: "Hva er 6 × 3?", options: ["15", "16", "18", "20"], correct: 2 },
+            { q: "Hvilket dyr lever i havet?", options: ["Hest", "Fisk", "Katt", "Hund"], correct: 1 },
+            { q: "Hvor mange timer er det i en dag?", options: ["20", "22", "24", "26"], correct: 2 },
+            { q: "Hva er 15 - 7?", options: ["6", "7", "8", "9"], correct: 2 },
+            { q: "Hvilken sesong kommer etter vinter?", options: ["Sommer", "Høst", "Vår", "Vinter"], correct: 2 },
+            { q: "Hva er 4 × 4?", options: ["14", "15", "16", "17"], correct: 2 }
         ] : [
             { q: "What is 8 + 9?", options: ["15", "16", "17", "18"], correct: 2 },
             { q: "What color do we get when mixing red and blue?", options: ["Green", "Purple", "Yellow", "Orange"], correct: 1 },
             { q: "How many legs does a cat have?", options: ["2", "3", "4", "6"], correct: 2 },
-            { q: "What is the capital of Norway?", options: ["Bergen", "Trondheim", "Oslo", "Stavanger"], correct: 2 }
+            { q: "What is the capital of Norway?", options: ["Bergen", "Trondheim", "Oslo", "Stavanger"], correct: 2 },
+            { q: "What is 6 × 3?", options: ["15", "16", "18", "20"], correct: 2 },
+            { q: "Which animal lives in the ocean?", options: ["Horse", "Fish", "Cat", "Dog"], correct: 1 },
+            { q: "How many hours are in a day?", options: ["20", "22", "24", "26"], correct: 2 },
+            { q: "What is 15 - 7?", options: ["6", "7", "8", "9"], correct: 2 },
+            { q: "Which season comes after winter?", options: ["Summer", "Fall", "Spring", "Winter"], correct: 2 },
+            { q: "What is 4 × 4?", options: ["14", "15", "16", "17"], correct: 2 }
         ];
         
         const test = tests[Math.floor(Math.random() * tests.length)];
@@ -6722,6 +6748,27 @@ class MyChildGame {
                     { name: "Smør", amount: 50, unit: "g", emoji: "🧈" }
                 ],
                 cost: 35
+            },
+            {
+                name: "Gulrotkake",
+                ingredients: [
+                    { name: "Gulrot", amount: 3, unit: "stk", emoji: "🥕" },
+                    { name: "Mel", amount: 2.5, unit: "dl", emoji: "🌾" },
+                    { name: "Sukker", amount: 1, unit: "dl", emoji: "🍬" },
+                    { name: "Egg", amount: 2, unit: "stk", emoji: "🥚" },
+                    { name: "Smør", amount: 75, unit: "g", emoji: "🧈" }
+                ],
+                cost: 40
+            },
+            {
+                name: "Smoothie",
+                ingredients: [
+                    { name: "Banan", amount: 2, unit: "stk", emoji: "🍌" },
+                    { name: "Jordbær", amount: 10, unit: "stk", emoji: "🍓" },
+                    { name: "Melk", amount: 2, unit: "dl", emoji: "🥛" },
+                    { name: "Yoghurt", amount: 1, unit: "dl", emoji: "🥄" }
+                ],
+                cost: 30
             }
         ] : [
             {
@@ -6753,6 +6800,27 @@ class MyChildGame {
                     { name: "Butter", amount: 50, unit: "g", emoji: "🧈" }
                 ],
                 cost: 35
+            },
+            {
+                name: "Carrot Cake",
+                ingredients: [
+                    { name: "Carrots", amount: 3, unit: "pcs", emoji: "🥕" },
+                    { name: "Flour", amount: 2.5, unit: "dl", emoji: "🌾" },
+                    { name: "Sugar", amount: 1, unit: "dl", emoji: "🍬" },
+                    { name: "Eggs", amount: 2, unit: "pcs", emoji: "🥚" },
+                    { name: "Butter", amount: 75, unit: "g", emoji: "🧈" }
+                ],
+                cost: 40
+            },
+            {
+                name: "Smoothie",
+                ingredients: [
+                    { name: "Banana", amount: 2, unit: "pcs", emoji: "🍌" },
+                    { name: "Strawberries", amount: 10, unit: "pcs", emoji: "🍓" },
+                    { name: "Milk", amount: 2, unit: "dl", emoji: "🥛" },
+                    { name: "Yogurt", amount: 1, unit: "dl", emoji: "🥄" }
+                ],
+                cost: 30
             }
         ];
         
