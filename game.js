@@ -411,14 +411,16 @@ class MyChildGame {
     }
     
     deleteGame() {
-        if (confirm('Er du sikker på at du vil slette dette spillet? Dette kan ikke angres!')) {
+        const confirmMsg = this.t('messages.deleteConfirm');
+        if (confirm(confirmMsg)) {
             try {
                 localStorage.removeItem(`mychild_game_${this.username}`);
                 localStorage.removeItem(`mychild_customization_${this.username}`);
                 window.location.href = 'login.html';
             } catch (e) {
                 console.error('Error deleting game:', e);
-                alert('Kunne ikke slette spillet. Prøv igjen.');
+                const errorMsg = this.t('messages.deleteError');
+                alert(errorMsg);
             }
         }
     }
@@ -544,7 +546,19 @@ class MyChildGame {
                     welcome: "Velkommen! Ta vare på barnet ditt i 2000-tallet.",
                     saved: "Lagret",
                     actionsRemaining: "Handlinger igjen",
-                    goToNextDay: "Gå til neste dag"
+                    goToNextDay: "Gå til neste dag",
+                    deleteConfirm: "Er du sikker på at du vil slette dette spillet? Dette kan ikke angres!",
+                    deleteError: "Kunne ikke slette spillet. Prøv igjen.",
+                    selectImage: "Velg bilde",
+                    uploadImageHint: "Last opp ditt eget bilde som avatar",
+                    saveBio: "Lagre bio",
+                    bioPlaceholder: "Skriv litt om deg selv...",
+                    aboutMe: "Om meg",
+                    profileEditing: "Profilredigering",
+                    currentAvatar: "Nåværende avatar",
+                    chooseAvatar: "Velg avatar:",
+                    badges: "Badges",
+                    upload: "Last opp bilde"
                 }
             },
             en: {
@@ -589,7 +603,19 @@ class MyChildGame {
                     welcome: "Welcome! Take care of your child in the 2000s.",
                     saved: "Saved",
                     actionsRemaining: "Actions remaining",
-                    goToNextDay: "Go to next day"
+                    goToNextDay: "Go to next day",
+                    deleteConfirm: "Are you sure you want to delete this game? This cannot be undone!",
+                    deleteError: "Could not delete the game. Please try again.",
+                    selectImage: "Select image",
+                    uploadImageHint: "Upload your own image as avatar",
+                    saveBio: "Save bio",
+                    bioPlaceholder: "Write a bit about yourself...",
+                    aboutMe: "About me",
+                    profileEditing: "Profile Editing",
+                    currentAvatar: "Current avatar",
+                    chooseAvatar: "Choose avatar:",
+                    badges: "Badges",
+                    upload: "Upload image"
                 }
             }
         };
@@ -664,10 +690,34 @@ class MyChildGame {
             }
         });
         
+        // Update profile modal texts
+        this.updateProfileDisplay();
+        
+        // Update help modal title
+        const helpModalTitle = document.querySelector('#helpModal .modal-header h2');
+        if (helpModalTitle) {
+            helpModalTitle.textContent = this.language === 'no' ? '❓ Hjelp og veiledning' : '❓ Help & Guide';
+        }
+        
+        // Update initial welcome message
+        const statusMessage = document.getElementById('statusMessage');
+        if (statusMessage && !statusMessage.textContent) {
+            statusMessage.textContent = this.t('messages.welcome');
+        }
+        
         // Update specific UI elements
         const yearLabel = document.querySelector('.year-display');
         if (yearLabel) {
             yearLabel.innerHTML = (this.language === 'no' ? 'År: ' : 'Year: ') + '<span id="currentYear">' + this.year + '</span>';
+        }
+        
+        // Update action display
+        this.updateActionDisplay();
+        
+        // Update profile money text
+        const profileMoneyText = document.getElementById('profileMoneyText');
+        if (profileMoneyText) {
+            profileMoneyText.innerHTML = (this.language === 'no' ? 'Du har: ' : 'You have: ') + '<span id="profileMoney">' + (this.child.money || 0) + '</span> ' + (this.language === 'no' ? 'kr' : 'kr');
         }
     }
     
@@ -5589,6 +5639,53 @@ class MyChildGame {
         const profileBio = document.getElementById('profileBio');
         if (profileBio) {
             profileBio.value = this.child.bio || '';
+            profileBio.placeholder = this.t('messages.bioPlaceholder');
+        }
+        
+        // Update profile modal texts
+        const profileEditingTitle = document.getElementById('profileEditingTitle');
+        if (profileEditingTitle) {
+            profileEditingTitle.textContent = this.t('messages.profileEditing');
+        }
+        
+        const currentAvatarText = document.getElementById('currentAvatarText');
+        if (currentAvatarText) {
+            currentAvatarText.textContent = this.t('messages.currentAvatar');
+        }
+        
+        const chooseAvatarText = document.getElementById('chooseAvatarText');
+        if (chooseAvatarText) {
+            chooseAvatarText.textContent = this.t('messages.chooseAvatar');
+        }
+        
+        const badgesTabBtn = document.getElementById('badgesTabBtn');
+        if (badgesTabBtn) {
+            badgesTabBtn.textContent = this.t('messages.badges');
+        }
+        
+        const uploadTabBtn = document.getElementById('uploadTabBtn');
+        if (uploadTabBtn) {
+            uploadTabBtn.textContent = this.t('messages.upload');
+        }
+        
+        const selectImageBtn = document.getElementById('selectImageBtn');
+        if (selectImageBtn) {
+            selectImageBtn.textContent = this.t('messages.selectImage');
+        }
+        
+        const uploadImageHint = document.getElementById('uploadImageHint');
+        if (uploadImageHint) {
+            uploadImageHint.textContent = this.t('messages.uploadImageHint');
+        }
+        
+        const aboutMeTitle = document.getElementById('aboutMeTitle');
+        if (aboutMeTitle) {
+            aboutMeTitle.textContent = this.t('messages.aboutMe');
+        }
+        
+        const saveBioBtn = document.getElementById('saveBioBtn');
+        if (saveBioBtn) {
+            saveBioBtn.textContent = this.t('messages.saveBio');
         }
     }
     
@@ -5657,7 +5754,10 @@ class MyChildGame {
                 if (earnedBadges.includes(badge.id)) {
                     this.selectBadge(badge.emoji);
                 } else {
-                    this.showMessage("Du må tjene denne badge først!");
+                    const msg = this.language === 'no' 
+                        ? "Du må tjene denne badge først!" 
+                        : "You must earn this badge first!";
+                    this.showMessage(msg);
                 }
             };
             badgesGrid.appendChild(badgeDiv);

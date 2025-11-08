@@ -38,7 +38,7 @@
                 <h1>MyChild - 2000s Edition</h1>
             </div>
             <div class="header-controls">
-                <div class="year-display">Year: <span id="currentYear">2000</span></div>
+                <div class="year-display" id="yearDisplay">Year: <span id="currentYear">2000</span></div>
                 <div id="moneyDisplay" style="display: none; margin: 0 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold;">
                     💰 <span id="moneyValue">0</span>
                 </div>
@@ -191,7 +191,7 @@
                         <p id="dialogueText"></p>
                     </div>
                     <div class="story-message" id="storyMessage">
-                        <p id="statusMessage">Welcome! Take care of your child in the 2000s.</p>
+                        <p id="statusMessage"></p>
                     </div>
                 </div>
 
@@ -306,7 +306,7 @@
     <div id="profileModal" class="modal" style="display: none;">
         <div class="modal-content profile-modal">
             <div class="modal-header">
-                <h2>Profilredigering</h2>
+                <h2 id="profileEditingTitle">Profilredigering</h2>
                 <span class="close-modal" onclick="game.closeProfile()">&times;</span>
             </div>
             <div class="modal-body">
@@ -315,13 +315,13 @@
                     <div class="avatar-options">
                         <div class="current-avatar" id="currentAvatarDisplay">
                             <div class="child-avatar-large" id="profileAvatar">👶</div>
-                            <p>Nåværende avatar</p>
+                            <p id="currentAvatarText">Nåværende avatar</p>
                         </div>
                         <div class="avatar-choices">
-                            <h4>Velg avatar:</h4>
+                            <h4 id="chooseAvatarText">Velg avatar:</h4>
                             <div class="avatar-tabs">
-                                <button class="tab-btn active" onclick="game.showAvatarTab('badges')">Badges</button>
-                                <button class="tab-btn" onclick="game.showAvatarTab('upload')">Last opp bilde</button>
+                                <button class="tab-btn active" onclick="game.showAvatarTab('badges')" id="badgesTabBtn">Badges</button>
+                                <button class="tab-btn" onclick="game.showAvatarTab('upload')" id="uploadTabBtn">Last opp bilde</button>
                             </div>
                             <div id="badgesTab" class="avatar-tab-content active">
                                 <div class="badges-grid" id="badgesGrid">
@@ -330,8 +330,8 @@
                             </div>
                             <div id="uploadTab" class="avatar-tab-content">
                                 <input type="file" id="avatarUpload" accept="image/*" onchange="game.handleAvatarUpload(event)" style="display: none;">
-                                <button class="btn-primary" onclick="document.getElementById('avatarUpload').click()">Velg bilde</button>
-                                <p style="font-size: 0.9em; margin-top: 10px; color: #666;">Last opp ditt eget bilde som avatar</p>
+                                <button class="btn-primary" onclick="document.getElementById('avatarUpload').click()" id="selectImageBtn">Velg bilde</button>
+                                <p style="font-size: 0.9em; margin-top: 10px; color: #666;" id="uploadImageHint">Last opp ditt eget bilde som avatar</p>
                             </div>
                         </div>
                     </div>
@@ -352,15 +352,15 @@
                 </div>
                 
                 <div class="profile-section">
-                    <h3>Om meg</h3>
-                    <textarea id="profileBio" rows="4" placeholder="Skriv litt om deg selv..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid #ff00ff; font-family: inherit;"></textarea>
-                    <button class="btn-primary" onclick="game.saveProfile()" style="margin-top: 10px;">Lagre bio</button>
+                    <h3 id="aboutMeTitle">Om meg</h3>
+                    <textarea id="profileBio" rows="4" placeholder="Skriv litt om deg selv..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--primary-1); font-family: inherit;"></textarea>
+                    <button class="btn-primary" onclick="game.saveProfile()" style="margin-top: 10px;" id="saveBioBtn">Lagre bio</button>
                 </div>
                 
                 <div class="profile-section">
                     <h3 data-translate="shop">Butikk</h3> 💰
                     <div class="money-display-profile">
-                        <p>Du har: <span id="profileMoney">0</span> kr</p>
+                        <p id="profileMoneyText">Du har: <span id="profileMoney">0</span> kr</p>
                     </div>
                     <div class="shop-items" id="shopItems">
                         <!-- Shop items will be populated here -->
