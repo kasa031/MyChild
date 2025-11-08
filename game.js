@@ -209,6 +209,13 @@ class MyChildGame {
             }
         });
         
+        // Initialize mobile UX features (after DOM is ready)
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.initMobileUX());
+        } else {
+            setTimeout(() => this.initMobileUX(), 100);
+        }
+        
         // Redirect to login if no username
         if (!this.username || this.username === 'default') {
             if (window.location.pathname.includes('index.html')) {
@@ -5396,6 +5403,72 @@ class MyChildGame {
         if (helpModal) {
             helpModal.style.display = 'none';
         }
+    }
+    
+    initMobileUX() {
+        // Initialize swipe gestures for modals
+        const modals = ['helpModal', 'profileModal', 'universeModal'];
+        
+        modals.forEach(modalId => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                // Swipe down to close modal
+                new SwipeDetector(modal, {
+                    onSwipeDown: () => {
+                        if (modalId === 'helpModal') {
+                            this.closeHelp();
+                        } else if (modalId === 'profileModal') {
+                            this.closeProfile();
+                        } else if (modalId === 'universeModal') {
+                            this.closeUniverse();
+                        }
+                    },
+                    threshold: 100, // Need to swipe at least 100px
+                    restraint: 50 // Allow 50px perpendicular movement
+                });
+            }
+        });
+        
+        // Add swipe gestures to scene area for navigation (optional)
+        const sceneArea = document.querySelector('.scene-area');
+        if (sceneArea && 'ontouchstart' in window) {
+            const locationOrder = ['home', 'school', 'playground', 'friend', 'nature'];
+            new SwipeDetector(sceneArea, {
+                onSwipeLeft: () => {
+                    const currentIndex = locationOrder.indexOf(this.currentLocation);
+                    if (currentIndex < locationOrder.length - 1) {
+                        this.goToLocation(locationOrder[currentIndex + 1]);
+                    }
+                },
+                onSwipeRight: () => {
+                    const currentIndex = locationOrder.indexOf(this.currentLocation);
+                    if (currentIndex > 0) {
+                        this.goToLocation(locationOrder[currentIndex - 1]);
+                    }
+                },
+                threshold: 80,
+                restraint: 80
+            });
+        }
+        
+        // Prevent pull-to-refresh on mobile (can interfere with swipe)
+        let lastTouchY = 0;
+        document.addEventListener('touchstart', (e) => {
+            lastTouchY = e.touches[0].clientY;
+        }, { passive: true });
+        
+        document.addEventListener('touchmove', (e) => {
+            const touchY = e.touches[0].clientY;
+            const touchTarget = e.target;
+            
+            // Only prevent if swiping on modals or scene area
+            if (touchTarget.closest('.modal') || touchTarget.closest('.scene-area')) {
+                if (touchY > lastTouchY && window.scrollY === 0) {
+                    e.preventDefault();
+                }
+            }
+            lastTouchY = touchY;
+        }, { passive: false });
     }
     
     updateHelpContent() {
