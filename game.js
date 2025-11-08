@@ -11,6 +11,65 @@ function debounce(func, wait) {
     };
 }
 
+// Swipe detection utility
+class SwipeDetector {
+    constructor(element, options = {}) {
+        this.element = element;
+        this.threshold = options.threshold || 50; // Minimum distance for swipe
+        this.restraint = options.restraint || 100; // Maximum perpendicular distance
+        this.allowedTime = options.allowedTime || 300; // Maximum time for swipe
+        
+        this.touchStartX = 0;
+        this.touchStartY = 0;
+        this.touchStartTime = 0;
+        
+        this.onSwipeLeft = options.onSwipeLeft || null;
+        this.onSwipeRight = options.onSwipeRight || null;
+        this.onSwipeUp = options.onSwipeUp || null;
+        this.onSwipeDown = options.onSwipeDown || null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.element.addEventListener('touchstart', (e) => {
+            const touch = e.changedTouches[0];
+            this.touchStartX = touch.pageX;
+            this.touchStartY = touch.pageY;
+            this.touchStartTime = new Date().getTime();
+        }, { passive: true });
+        
+        this.element.addEventListener('touchend', (e) => {
+            const touch = e.changedTouches[0];
+            const touchEndX = touch.pageX;
+            const touchEndY = touch.pageY;
+            const touchEndTime = new Date().getTime();
+            
+            const distX = touchEndX - this.touchStartX;
+            const distY = touchEndY - this.touchStartY;
+            const elapsedTime = touchEndTime - this.touchStartTime;
+            
+            if (elapsedTime <= this.allowedTime) {
+                if (Math.abs(distX) >= this.threshold && Math.abs(distY) <= this.restraint) {
+                    // Horizontal swipe
+                    if (distX > 0 && this.onSwipeRight) {
+                        this.onSwipeRight();
+                    } else if (distX < 0 && this.onSwipeLeft) {
+                        this.onSwipeLeft();
+                    }
+                } else if (Math.abs(distY) >= this.threshold && Math.abs(distX) <= this.restraint) {
+                    // Vertical swipe
+                    if (distY > 0 && this.onSwipeDown) {
+                        this.onSwipeDown();
+                    } else if (distY < 0 && this.onSwipeUp) {
+                        this.onSwipeUp();
+                    }
+                }
+            }
+        }, { passive: true });
+    }
+}
+
 class MyChildGame {
     constructor() {
         // Get username from URL

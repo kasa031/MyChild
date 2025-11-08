@@ -1640,3 +1640,74 @@ button:focus-visible,
     }
 }
 
+/* Mobile UX improvements */
+@media (hover: none) and (pointer: coarse) {
+    /* Better scrolling on mobile */
+    .modal-content {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+    }
+    
+    /* Visual feedback for swipe gestures */
+    .scene-area {
+        position: relative;
+    }
+    
+    .scene-area::after {
+        content: '← Swipe for å navigere →';
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7em;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(0, 0, 0, 0.3);
+        padding: 4px 8px;
+        border-radius: 10px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .scene-area:hover::after {
+        opacity: 1;
+    }
+    
+    /* Swipe indicator for modals */
+    .modal-header::before {
+        content: '⬇ Swipe ned for å lukke';
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.7em;
+        color: rgba(255, 255, 255, 0.6);
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    
+    .modal:not([style*="display: none"]) .modal-header::before {
+        opacity: 1;
+        animation: fadeInOut 3s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        20%, 80% { opacity: 1; }
+    }
+    
+    /* Better button feedback on touch */
+    button:active, .action-btn:active, .routine-btn:active {
+        transform: scale(0.95);
+        transition: transform 0.1s;
+    }
+    
+    /* Prevent text selection on buttons during touch */
+    button, .action-btn, .routine-btn {
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+}
+
