@@ -1381,6 +1381,38 @@ class MyChildGame {
         }
     }
     
+    supportsWebP() {
+        // Check if browser supports WebP format
+        if (this._webpSupport !== undefined) {
+            return this._webpSupport;
+        }
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = 1;
+        canvas.height = 1;
+        this._webpSupport = canvas.toDataURL('image/webp').indexOf('data:image/webp') === 0;
+        return this._webpSupport;
+    }
+    
+    preloadCriticalImages() {
+        // Preload critical images (current location and next likely location)
+        const currentIndex = ['home', 'school', 'playground', 'friend', 'nature'].indexOf(this.currentLocation);
+        const nextLocation = ['home', 'school', 'playground', 'friend', 'nature'][(currentIndex + 1) % 5];
+        
+        [this.currentLocation, nextLocation].forEach(locationKey => {
+            const location = this.locations[locationKey];
+            if (location && location.image && !location.imagePreloaded) {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.as = 'image';
+                link.href = location.image;
+                link.fetchPriority = locationKey === this.currentLocation ? 'high' : 'low';
+                document.head.appendChild(link);
+                location.imagePreloaded = true;
+            }
+        });
+    }
+    
     loadSceneImages() {
         // Check if images exist and update accordingly
         const imageNames = ['home.jpg', 'school.jpg', 'playground.jpg', 'friend.jpg'];
@@ -1402,6 +1434,9 @@ class MyChildGame {
             };
             img.src = `images/${imgName}`;
         });
+        
+        // Preload critical images after checking
+        setTimeout(() => this.preloadCriticalImages(), 500);
     }
     
     async updateScene() {
@@ -1410,6 +1445,9 @@ class MyChildGame {
         const sceneName = document.getElementById('sceneName');
         
         sceneImage.style.background = `linear-gradient(135deg, ${location.color} 0%, ${location.color}dd 100%)`;
+        
+        // Preload next likely images
+        this.preloadCriticalImages();
         
         // Try API-generated professional illustration first
         if (this.apiConfig && this.apiConfig.imageAPI && this.apiConfig.imageAPI.enabled) {
@@ -1460,20 +1498,43 @@ class MyChildGame {
         if (location.image && !location.usePlaceholder) {
             const img = document.createElement('img');
             img.loading = 'lazy'; // Lazy load images
-            img.src = location.image;
             img.alt = location.name;
             img.style.width = '100%';
             img.style.height = '100%';
             img.style.objectFit = 'cover';
             img.decoding = 'async'; // Async decoding for better performance
+            img.fetchPriority = 'high'; // High priority for visible images
+            
+            // Try WebP first, fallback to original format
+            const imagePath = location.image;
+            const webpPath = imagePath.replace(/\.(jpg|jpeg|png)$/i, '.webp');
+            
+            // Check if WebP is supported
+            const supportsWebP = this.supportsWebP();
             
             // Use Intersection Observer for better lazy loading
             if ('IntersectionObserver' in window && !location.imageLoaded) {
                 const observer = new IntersectionObserver((entries) => {
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
-                            img.src = location.image;
-                            observer.disconnect();
+                            // Load WebP if supported, otherwise use original
+                            if (supportsWebP) {
+                                // Try WebP first
+                                const webpImg = new Image();
+                                webpImg.onload = () => {
+                                    img.src = webpPath;
+                                    observer.disconnect();
+                                };
+                                webpImg.onerror = () => {
+                                    // Fallback to original if WebP doesn't exist
+                                    img.src = imagePath;
+                                    observer.disconnect();
+                                };
+                                webpImg.src = webpPath;
+                            } else {
+                                img.src = imagePath;
+                                observer.disconnect();
+                            }
                         }
                     });
                 }, { rootMargin: '50px' });
@@ -1484,7 +1545,14 @@ class MyChildGame {
                 observer.observe(img);
             } else {
                 // Fallback for browsers without IntersectionObserver
-                img.src = location.image;
+                if (supportsWebP) {
+                    const webpImg = new Image();
+                    webpImg.onload = () => img.src = webpPath;
+                    webpImg.onerror = () => img.src = imagePath;
+                    webpImg.src = webpPath;
+                } else {
+                    img.src = imagePath;
+                }
             }
             
             img.onerror = () => {
