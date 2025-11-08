@@ -1443,3 +1443,68 @@ header h1 {
     }
 }
 
+/* Save Indicator Styles */
+.save-indicator {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.save-indicator.save-success {
+    background: rgba(76, 175, 80, 0.2);
+    color: var(--success);
+    animation: savePulse 0.5s ease;
+}
+
+.save-indicator.save-error {
+    background: rgba(244, 67, 54, 0.2);
+    color: var(--error);
+    animation: saveShake 0.5s ease;
+}
+
+@keyframes savePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+@keyframes saveShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-3px); }
+    75% { transform: translateX(3px); }
+}
+
+/* Accessibility improvements */
+button:focus,
+.routine-btn:focus,
+.action-btn:focus,
+.choice-btn:focus {
+    outline: 3px solid var(--secondary-1);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+.routine-btn:focus-visible,
+.action-btn:focus-visible,
+.choice-btn:focus-visible {
+    outline: 3px solid var(--secondary-1);
+    outline-offset: 2px;
+}
+
+/* Skip to main content link for screen readers */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: var(--primary-1);
+    color: var(--neutral-1);
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+

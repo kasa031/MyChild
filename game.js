@@ -276,27 +276,58 @@ class MyChildGame {
             }
             
             localStorage.setItem(`mychild_game_${this.username}`, gameDataString);
-            this.showSaveIndicator();
+            this.showSaveIndicator(true);
             console.log('Game saved successfully');
             return true;
         } catch (e) {
             console.error('Error saving game:', e);
+            let errorMessage = null;
             if (e.name === 'QuotaExceededError') {
-                this.showMessage('⚠️ Lagringsfull - vennligst slett noen gamle spill');
+                errorMessage = this.language === 'no' 
+                    ? '⚠️ Lagringsfull - vennligst slett noen gamle spill'
+                    : '⚠️ Storage full - please delete some old games';
+                this.showMessage(errorMessage);
+            } else {
+                errorMessage = this.language === 'no'
+                    ? '⚠️ Kunne ikke lagre spillet'
+                    : '⚠️ Could not save game';
             }
+            this.showSaveIndicator(false, errorMessage);
             return false;
         }
     }
     
-    showSaveIndicator() {
-        // Show save indicator briefly
+    showSaveIndicator(success = true, message = null) {
+        // Show save indicator with visual feedback
         const saveIndicator = document.getElementById('saveIndicator');
         if (saveIndicator) {
-            saveIndicator.textContent = '💾 Lagret';
-            saveIndicator.style.opacity = '1';
-            setTimeout(() => {
-                saveIndicator.style.opacity = '0.5';
-            }, 2000);
+            if (success) {
+                const savedText = this.language === 'no' ? '💾 Lagret' : '💾 Saved';
+                saveIndicator.textContent = message || savedText;
+                saveIndicator.className = 'save-indicator save-success';
+                saveIndicator.style.opacity = '1';
+                saveIndicator.setAttribute('aria-live', 'polite');
+                saveIndicator.setAttribute('aria-label', savedText);
+                
+                // Animate success
+                setTimeout(() => {
+                    saveIndicator.style.opacity = '0.6';
+                    saveIndicator.className = 'save-indicator';
+                }, 3000);
+            } else {
+                const errorText = this.language === 'no' ? '⚠️ Lagring feilet' : '⚠️ Save failed';
+                saveIndicator.textContent = message || errorText;
+                saveIndicator.className = 'save-indicator save-error';
+                saveIndicator.style.opacity = '1';
+                saveIndicator.setAttribute('aria-live', 'assertive');
+                saveIndicator.setAttribute('aria-label', errorText);
+                
+                // Keep error visible longer
+                setTimeout(() => {
+                    saveIndicator.style.opacity = '0.6';
+                    saveIndicator.className = 'save-indicator';
+                }, 5000);
+            }
         }
     }
     

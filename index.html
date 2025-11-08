@@ -42,20 +42,51 @@
                 <div id="moneyDisplay" style="display: none; margin: 0 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold;">
                     💰 <span id="moneyValue">0</span>
                 </div>
-                <span id="saveIndicator" style="opacity: 0.5; font-size: 0.9em; margin-right: 10px; transition: opacity 0.3s;">💾</span>
-                <button id="musicToggle" class="music-btn" onclick="game.toggleMusic()" title="Toggle background music">
+                <span id="saveIndicator" 
+                      class="save-indicator"
+                      role="status" 
+                      aria-live="polite" 
+                      aria-label="Lagre status"
+                      style="opacity: 0.6; font-size: 0.9em; margin-right: 10px; transition: all 0.3s; cursor: help;"
+                      title="Spillet lagres automatisk hvert 30. sekund">💾</span>
+                <button id="musicToggle" 
+                        class="music-btn" 
+                        onclick="game.toggleMusic()" 
+                        title="Toggle background music"
+                        aria-label="Toggle background music"
+                        role="button">
                     🎵
                 </button>
-                <button class="music-btn" onclick="game.deleteGame()" title="Slett dette spillet" style="margin-left: 10px;">
+                <button class="music-btn" 
+                        onclick="game.deleteGame()" 
+                        title="Slett dette spillet" 
+                        aria-label="Slett dette spillet"
+                        role="button"
+                        style="margin-left: 10px;">
                     🗑️
                 </button>
-                <button class="music-btn" onclick="window.location.href='login.html'" title="Logg ut / Tilbake til innlogging" style="margin-left: 10px;">
+                <button class="music-btn" 
+                        onclick="window.location.href='login.html'" 
+                        title="Logg ut / Tilbake til innlogging" 
+                        aria-label="Logg ut"
+                        role="button"
+                        style="margin-left: 10px;">
                     🚪
                 </button>
-                <button class="music-btn" onclick="game.showHelp()" title="Vis hjelp og tips" style="margin-left: 10px;">
+                <button class="music-btn" 
+                        onclick="game.showHelp()" 
+                        title="Vis hjelp og tips" 
+                        aria-label="Vis hjelp"
+                        role="button"
+                        style="margin-left: 10px;">
                     ❓
                 </button>
-                <button class="music-btn" onclick="game.openProfile()" title="Profil" style="margin-left: 10px;">
+                <button class="music-btn" 
+                        onclick="game.openProfile()" 
+                        title="Profil" 
+                        aria-label="Åpne profil"
+                        role="button"
+                        style="margin-left: 10px;">
                     👤
                 </button>
             </div>
@@ -66,7 +97,15 @@
                 <div class="sticker-decoration sticker-avatar">
                     <img src="images/stickerbaby1.jpg" alt="Baby sticker" class="sticker-img-small">
                 </div>
-                <div class="child-avatar" onclick="game.openProfile()" title="Klikk for å redigere profil" style="cursor: pointer;" id="childAvatar">👶</div>
+                <div class="child-avatar" 
+                     onclick="game.openProfile()" 
+                     title="Klikk for å redigere profil" 
+                     aria-label="Barnets avatar - klikk for å redigere profil"
+                     role="button"
+                     tabindex="0"
+                     onkeypress="if(event.key==='Enter'||event.key===' '){game.openProfile();}"
+                     style="cursor: pointer;" 
+                     id="childAvatar">👶</div>
                 <h2 id="childName">Your Child</h2>
                 <div id="emotionDisplay" style="margin-top: 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-size: 0.9em; display: none;">
                     <span id="emotionText"></span>
