@@ -1,3 +1,16 @@
+// Utility function for debouncing
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 class MyChildGame {
     constructor() {
         // Get username from URL
@@ -1330,22 +1343,51 @@ class MyChildGame {
         // Use image if available, otherwise use SVG placeholder
         if (location.image && !location.usePlaceholder) {
             const img = document.createElement('img');
+            img.loading = 'lazy'; // Lazy load images
             img.src = location.image;
             img.alt = location.name;
             img.style.width = '100%';
             img.style.height = '100%';
             img.style.objectFit = 'cover';
+            img.decoding = 'async'; // Async decoding for better performance
+            
+            // Use Intersection Observer for better lazy loading
+            if ('IntersectionObserver' in window && !location.imageLoaded) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            img.src = location.image;
+                            observer.disconnect();
+                        }
+                    });
+                }, { rootMargin: '50px' });
+                
+                // Show placeholder while loading
+                sceneImageElement.innerHTML = this.getPlaceholderSVG(this.currentLocation);
+                sceneImageElement.appendChild(img);
+                observer.observe(img);
+            } else {
+                // Fallback for browsers without IntersectionObserver
+                img.src = location.image;
+            }
+            
             img.onerror = () => {
                 // If image fails to load, use placeholder
                 this.locations[this.currentLocation].usePlaceholder = true;
                 sceneImageElement.innerHTML = this.getPlaceholderSVG(this.currentLocation);
             };
             img.onload = () => {
-                sceneImageElement.innerHTML = '';
-                sceneImageElement.appendChild(img);
+                // Remove placeholder when image loads
+                const placeholder = sceneImageElement.querySelector('svg');
+                if (placeholder) {
+                    placeholder.remove();
+                }
+                location.imageLoaded = true;
             };
-            sceneImageElement.innerHTML = '';
-            sceneImageElement.appendChild(img);
+            
+            if (!sceneImageElement.contains(img)) {
+                sceneImageElement.appendChild(img);
+            }
         } else {
             // Use SVG placeholder
             sceneImageElement.innerHTML = this.getPlaceholderSVG(this.currentLocation);
