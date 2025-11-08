@@ -163,13 +163,13 @@
                 <div class="actions-area" id="actionsArea">
                     <h3 data-translate="activities">Aktiviteter</h3>
                     <div class="action-buttons">
-                        <button class="action-btn" onclick="game.goToLocation('playground')">
+                        <button class="action-btn" onclick="game.openUniverse('playground')">
                             <img src="images/playoutside.png" alt="Playground" class="action-icon"> <span data-translate="playground">Lekegrind</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('nature')">
                             🌳 <span data-translate="nature">Natur</span>
                         </button>
-                        <button class="action-btn" onclick="game.goToLocation('school')">
+                        <button class="action-btn" onclick="game.openUniverse('school')">
                             🏫 <span data-translate="school">Skole</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('home')">
@@ -190,7 +190,8 @@
                         <button class="routine-btn" onclick="game.readToChild()">📖 <span data-translate="read">Les</span></button>
                         <button class="routine-btn" onclick="game.practiceMindfulness()">🧘 <span data-translate="mindfulness">Mindfulness</span></button>
                         <button class="routine-btn" onclick="game.drawOrCreate()">🎨 <span data-translate="draw">Tegn/Lag</span></button>
-                        <button class="routine-btn" onclick="game.cookTogether()">🍳 <span data-translate="cook">Lag mat</span></button>
+                        <button class="routine-btn" onclick="game.openUniverse('cooking')">🍳 <span data-translate="cook">Lag mat</span></button>
+                        <button class="routine-btn" onclick="game.rest()">😴 <span data-translate="rest">Hvile/Søvn</span></button>
                     </div>
                     <h4 data-translate="support">Støtte og mestring</h4>
                     <div class="routine-buttons">
@@ -326,6 +327,19 @@
                         <!-- Shop items will be populated here -->
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Universe Modal (for School, Playground, Cooking, etc.) -->
+    <div id="universeModal" class="modal" style="display: none;">
+        <div class="modal-content universe-modal">
+            <div class="modal-header">
+                <h2 id="universeTitle">Univers</h2>
+                <span class="close-modal" onclick="game.closeUniverse()">&times;</span>
+            </div>
+            <div class="modal-body" id="universeContent">
+                <!-- Content will be dynamically generated -->
             </div>
         </div>
     </div>

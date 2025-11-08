@@ -602,6 +602,7 @@ class MyChildGame {
                 call: "Ring venn",
                 language: "Språk",
                 shop: "Butikk",
+                rest: "Hvile/Søvn",
                 nextDay: "Neste dag →"
             },
             en: {
@@ -642,6 +643,7 @@ class MyChildGame {
                 call: "Call Friend",
                 language: "Language",
                 shop: "Shop",
+                rest: "Rest/Sleep",
                 nextDay: "Next Day →"
             }
         };
@@ -1724,6 +1726,50 @@ class MyChildGame {
         
         this.showMessage("A productive day at school! Learning and making friends.");
         this.performAction();
+        this.advanceTime();
+    }
+    
+    rest() {
+        // Rest/sleep restores energy - can be used anytime but gives more energy if tired
+        const energyRestored = this.child.energy < 30 ? 50 : 30; // More energy if very tired
+        this.adjustStat('energy', energyRestored);
+        this.adjustStat('happiness', 10);
+        
+        // Show sleeping baby image if available
+        const sceneImage = document.getElementById('sceneImage');
+        if (sceneImage && this.child.age < 3) {
+            const sleepingImg = document.createElement('img');
+            sleepingImg.src = 'images/sleepingbaby.jpg';
+            sleepingImg.alt = 'Sleeping baby';
+            sleepingImg.style.width = '100%';
+            sleepingImg.style.height = '100%';
+            sleepingImg.style.objectFit = 'cover';
+            sleepingImg.onerror = () => {
+                // If image doesn't exist, keep current scene
+            };
+            const currentContent = sceneImage.innerHTML;
+            sceneImage.innerHTML = '';
+            sceneImage.appendChild(sleepingImg);
+            
+            // Restore scene after 3 seconds
+            setTimeout(() => {
+                if (sceneImage.querySelector('img[alt="Sleeping baby"]')) {
+                    sceneImage.innerHTML = currentContent;
+                    this.updateScene();
+                }
+            }, 3000);
+        }
+        
+        const restMsg = this.language === 'no'
+            ? "Ahh, det føles godt å hvile! Jeg får energi tilbake."
+            : "Ahh, it feels good to rest! I'm getting my energy back.";
+        this.showDialogue(restMsg);
+        const energyMsg = this.language === 'no'
+            ? "Hvile er viktig for å få energi tilbake! " + this.child.name + " får " + energyRestored + " energi."
+            : "Rest is important to restore energy! " + this.child.name + " gained " + energyRestored + " energy.";
+        this.showMessage(energyMsg);
+        this.setEmotion('happy', 10);
+        // Rest doesn't count as action, but advances time slightly
         this.advanceTime();
     }
     
@@ -5496,6 +5542,863 @@ class MyChildGame {
         } else {
             this.showMessage(`Du har ikke nok penger! Du trenger ${item.price} kr, men har bare ${this.child.money} kr.`);
         }
+    }
+    
+    // Universe system for interactive activities
+    openUniverse(universeType) {
+        if (!this.canPerformAction()) return;
+        
+        const modal = document.getElementById('universeModal');
+        const title = document.getElementById('universeTitle');
+        const content = document.getElementById('universeContent');
+        
+        if (!modal || !title || !content) return;
+        
+        // Set title based on universe type
+        const titles = {
+            school: this.language === 'no' ? '🏫 Skoleunivers' : '🏫 School Universe',
+            playground: this.language === 'no' ? '🎮 Lekegrind-univers' : '🎮 Playground Universe',
+            cooking: this.language === 'no' ? '🍳 Matlaging-univers' : '🍳 Cooking Universe'
+        };
+        title.textContent = titles[universeType] || 'Univers';
+        
+        // Open appropriate universe
+        if (universeType === 'school') {
+            this.openSchoolUniverse(content);
+        } else if (universeType === 'playground') {
+            this.openPlaygroundUniverse(content);
+        } else if (universeType === 'cooking') {
+            this.openCookingUniverse(content);
+        }
+        
+        modal.style.display = 'block';
+    }
+    
+    closeUniverse() {
+        const modal = document.getElementById('universeModal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+    
+    openSchoolUniverse(content) {
+        if (this.child.age < 6) {
+            const youngMsg = this.language === 'no'
+                ? "Jeg er for ung for skole ennå! Prøv igjen når jeg er 6 år."
+                : "I'm too young for school yet! Try again when I'm 6 years old.";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${youngMsg}</p>`;
+            return;
+        }
+        
+        if (this.child.energy < 20) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt for skole akkurat nå. Jeg trenger mer energi!"
+                : "I'm too tired for school right now. I need more energy!";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const schoolContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>Velkommen til skolen! 📚</h3>
+                <p>Hva vil du gjøre i dag?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="universe-btn" onclick="game.openSchoolBook()" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        📖 Les bøker
+                    </button>
+                    <button class="universe-btn" onclick="game.doSchoolAssignment()" style="padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        ✏️ Gjør oppgaver
+                    </button>
+                    <button class="universe-btn" onclick="game.takeSchoolTest()" style="padding: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        📝 Ta prøve
+                    </button>
+                    <button class="universe-btn" onclick="game.attendSchoolClass()" style="padding: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🎓 Gå på time
+                    </button>
+                </div>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>Welcome to school! 📚</h3>
+                <p>What would you like to do today?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="universe-btn" onclick="game.openSchoolBook()" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        📖 Read books
+                    </button>
+                    <button class="universe-btn" onclick="game.doSchoolAssignment()" style="padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        ✏️ Do assignments
+                    </button>
+                    <button class="universe-btn" onclick="game.takeSchoolTest()" style="padding: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        📝 Take test
+                    </button>
+                    <button class="universe-btn" onclick="game.attendSchoolClass()" style="padding: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🎓 Attend class
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = schoolContent;
+    }
+    
+    openPlaygroundUniverse(content) {
+        if (this.child.energy < 15) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt for å leke akkurat nå. Jeg trenger mer energi!"
+                : "I'm too tired to play right now. I need more energy!";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const playgroundContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>Velkommen til lekegrinden! 🎮</h3>
+                <p>Hva vil du gjøre?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="universe-btn" onclick="game.playSwing()" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🎢 Huske
+                    </button>
+                    <button class="universe-btn" onclick="game.playSlide()" style="padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🛝 Sklie
+                    </button>
+                    <button class="universe-btn" onclick="game.playTag()" style="padding: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🏃 Leke tag
+                    </button>
+                    <button class="universe-btn" onclick="game.playBall()" style="padding: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        ⚽ Spille ball
+                    </button>
+                </div>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>Welcome to the playground! 🎮</h3>
+                <p>What would you like to do?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="universe-btn" onclick="game.playSwing()" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🎢 Swing
+                    </button>
+                    <button class="universe-btn" onclick="game.playSlide()" style="padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🛝 Slide
+                    </button>
+                    <button class="universe-btn" onclick="game.playTag()" style="padding: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🏃 Play tag
+                    </button>
+                    <button class="universe-btn" onclick="game.playBall()" style="padding: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        ⚽ Play ball
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = playgroundContent;
+    }
+    
+    openCookingUniverse(content) {
+        if (this.child.age < 3) {
+            const youngMsg = this.language === 'no'
+                ? "Jeg er for ung til å lage mat... Men jeg kan se på!"
+                : "I'm too young to cook... But I can watch!";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${youngMsg}</p>`;
+            return;
+        }
+        
+        if (this.child.energy < 15) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å lage mat akkurat nå..."
+                : "I'm too tired to cook right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        // Start cooking game with interactive interface
+        this.startInteractiveCookingGame(content);
+    }
+    
+    // School universe functions
+    openSchoolBook() {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        const books = this.language === 'no' ? [
+            {
+                title: "Matematikk for begynnere",
+                subject: "Matematikk",
+                facts: [
+                    "1 + 1 = 2. Når vi legger sammen tall, får vi et større tall.",
+                    "2 × 3 = 6. Multiplikasjon er raskt addisjon - vi legger samme tall flere ganger.",
+                    "10 ÷ 2 = 5. Divisjon er det motsatte av multiplikasjon.",
+                    "Et kvadrat har 4 like sider. Alle vinkler er 90 grader.",
+                    "En sirkel har ingen hjørner. Alle punkter er like langt fra sentrum."
+                ]
+            },
+            {
+                title: "Naturfag - Planter og dyr",
+                subject: "Naturfag",
+                facts: [
+                    "Planter trenger sollys, vann og næring for å vokse. Dette kalles fotosyntese.",
+                    "Dyr kan være kjøttetere, planteetere eller altetere. Det avhenger av hva de spiser.",
+                    "Vann går i en syklus: det fordamper fra havet, blir til skyer, og faller som regn.",
+                    "Trær produserer oksygen som vi trenger for å puste. De er viktige for miljøet!",
+                    "Insekter er de mest tallrike dyrene på jorden. Mange er viktige for pollinering."
+                ]
+            },
+            {
+                title: "Norsk - Språk og litteratur",
+                subject: "Norsk",
+                facts: [
+                    "Et substantiv er et navneord, som 'bok', 'barn' eller 'skole'.",
+                    "Et verb er et gjerningsord, som 'gå', 'lese' eller 'spille'.",
+                    "En setning starter alltid med stor bokstav og slutter med punktum, spørsmålstegn eller utropstegn.",
+                    "Rim er ord som slutter likt, som 'hus' og 'mus'.",
+                    "Fortellinger har ofte en begynnelse, en midtdel og en slutt."
+                ]
+            },
+            {
+                title: "Historie - 2000-tallet",
+                subject: "Historie",
+                facts: [
+                    "I 2000 begynte det nye årtusenet. Mange trodde datamaskiner ville stoppe å fungere, men det skjedde ikke!",
+                    "Internett ble mer og mer populært i 2000-tallet. Folk begynte å bruke e-post og chat.",
+                    "Mobiltelefoner ble vanligere. Mange hadde Nokia-telefoner med spill som Snake.",
+                    "Musikk ble digital med MP3-spillere. Folk kunne ha tusenvis av sanger i lommen!",
+                    "2000-tallet var en tid med store endringer i teknologi og samfunn."
+                ]
+            }
+        ] : [
+            {
+                title: "Math for Beginners",
+                subject: "Math",
+                facts: [
+                    "1 + 1 = 2. When we add numbers, we get a larger number.",
+                    "2 × 3 = 6. Multiplication is fast addition - we add the same number multiple times.",
+                    "10 ÷ 2 = 5. Division is the opposite of multiplication.",
+                    "A square has 4 equal sides. All angles are 90 degrees.",
+                    "A circle has no corners. All points are the same distance from the center."
+                ]
+            },
+            {
+                title: "Science - Plants and Animals",
+                subject: "Science",
+                facts: [
+                    "Plants need sunlight, water, and nutrients to grow. This is called photosynthesis.",
+                    "Animals can be carnivores, herbivores, or omnivores. It depends on what they eat.",
+                    "Water goes in a cycle: it evaporates from the ocean, becomes clouds, and falls as rain.",
+                    "Trees produce oxygen that we need to breathe. They are important for the environment!",
+                    "Insects are the most numerous animals on Earth. Many are important for pollination."
+                ]
+            }
+        ];
+        
+        const selectedBook = books[Math.floor(Math.random() * books.length)];
+        const randomFact = selectedBook.facts[Math.floor(Math.random() * selectedBook.facts.length)];
+        
+        const bookContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>📖 ${selectedBook.title}</h3>
+                <div style="background: #f0f0f0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #667eea;">
+                    <h4>Fakta fra boken:</h4>
+                    <p style="font-size: 1.1em; line-height: 1.6;">${randomFact}</p>
+                </div>
+                <button class="universe-btn" onclick="game.openSchoolBook()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                    📖 Les mer
+                </button>
+                <button class="universe-btn" onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ← Tilbake
+                </button>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>📖 ${selectedBook.title}</h3>
+                <div style="background: #f0f0f0; padding: 20px; border-radius: 10px; margin: 20px 0; border-left: 5px solid #667eea;">
+                    <h4>Fact from the book:</h4>
+                    <p style="font-size: 1.1em; line-height: 1.6;">${randomFact}</p>
+                </div>
+                <button class="universe-btn" onclick="game.openSchoolBook()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                    📖 Read more
+                </button>
+                <button class="universe-btn" onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ← Back
+                </button>
+            </div>
+        `;
+        
+        content.innerHTML = bookContent;
+        
+        // Update stats
+        this.adjustStat('learning', 15);
+        this.adjustStat('energy', -5);
+        this.setEmotion('curious', 10);
+    }
+    
+    doSchoolAssignment() {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        if (this.child.energy < 20) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt for å gjøre lekser akkurat nå..."
+                : "I'm too tired to do homework right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const assignments = this.language === 'no' ? [
+            { question: "Hva er 5 + 7?", answer: "12", subject: "Matematikk" },
+            { question: "Hva er hovedstaden i Norge?", answer: "Oslo", subject: "Geografi" },
+            { question: "Hvor mange dager er det i en uke?", answer: "7", subject: "Generelt" },
+            { question: "Hva er 3 × 4?", answer: "12", subject: "Matematikk" },
+            { question: "Hvilket dyr sier 'mjau'?", answer: "Katt", subject: "Naturfag" }
+        ] : [
+            { question: "What is 5 + 7?", answer: "12", subject: "Math" },
+            { question: "What is the capital of Norway?", answer: "Oslo", subject: "Geography" },
+            { question: "How many days are in a week?", answer: "7", subject: "General" },
+            { question: "What is 3 × 4?", answer: "12", subject: "Math" },
+            { question: "Which animal says 'meow'?", answer: "Cat", subject: "Science" }
+        ];
+        
+        const assignment = assignments[Math.floor(Math.random() * assignments.length)];
+        
+        const assignmentContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>✏️ Oppgave: ${assignment.subject}</h3>
+                <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #ffc107;">
+                    <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px;">${assignment.question}</p>
+                    <input type="text" id="assignmentAnswer" placeholder="Skriv svaret her..." style="width: 100%; padding: 10px; font-size: 1.1em; border: 2px solid #667eea; border-radius: 5px; margin-bottom: 10px;">
+                    <button onclick="game.checkAssignmentAnswer('${assignment.answer}')" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; width: 100%;">
+                        Sjekk svar
+                    </button>
+                </div>
+                <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ← Tilbake
+                </button>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>✏️ Assignment: ${assignment.subject}</h3>
+                <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #ffc107;">
+                    <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px;">${assignment.question}</p>
+                    <input type="text" id="assignmentAnswer" placeholder="Type your answer here..." style="width: 100%; padding: 10px; font-size: 1.1em; border: 2px solid #667eea; border-radius: 5px; margin-bottom: 10px;">
+                    <button onclick="game.checkAssignmentAnswer('${assignment.answer}')" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; width: 100%;">
+                        Check answer
+                    </button>
+                </div>
+                <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ← Back
+                </button>
+            </div>
+        `;
+        
+        content.innerHTML = assignmentContent;
+    }
+    
+    checkAssignmentAnswer(correctAnswer) {
+        const input = document.getElementById('assignmentAnswer');
+        if (!input) return;
+        
+        const userAnswer = input.value.trim().toLowerCase();
+        const correct = correctAnswer.toLowerCase();
+        
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        if (userAnswer === correct) {
+            this.adjustStat('learning', 25);
+            this.adjustStat('happiness', 10);
+            this.adjustStat('energy', -15);
+            this.setEmotion('happy', 20);
+            
+            const successMsg = this.language === 'no'
+                ? "Riktig! Bra jobbet! 🎉"
+                : "Correct! Well done! 🎉";
+            
+            content.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h3 style="color: #28a745;">${successMsg}</h3>
+                    <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +25 læring og +10 glede!' : 'You gained +25 learning and +10 happiness!'}</p>
+                    <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ${this.language === 'no' ? '← Tilbake' : '← Back'}
+                    </button>
+                </div>
+            `;
+            
+            this.performAction();
+            this.advanceTime();
+        } else {
+            this.adjustStat('learning', 10);
+            this.adjustStat('energy', -10);
+            
+            const wrongMsg = this.language === 'no'
+                ? "Ikke helt riktig, men det er greit! Riktig svar er: " + correctAnswer
+                : "Not quite right, but that's okay! The correct answer is: " + correctAnswer;
+            
+            content.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h3 style="color: #ffc107;">${wrongMsg}</h3>
+                    <p style="font-size: 1.1em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +10 læring for å prøve!' : 'You gained +10 learning for trying!'}</p>
+                    <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ${this.language === 'no' ? '← Tilbake' : '← Back'}
+                    </button>
+                </div>
+            `;
+        }
+    }
+    
+    takeSchoolTest() {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        if (this.child.energy < 25) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt for å ta en prøve akkurat nå..."
+                : "I'm too tired to take a test right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const tests = this.language === 'no' ? [
+            { q: "Hva er 8 + 9?", options: ["15", "16", "17", "18"], correct: 2 },
+            { q: "Hvilken farge får vi når vi blander rødt og blått?", options: ["Grønn", "Lilla", "Gul", "Oransje"], correct: 1 },
+            { q: "Hvor mange ben har en katt?", options: ["2", "3", "4", "6"], correct: 2 },
+            { q: "Hva er hovedstaden i Norge?", options: ["Bergen", "Trondheim", "Oslo", "Stavanger"], correct: 2 }
+        ] : [
+            { q: "What is 8 + 9?", options: ["15", "16", "17", "18"], correct: 2 },
+            { q: "What color do we get when mixing red and blue?", options: ["Green", "Purple", "Yellow", "Orange"], correct: 1 },
+            { q: "How many legs does a cat have?", options: ["2", "3", "4", "6"], correct: 2 },
+            { q: "What is the capital of Norway?", options: ["Bergen", "Trondheim", "Oslo", "Stavanger"], correct: 2 }
+        ];
+        
+        const test = tests[Math.floor(Math.random() * tests.length)];
+        
+        const testContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>📝 Prøve</h3>
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #2196f3;">
+                    <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px;">${test.q}</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${test.options.map((opt, idx) => `
+                            <button onclick="game.checkTestAnswer(${idx}, ${test.correct})" style="padding: 15px; background: white; border: 2px solid #2196f3; border-radius: 5px; cursor: pointer; font-size: 1.1em; text-align: left;">
+                                ${String.fromCharCode(65 + idx)}. ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ← Tilbake
+                </button>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>📝 Test</h3>
+                <div style="background: #e3f2fd; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #2196f3;">
+                    <p style="font-size: 1.2em; font-weight: bold; margin-bottom: 15px;">${test.q}</p>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        ${test.options.map((opt, idx) => `
+                            <button onclick="game.checkTestAnswer(${idx}, ${test.correct})" style="padding: 15px; background: white; border: 2px solid #2196f3; border-radius: 5px; cursor: pointer; font-size: 1.1em; text-align: left;">
+                                ${String.fromCharCode(65 + idx)}. ${opt}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ← Back
+                </button>
+            </div>
+        `;
+        
+        content.innerHTML = testContent;
+    }
+    
+    checkTestAnswer(selected, correct) {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        if (selected === correct) {
+            this.adjustStat('learning', 30);
+            this.adjustStat('happiness', 15);
+            this.adjustStat('energy', -20);
+            this.setEmotion('happy', 25);
+            this.child.studyLevel = Math.min(100, this.child.studyLevel + 5);
+            
+            const successMsg = this.language === 'no'
+                ? "Perfekt! Du besto prøven! 🎉"
+                : "Perfect! You passed the test! 🎉";
+            
+            content.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h3 style="color: #28a745;">${successMsg}</h3>
+                    <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +30 læring, +15 glede og +5 studie-nivå!' : 'You gained +30 learning, +15 happiness and +5 study level!'}</p>
+                    <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ${this.language === 'no' ? '← Tilbake' : '← Back'}
+                    </button>
+                </div>
+            `;
+            
+            this.performAction();
+            this.advanceTime();
+        } else {
+            this.adjustStat('learning', 15);
+            this.adjustStat('energy', -15);
+            
+            const wrongMsg = this.language === 'no'
+                ? "Ikke riktig denne gangen, men du lærte noe! Prøv igjen!"
+                : "Not correct this time, but you learned something! Try again!";
+            
+            content.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h3 style="color: #ffc107;">${wrongMsg}</h3>
+                    <p style="font-size: 1.1em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +15 læring for å prøve!' : 'You gained +15 learning for trying!'}</p>
+                    <button onclick="game.takeSchoolTest()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">
+                        ${this.language === 'no' ? 'Prøv igjen' : 'Try again'}
+                    </button>
+                    <button onclick="game.openSchoolUniverse(document.getElementById('universeContent'))" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ${this.language === 'no' ? '← Tilbake' : '← Back'}
+                    </button>
+                </div>
+            `;
+        }
+    }
+    
+    attendSchoolClass() {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        if (this.child.energy < 20) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt for å gå på time akkurat nå..."
+                : "I'm too tired to attend class right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        this.adjustStat('learning', 25);
+        this.adjustStat('social', 15);
+        this.adjustStat('energy', -20);
+        this.setEmotion('curious', 15);
+        
+        const classMsg = this.language === 'no'
+            ? "Time var interessant! Jeg lærte mye i dag."
+            : "Class was interesting! I learned a lot today.";
+        
+        content.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h3>🎓 ${classMsg}</h3>
+                <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +25 læring og +15 sosial!' : 'You gained +25 learning and +15 social!'}</p>
+                <button onclick="game.closeUniverse(); game.performAction(); game.advanceTime();" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ${this.language === 'no' ? 'Lukk' : 'Close'}
+                </button>
+            </div>
+        `;
+    }
+    
+    // Playground universe functions
+    playSwing() {
+        this.completePlaygroundActivity('swing', this.language === 'no' ? 'Huske' : 'Swing', 15, 10);
+    }
+    
+    playSlide() {
+        this.completePlaygroundActivity('slide', this.language === 'no' ? 'Sklie' : 'Slide', 12, 8);
+    }
+    
+    playTag() {
+        this.completePlaygroundActivity('tag', this.language === 'no' ? 'Leke tag' : 'Play tag', 20, 15);
+    }
+    
+    playBall() {
+        this.completePlaygroundActivity('ball', this.language === 'no' ? 'Spille ball' : 'Play ball', 18, 12);
+    }
+    
+    completePlaygroundActivity(activity, name, energyCost, happinessGain) {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        if (this.child.energy < energyCost) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt for å " + name.toLowerCase() + " akkurat nå..."
+                : "I'm too tired to " + name.toLowerCase() + " right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        this.adjustStat('happiness', happinessGain);
+        this.adjustStat('social', 10);
+        this.adjustStat('energy', -energyCost);
+        this.setEmotion('happy', 20);
+        
+        const playMsg = this.language === 'no'
+            ? name + " var gøy! Jeg hadde det kjempebra!"
+            : name + " was fun! I had a great time!";
+        
+        content.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h3>🎮 ${playMsg}</h3>
+                <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +' + happinessGain + ' glede og +10 sosial!' : 'You gained +' + happinessGain + ' happiness and +10 social!'}</p>
+                <button onclick="game.closeUniverse(); game.performAction(); game.advanceTime();" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ${this.language === 'no' ? 'Lukk' : 'Close'}
+                </button>
+            </div>
+        `;
+    }
+    
+    // Cooking universe functions
+    startInteractiveCookingGame(content) {
+        const recipes = this.language === 'no' ? [
+            {
+                name: "Pannekaker",
+                ingredients: [
+                    { name: "Mel", amount: 2, unit: "dl", emoji: "🌾" },
+                    { name: "Melk", amount: 4, unit: "dl", emoji: "🥛" },
+                    { name: "Egg", amount: 2, unit: "stk", emoji: "🥚" },
+                    { name: "Salt", amount: 0.5, unit: "ts", emoji: "🧂" }
+                ],
+                cost: 25
+            },
+            {
+                name: "Kaker",
+                ingredients: [
+                    { name: "Smør", amount: 100, unit: "g", emoji: "🧈" },
+                    { name: "Sukker", amount: 1.5, unit: "dl", emoji: "🍬" },
+                    { name: "Mel", amount: 3, unit: "dl", emoji: "🌾" },
+                    { name: "Egg", amount: 2, unit: "stk", emoji: "🥚" }
+                ],
+                cost: 30
+            },
+            {
+                name: "Vafler",
+                ingredients: [
+                    { name: "Mel", amount: 3, unit: "dl", emoji: "🌾" },
+                    { name: "Melk", amount: 5, unit: "dl", emoji: "🥛" },
+                    { name: "Egg", amount: 3, unit: "stk", emoji: "🥚" },
+                    { name: "Smør", amount: 50, unit: "g", emoji: "🧈" }
+                ],
+                cost: 35
+            }
+        ] : [
+            {
+                name: "Pancakes",
+                ingredients: [
+                    { name: "Flour", amount: 2, unit: "dl", emoji: "🌾" },
+                    { name: "Milk", amount: 4, unit: "dl", emoji: "🥛" },
+                    { name: "Eggs", amount: 2, unit: "pcs", emoji: "🥚" },
+                    { name: "Salt", amount: 0.5, unit: "tsp", emoji: "🧂" }
+                ],
+                cost: 25
+            },
+            {
+                name: "Cakes",
+                ingredients: [
+                    { name: "Butter", amount: 100, unit: "g", emoji: "🧈" },
+                    { name: "Sugar", amount: 1.5, unit: "dl", emoji: "🍬" },
+                    { name: "Flour", amount: 3, unit: "dl", emoji: "🌾" },
+                    { name: "Eggs", amount: 2, unit: "pcs", emoji: "🥚" }
+                ],
+                cost: 30
+            },
+            {
+                name: "Waffles",
+                ingredients: [
+                    { name: "Flour", amount: 3, unit: "dl", emoji: "🌾" },
+                    { name: "Milk", amount: 5, unit: "dl", emoji: "🥛" },
+                    { name: "Eggs", amount: 3, unit: "pcs", emoji: "🥚" },
+                    { name: "Butter", amount: 50, unit: "g", emoji: "🧈" }
+                ],
+                cost: 35
+            }
+        ];
+        
+        const recipe = recipes[Math.floor(Math.random() * recipes.length)];
+        
+        if (this.child.money < recipe.cost) {
+            const noMoneyMsg = this.language === 'no'
+                ? "Vi har ikke nok penger for ingrediensene... Vi trenger " + recipe.cost + " kroner, men har bare " + this.child.money + " kroner."
+                : "We don't have enough money for the ingredients... We need " + recipe.cost + " kroner, but only have " + this.child.money + " kroner.";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${noMoneyMsg}</p>`;
+            return;
+        }
+        
+        // Show recipe and ingredient selection
+        let selectedIngredients = [];
+        
+        const cookingContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>🍳 ${recipe.name}</h3>
+                <p style="margin-bottom: 20px;">Velg ingredienser for å lage ${recipe.name}:</p>
+                
+                <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ffc107;">
+                    <h4>Oppskrift:</h4>
+                    <ul id="recipeList" style="list-style: none; padding: 0;">
+                        ${recipe.ingredients.map(ing => `
+                            <li style="padding: 10px; margin: 5px 0; background: white; border-radius: 5px; display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">${ing.emoji}</span>
+                                <span>${ing.amount} ${ing.unit} ${ing.name}</span>
+                                <button onclick="game.addIngredient('${ing.name}', ${ing.amount}, '${ing.unit}', '${ing.emoji}')" style="margin-left: auto; padding: 5px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                    Legg til
+                                </button>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div id="selectedIngredients" style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #28a745; min-height: 50px;">
+                    <h4>Valgte ingredienser:</h4>
+                    <div id="ingredientList" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="game.cookRecipe('${recipe.name}', ${recipe.cost})" id="cookBtn" style="padding: 15px 30px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; flex: 1;" disabled>
+                        🍳 Lag mat (${recipe.cost} kr)
+                    </button>
+                    <button onclick="game.openCookingUniverse(document.getElementById('universeContent'))" style="padding: 15px 30px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ← Tilbake
+                    </button>
+                </div>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>🍳 ${recipe.name}</h3>
+                <p style="margin-bottom: 20px;">Select ingredients to make ${recipe.name}:</p>
+                
+                <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #ffc107;">
+                    <h4>Recipe:</h4>
+                    <ul id="recipeList" style="list-style: none; padding: 0;">
+                        ${recipe.ingredients.map(ing => `
+                            <li style="padding: 10px; margin: 5px 0; background: white; border-radius: 5px; display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.5em;">${ing.emoji}</span>
+                                <span>${ing.amount} ${ing.unit} ${ing.name}</span>
+                                <button onclick="game.addIngredient('${ing.name}', ${ing.amount}, '${ing.unit}', '${ing.emoji}')" style="margin-left: auto; padding: 5px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                    Add
+                                </button>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+                
+                <div id="selectedIngredients" style="background: #d4edda; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 2px solid #28a745; min-height: 50px;">
+                    <h4>Selected ingredients:</h4>
+                    <div id="ingredientList" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="game.cookRecipe('${recipe.name}', ${recipe.cost})" id="cookBtn" style="padding: 15px 30px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 1.1em; flex: 1;" disabled>
+                        🍳 Cook (${recipe.cost} kr)
+                    </button>
+                    <button onclick="game.openCookingUniverse(document.getElementById('universeContent'))" style="padding: 15px 30px; background: #999; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ← Back
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = cookingContent;
+        
+        // Store recipe data globally for ingredient tracking
+        this.currentRecipe = recipe;
+        this.selectedIngredients = [];
+    }
+    
+    addIngredient(name, amount, unit, emoji) {
+        if (!this.selectedIngredients) {
+            this.selectedIngredients = [];
+        }
+        
+        this.selectedIngredients.push({ name, amount, unit, emoji });
+        
+        const ingredientList = document.getElementById('ingredientList');
+        if (ingredientList) {
+            ingredientList.innerHTML = this.selectedIngredients.map((ing, idx) => `
+                <div style="background: white; padding: 10px; border-radius: 5px; display: flex; align-items: center; gap: 5px; border: 2px solid #28a745;">
+                    <span style="font-size: 1.2em;">${ing.emoji}</span>
+                    <span>${ing.amount} ${ing.unit} ${ing.name}</span>
+                    <button onclick="game.removeIngredient(${idx})" style="margin-left: 5px; padding: 2px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.9em;">
+                        ×
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Enable cook button if all ingredients are selected
+        const cookBtn = document.getElementById('cookBtn');
+        if (cookBtn && this.currentRecipe) {
+            if (this.selectedIngredients.length === this.currentRecipe.ingredients.length) {
+                cookBtn.disabled = false;
+            }
+        }
+    }
+    
+    removeIngredient(index) {
+        if (this.selectedIngredients && this.selectedIngredients[index]) {
+            this.selectedIngredients.splice(index, 1);
+            
+            const ingredientList = document.getElementById('ingredientList');
+            if (ingredientList) {
+                ingredientList.innerHTML = this.selectedIngredients.map((ing, idx) => `
+                    <div style="background: white; padding: 10px; border-radius: 5px; display: flex; align-items: center; gap: 5px; border: 2px solid #28a745;">
+                        <span style="font-size: 1.2em;">${ing.emoji}</span>
+                        <span>${ing.amount} ${ing.unit} ${ing.name}</span>
+                        <button onclick="game.removeIngredient(${idx})" style="margin-left: 5px; padding: 2px 8px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 0.9em;">
+                            ×
+                        </button>
+                    </div>
+                `).join('');
+            }
+            
+            // Disable cook button if not all ingredients selected
+            const cookBtn = document.getElementById('cookBtn');
+            if (cookBtn) {
+                cookBtn.disabled = this.selectedIngredients.length !== this.currentRecipe.ingredients.length;
+            }
+        }
+    }
+    
+    cookRecipe(recipeName, cost) {
+        if (this.child.money < cost) {
+            const noMoneyMsg = this.language === 'no'
+                ? "Vi har ikke nok penger!"
+                : "We don't have enough money!";
+            alert(noMoneyMsg);
+            return;
+        }
+        
+        if (!this.selectedIngredients || this.selectedIngredients.length !== this.currentRecipe.ingredients.length) {
+            const incompleteMsg = this.language === 'no'
+                ? "Du må velge alle ingrediensene først!"
+                : "You must select all ingredients first!";
+            alert(incompleteMsg);
+            return;
+        }
+        
+        // Deduct money
+        this.child.money -= cost;
+        
+        // Update stats
+        this.adjustStat('happiness', 25);
+        this.adjustStat('learning', 20);
+        this.adjustStat('energy', -15);
+        this.setEmotion('happy', 30);
+        this.adjustRelationship(5);
+        
+        if (!this.child.cookedMeals) this.child.cookedMeals = 0;
+        this.child.cookedMeals++;
+        this.checkAchievements();
+        
+        const content = document.getElementById('universeContent');
+        if (content) {
+            const successMsg = this.language === 'no'
+                ? `Fantastisk! Du lagde ${recipeName}! 🎉`
+                : `Fantastic! You made ${recipeName}! 🎉`;
+            
+            content.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h3 style="color: #28a745;">${successMsg}</h3>
+                    <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +25 glede, +20 læring!' : 'You gained +25 happiness, +20 learning!'}</p>
+                    <button onclick="game.closeUniverse(); game.performAction(); game.advanceTime();" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        ${this.language === 'no' ? 'Lukk' : 'Close'}
+                    </button>
+                </div>
+            `;
+        }
+        
+        this.updateDisplay();
+        this.saveGame();
     }
 }
 

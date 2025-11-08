@@ -999,6 +999,32 @@ header h1 {
     border: 2px solid #ff00ff;
 }
 
+.universe-modal {
+    max-width: 900px !important;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.universe-btn {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.universe-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.universe-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 768px) {
+    .universe-modal {
+        width: 95% !important;
+        margin: 2% auto !important;
+    }
+}
+
 .profile-section h3 {
     margin-top: 0;
     color: #ff00ff;
