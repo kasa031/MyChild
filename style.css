@@ -1,6 +1,23 @@
 /* ============================================
    FARGE PALETT BASERT PÅ BILDER I IMAGES-MAPPEN
    ============================================ */
+/* Browser compatibility - CSS Grid fallback */
+@supports not (display: grid) {
+    .container {
+        display: block;
+    }
+    
+    .game-area {
+        display: block;
+    }
+    
+    .action-buttons,
+    .routine-buttons {
+        display: flex;
+        flex-wrap: wrap;
+    }
+}
+
 :root {
     /* Primærfarger - Varme pastellfarger (rosa, lilla) */
     --primary-1: #ffb3d9; /* Myk rosa */

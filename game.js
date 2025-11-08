@@ -1,3 +1,79 @@
+// Browser compatibility checks and polyfills
+(function() {
+    'use strict';
+    
+    // Check for localStorage support
+    if (!window.localStorage) {
+        console.warn('localStorage not supported, using in-memory storage');
+        const storage = {};
+        window.localStorage = {
+            getItem: (key) => storage[key] || null,
+            setItem: (key, value) => { storage[key] = value; },
+            removeItem: (key) => { delete storage[key]; },
+            clear: () => { storage = {}; }
+        };
+    }
+    
+    // IntersectionObserver polyfill check
+    if (!window.IntersectionObserver) {
+        console.warn('IntersectionObserver not supported, using fallback');
+        window.IntersectionObserver = function(callback, options) {
+            return {
+                observe: function() {},
+                disconnect: function() {},
+                unobserve: function() {}
+            };
+        };
+    }
+    
+    // Array.includes polyfill for older browsers
+    if (!Array.prototype.includes) {
+        Array.prototype.includes = function(searchElement, fromIndex) {
+            if (this == null) throw new TypeError('"this" is null or not defined');
+            const o = Object(this);
+            const len = parseInt(o.length) || 0;
+            if (len === 0) return false;
+            const n = parseInt(fromIndex) || 0;
+            let k = n >= 0 ? n : Math.max(len + n, 0);
+            function sameValueZero(x, y) {
+                return x === y || (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y));
+            }
+            for (; k < len; k++) {
+                if (sameValueZero(o[k], searchElement)) return true;
+            }
+            return false;
+        };
+    }
+    
+    // String.includes polyfill for older browsers
+    if (!String.prototype.includes) {
+        String.prototype.includes = function(search, start) {
+            if (typeof start !== 'number') start = 0;
+            if (start + search.length > this.length) return false;
+            return this.indexOf(search, start) !== -1;
+        };
+    }
+    
+    // Object.assign polyfill for older browsers
+    if (typeof Object.assign !== 'function') {
+        Object.assign = function(target) {
+            if (target == null) throw new TypeError('Cannot convert undefined or null to object');
+            const to = Object(target);
+            for (let index = 1; index < arguments.length; index++) {
+                const nextSource = arguments[index];
+                if (nextSource != null) {
+                    for (const nextKey in nextSource) {
+                        if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
+                            to[nextKey] = nextSource[nextKey];
+                        }
+                    }
+                }
+            }
+            return to;
+        };
+    }
+})();
+
 // Utility function for debouncing
 function debounce(func, wait) {
     let timeout;
@@ -1406,7 +1482,14 @@ class MyChildGame {
                 link.rel = 'preload';
                 link.as = 'image';
                 link.href = location.image;
-                link.fetchPriority = locationKey === this.currentLocation ? 'high' : 'low';
+                // fetchPriority is not supported in all browsers, use try-catch
+                try {
+                    if ('fetchPriority' in link) {
+                        link.fetchPriority = locationKey === this.currentLocation ? 'high' : 'low';
+                    }
+                } catch (e) {
+                    // Ignore if not supported
+                }
                 document.head.appendChild(link);
                 location.imagePreloaded = true;
             }
@@ -1503,7 +1586,14 @@ class MyChildGame {
             img.style.height = '100%';
             img.style.objectFit = 'cover';
             img.decoding = 'async'; // Async decoding for better performance
-            img.fetchPriority = 'high'; // High priority for visible images
+            // fetchPriority is not supported in all browsers
+            try {
+                if ('fetchPriority' in img) {
+                    img.fetchPriority = 'high'; // High priority for visible images
+                }
+            } catch (e) {
+                // Ignore if not supported
+            }
             
             // Try WebP first, fallback to original format
             const imagePath = location.image;
