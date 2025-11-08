@@ -1623,7 +1623,10 @@ class MyChildGame {
         const actionInfo = document.getElementById('actionInfo');
         if (actionInfo) {
             const remaining = this.maxActionsPerDay - this.actionsToday;
-            actionInfo.textContent = `Actions: ${remaining}/${this.maxActionsPerDay}`;
+            const actionText = this.language === 'no' 
+                ? `Handlinger: ${remaining}/${this.maxActionsPerDay}`
+                : `Actions: ${remaining}/${this.maxActionsPerDay}`;
+            actionInfo.textContent = actionText;
             actionInfo.style.color = remaining < 2 ? '#f44336' : remaining < 3 ? '#ff9800' : '#28a745';
         }
     }
