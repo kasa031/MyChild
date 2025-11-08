@@ -1,3 +1,40 @@
+/* ============================================
+   FARGE PALETT BASERT PÅ BILDER I IMAGES-MAPPEN
+   ============================================ */
+:root {
+    /* Primærfarger - Varme pastellfarger (rosa, lilla) */
+    --primary-1: #ffb3d9; /* Myk rosa */
+    --primary-2: #c8a2c8; /* Lavendel */
+    --primary-3: #ff99cc; /* Lys rosa */
+    
+    /* Sekundærfarger - Blå og grønne toner */
+    --secondary-1: #b3d9ff; /* Himmelblå */
+    --secondary-2: #a8e6cf; /* Myntgrønn */
+    --secondary-3: #d4e6f1; /* Lys blå */
+    
+    /* Aksentfarger - Varme toner */
+    --accent-1: #ffd9b3; /* Peach */
+    --accent-2: #ffe6cc; /* Krem */
+    --accent-3: #fff0e6; /* Beige */
+    
+    /* Nøytrale farger - Bakgrunn og tekst */
+    --neutral-1: #ffffff; /* Hvit */
+    --neutral-2: #f5f5f5; /* Lys grå */
+    --neutral-3: #333333; /* Mørk tekst */
+    --neutral-4: #666666; /* Medium tekst */
+    
+    /* Spesialfarger */
+    --success: #4caf50; /* Grønn for suksess */
+    --warning: #ff9800; /* Oransje for advarsel */
+    --error: #f44336; /* Rød for feil */
+    --info: #2196f3; /* Blå for info */
+    
+    /* Gradient-kombinasjoner */
+    --gradient-primary: linear-gradient(135deg, var(--primary-1) 0%, var(--primary-2) 50%, var(--secondary-1) 100%);
+    --gradient-warm: linear-gradient(135deg, var(--accent-1) 0%, var(--primary-1) 50%, var(--accent-2) 100%);
+    --gradient-cool: linear-gradient(135deg, var(--secondary-1) 0%, var(--secondary-3) 50%, var(--primary-2) 100%);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -34,18 +71,18 @@
 
 .stat-updating {
     animation: statPulse 0.5s ease;
-    color: #ff00ff;
+    color: var(--primary-1);
     font-weight: bold;
 }
 
 body {
     font-family: 'Comic Sans MS', Arial, sans-serif;
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%);
+    background: var(--gradient-primary);
     background-size: 200% 200%;
     animation: gradientShift 8s ease infinite;
     min-height: 100vh;
     padding: 20px;
-    color: #333;
+    color: var(--neutral-3);
     position: relative;
 }
 
@@ -81,21 +118,21 @@ body::before {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 50%, #e0f7ff 100%);
+    background: linear-gradient(135deg, var(--neutral-1) 0%, var(--accent-3) 50%, var(--secondary-3) 100%);
     border-radius: 30px;
-    box-shadow: 0 10px 40px rgba(255,0,255,0.4), 0 0 30px rgba(0,255,255,0.3);
+    box-shadow: 0 10px 40px rgba(255, 179, 217, 0.4), 0 0 30px rgba(200, 162, 200, 0.3);
     overflow: hidden;
     border: 5px solid;
-    border-image: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff) 1;
+    border-image: linear-gradient(45deg, var(--primary-1), var(--secondary-1), var(--accent-1), var(--primary-2)) 1;
     position: relative;
     z-index: 1;
 }
 
 header {
-    background: linear-gradient(135deg, #ff00ff 0%, #ff1493 25%, #00ffff 50%, #ff1493 75%, #ff00ff 100%);
+    background: var(--gradient-primary);
     background-size: 200% 200%;
     animation: gradientShift 5s ease infinite;
-    color: white;
+    color: var(--neutral-1);
     padding: 20px;
     padding-top: 50px;
     padding-bottom: 30px;
@@ -130,8 +167,8 @@ header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
     text-shadow: 
-        3px 3px 0px #00ffff,
-        -3px -3px 0px #ff00ff,
+        3px 3px 0px var(--secondary-1),
+        -3px -3px 0px var(--primary-2),
         0 0 20px rgba(255,255,255,0.8);
     animation: titlePulse 2s ease-in-out infinite;
     position: relative;
@@ -251,14 +288,14 @@ header h1 {
 }
 
 .child-status {
-    background: linear-gradient(135deg, #ffe0f5 0%, #e0f5ff 100%);
+    background: var(--gradient-warm);
     border-radius: 20px;
     padding: 20px;
     padding-top: 40px;
     padding-bottom: 40px;
     text-align: center;
-    border: 3px solid #ff00ff;
-    box-shadow: 0 0 20px rgba(255,0,255,0.3);
+    border: 3px solid var(--primary-1);
+    box-shadow: 0 0 20px rgba(255, 179, 217, 0.3);
     position: relative;
     overflow: visible;
 }
@@ -270,7 +307,7 @@ header h1 {
     left: -5px;
     right: -5px;
     bottom: -5px;
-    background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+    background: linear-gradient(45deg, var(--primary-1), var(--secondary-1), var(--accent-1), var(--primary-2));
     border-radius: 20px;
     z-index: -1;
     opacity: 0.5;
@@ -290,11 +327,11 @@ header h1 {
     margin: 0 auto 15px;
     border-radius: 50%;
     overflow: hidden;
-    background: #f0f0f0;
+    background: var(--neutral-2);
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px solid #667eea;
+    border: 3px solid var(--secondary-1);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     position: relative;
@@ -364,7 +401,7 @@ header h1 {
 }
 
 .child-status h2 {
-    background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff);
+    background: linear-gradient(45deg, var(--primary-1), var(--secondary-1), var(--primary-2));
     background-size: 200% 200%;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -372,7 +409,7 @@ header h1 {
     animation: gradientShift 3s ease infinite;
     margin-bottom: 20px;
     font-size: 1.8em;
-    text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
+    text-shadow: 2px 2px 4px rgba(255, 179, 217, 0.3);
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -411,20 +448,20 @@ header h1 {
 
 .stat-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+    background: var(--gradient-primary);
     background-size: 200% 100%;
     animation: gradientShift 2s ease infinite;
     transition: width 0.3s ease;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(255,0,255,0.5);
+    box-shadow: 0 0 10px rgba(255, 179, 217, 0.5);
 }
 
 .stat-fill.hunger-fill {
-    background: linear-gradient(90deg, #ff9800, #f57c00);
+    background: linear-gradient(90deg, var(--warning), #f57c00);
 }
 
 .stat-fill.hunger-fill.low {
-    background: linear-gradient(90deg, #f44336, #c62828);
+    background: linear-gradient(90deg, var(--error), #c62828);
 }
 
 .stat-bar span {
@@ -463,7 +500,7 @@ header h1 {
 
 .stat-fill-mini {
     height: 100%;
-    background: linear-gradient(90deg, #4caf50, #45a049);
+    background: linear-gradient(90deg, var(--success), #45a049);
     transition: width 0.3s ease;
     border-radius: 8px;
 }
@@ -480,18 +517,18 @@ header h1 {
 }
 
 .scene-area {
-    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    background: var(--gradient-cool);
     border-radius: 20px;
     padding: 20px;
     text-align: center;
-    border: 3px solid #ff00ff;
-    box-shadow: 0 0 15px rgba(255,0,255,0.3);
+    border: 3px solid var(--primary-1);
+    box-shadow: 0 0 15px rgba(255, 179, 217, 0.3);
 }
 
 .scene-image {
     width: 100%;
     height: 250px;
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ffff00 100%);
+    background: var(--gradient-primary);
     background-size: 200% 200%;
     animation: gradientShift 4s ease infinite;
     border-radius: 15px;
@@ -499,8 +536,8 @@ header h1 {
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
-    border: 4px solid #ffffff;
-    box-shadow: 0 0 20px rgba(255,0,255,0.5), inset 0 0 20px rgba(0,255,255,0.3);
+    border: 4px solid var(--neutral-1);
+    box-shadow: 0 0 20px rgba(255, 179, 217, 0.5), inset 0 0 20px rgba(179, 217, 255, 0.3);
     overflow: hidden;
     position: relative;
 }
@@ -523,11 +560,11 @@ header h1 {
 .scene-name {
     font-size: 1.2em;
     font-weight: bold;
-    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    background: linear-gradient(45deg, var(--primary-1), var(--secondary-1));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
+    text-shadow: 2px 2px 4px rgba(255, 179, 217, 0.3);
 }
 
 .narrative-area {
@@ -537,13 +574,13 @@ header h1 {
 }
 
 .child-dialogue {
-    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    background: var(--gradient-cool);
     border-left: 5px solid;
-    border-image: linear-gradient(180deg, #ff00ff, #00ffff) 1;
+    border-image: linear-gradient(180deg, var(--primary-1), var(--secondary-1)) 1;
     padding: 15px;
     border-radius: 15px;
     min-height: 60px;
-    box-shadow: 0 0 10px rgba(255,0,255,0.2);
+    box-shadow: 0 0 10px rgba(255, 179, 217, 0.2);
 }
 
 .child-dialogue p {
@@ -556,13 +593,13 @@ header h1 {
 }
 
 .story-message {
-    background: linear-gradient(135deg, #ffffe0 0%, #ffe0f5 100%);
+    background: linear-gradient(135deg, var(--accent-3) 0%, var(--accent-2) 100%);
     border-left: 5px solid;
-    border-image: linear-gradient(180deg, #ffff00, #ff00ff) 1;
+    border-image: linear-gradient(180deg, var(--accent-1), var(--primary-1)) 1;
     padding: 15px;
     border-radius: 15px;
     min-height: 60px;
-    box-shadow: 0 0 10px rgba(255,255,0,0.3);
+    box-shadow: 0 0 10px rgba(255, 217, 179, 0.3);
 }
 
 .story-message p {
@@ -580,9 +617,9 @@ header h1 {
 }
 
 .choice-btn {
-    background: #fff;
-    border: 2px solid #667eea;
-    color: #667eea;
+    background: var(--neutral-1);
+    border: 2px solid var(--secondary-1);
+    color: var(--primary-2);
     padding: 15px 20px;
     border-radius: 10px;
     font-size: 1em;
@@ -596,8 +633,8 @@ header h1 {
 }
 
 .choice-btn:hover {
-    background: #667eea;
-    color: white;
+    background: var(--secondary-1);
+    color: var(--neutral-1);
     transform: translateX(5px);
 }
 
@@ -606,11 +643,11 @@ header h1 {
 }
 
 .actions-area {
-    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    background: var(--gradient-cool);
     border-radius: 20px;
     padding: 20px;
-    border: 3px solid #ff00ff;
-    box-shadow: 0 0 15px rgba(255,0,255,0.3);
+    border: 3px solid var(--primary-1);
+    box-shadow: 0 0 15px rgba(255, 179, 217, 0.3);
 }
 
 .daily-routines {
@@ -620,13 +657,13 @@ header h1 {
 }
 
 .daily-routines h4 {
-    background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00);
+    background: linear-gradient(45deg, var(--primary-1), var(--secondary-1), var(--accent-1));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 10px;
     font-size: 1.1em;
-    text-shadow: 1px 1px 2px rgba(255,0,255,0.3);
+    text-shadow: 1px 1px 2px rgba(255, 179, 217, 0.3);
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -640,17 +677,17 @@ header h1 {
 }
 
 .routine-btn {
-    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
+    background: linear-gradient(135deg, var(--neutral-1) 0%, var(--accent-3) 100%);
     border: 3px solid;
-    border-image: linear-gradient(45deg, #00ffff, #ff00ff) 1;
-    color: #ff00ff;
+    border-image: linear-gradient(45deg, var(--secondary-1), var(--primary-1)) 1;
+    color: var(--primary-2);
     padding: 10px;
     border-radius: 12px;
     font-size: 0.9em;
     cursor: pointer;
     transition: all 0.2s;
     font-weight: bold;
-    box-shadow: 0 0 10px rgba(255,0,255,0.3);
+    box-shadow: 0 0 10px rgba(255, 179, 217, 0.3);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -658,10 +695,10 @@ header h1 {
 }
 
 .routine-btn:hover {
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
-    color: white;
+    background: var(--gradient-primary);
+    color: var(--neutral-1);
     transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 5px 20px rgba(255,0,255,0.6);
+    box-shadow: 0 5px 20px rgba(255, 179, 217, 0.6);
 }
 
 .routine-btn:active {
@@ -669,13 +706,13 @@ header h1 {
 }
 
 .actions-area h3 {
-    background: linear-gradient(45deg, #ff00ff, #00ffff);
+    background: linear-gradient(45deg, var(--primary-1), var(--secondary-1));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin-bottom: 15px;
     font-size: 1.5em;
-    text-shadow: 2px 2px 4px rgba(255,0,255,0.3);
+    text-shadow: 2px 2px 4px rgba(255, 179, 217, 0.3);
     overflow: hidden;
     text-overflow: ellipsis;
     word-wrap: break-word;
@@ -689,19 +726,19 @@ header h1 {
 }
 
 .action-btn {
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%);
+    background: var(--gradient-primary);
     background-size: 200% 200%;
     animation: gradientShift 3s ease infinite;
-    color: white;
-    border: 2px solid #ffffff;
+    color: var(--neutral-1);
+    border: 2px solid var(--neutral-1);
     padding: 15px;
     border-radius: 15px;
     font-size: 1em;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
     font-weight: bold;
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
-    box-shadow: 0 0 15px rgba(255,0,255,0.5);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+    box-shadow: 0 0 15px rgba(255, 179, 217, 0.5);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -710,7 +747,7 @@ header h1 {
 
 .action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 5px 15px rgba(179, 217, 255, 0.4);
 }
 
 .action-btn:active {
@@ -731,34 +768,34 @@ header h1 {
 }
 
 .time-control {
-    background: linear-gradient(135deg, #ffe0f5 0%, #e0f5ff 100%);
+    background: var(--gradient-cool);
     border-radius: 20px;
     padding: 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 3px solid #00ffff;
-    box-shadow: 0 0 15px rgba(0,255,255,0.3);
+    border: 3px solid var(--secondary-1);
+    box-shadow: 0 0 15px rgba(179, 217, 255, 0.3);
 }
 
 .time-btn {
-    background: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%);
-    color: white;
-    border: 2px solid #ffffff;
+    background: linear-gradient(135deg, var(--secondary-1) 0%, var(--primary-1) 100%);
+    color: var(--neutral-1);
+    border: 2px solid var(--neutral-1);
     padding: 12px 24px;
     border-radius: 15px;
     font-size: 1.1em;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s;
-    box-shadow: 0 0 15px rgba(255,0,255,0.5);
-    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 0 15px rgba(255, 179, 217, 0.5);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
 }
 
 .time-btn:hover {
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    background: var(--gradient-primary);
     transform: scale(1.1);
-    box-shadow: 0 0 25px rgba(255,0,255,0.8);
+    box-shadow: 0 0 25px rgba(255, 179, 217, 0.8);
 }
 
 .time-info {
@@ -773,10 +810,10 @@ header h1 {
 
 .time-info span {
     padding: 5px 10px;
-    background: linear-gradient(135deg, rgba(255,0,255,0.3), rgba(0,255,255,0.3));
+    background: linear-gradient(135deg, rgba(255, 179, 217, 0.3), rgba(179, 217, 255, 0.3));
     border-radius: 10px;
     border: 2px solid rgba(255,255,255,0.5);
-    box-shadow: 0 0 10px rgba(255,0,255,0.3);
+    box-shadow: 0 0 10px rgba(255, 179, 217, 0.3);
 }
 
 /* Sticker decorations */
@@ -933,14 +970,14 @@ header h1 {
 }
 
 .modal-content {
-    background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
+    background: var(--gradient-cool);
     margin: 5% auto;
     padding: 0;
-    border: 4px solid #ff00ff;
+    border: 4px solid var(--primary-1);
     border-radius: 20px;
     width: 90%;
     max-width: 800px;
-    box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+    box-shadow: 0 0 30px rgba(255, 179, 217, 0.5);
     animation: slideDown 0.3s ease;
 }
 
@@ -961,7 +998,7 @@ header h1 {
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    background: var(--gradient-primary);
     padding: 20px;
     border-radius: 15px 15px 0 0;
     display: flex;
@@ -996,7 +1033,7 @@ header h1 {
     padding: 20px;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 15px;
-    border: 2px solid #ff00ff;
+    border: 2px solid var(--primary-1);
 }
 
 .universe-modal {
@@ -1027,7 +1064,7 @@ header h1 {
 
 .profile-section h3 {
     margin-top: 0;
-    color: #ff00ff;
+    color: var(--primary-2);
     text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
@@ -1045,13 +1082,13 @@ header h1 {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
+    background: var(--gradient-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 60px;
-    border: 4px solid white;
-    box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+    border: 4px solid var(--neutral-1);
+    box-shadow: 0 0 20px rgba(255, 179, 217, 0.5);
     margin: 0 auto 10px;
 }
 
@@ -1063,18 +1100,18 @@ header h1 {
 
 .tab-btn {
     padding: 10px 20px;
-    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
-    border: 2px solid #ff00ff;
+    background: linear-gradient(135deg, var(--neutral-1) 0%, var(--accent-3) 100%);
+    border: 2px solid var(--primary-1);
     border-radius: 10px;
     cursor: pointer;
     font-weight: bold;
-    color: #ff00ff;
+    color: var(--primary-2);
     transition: all 0.2s;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
-    color: white;
+    background: var(--gradient-primary);
+    color: var(--neutral-1);
 }
 
 .avatar-tab-content {
@@ -1097,8 +1134,8 @@ header h1 {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
-    border: 3px solid #ff00ff;
+    background: linear-gradient(135deg, var(--neutral-1) 0%, var(--accent-3) 100%);
+    border: 3px solid var(--primary-1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1109,12 +1146,12 @@ header h1 {
 
 .badge-option:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(255, 0, 255, 0.6);
+    box-shadow: 0 0 15px rgba(255, 179, 217, 0.6);
 }
 
 .badge-option.selected {
-    border-color: #00ffff;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+    border-color: var(--secondary-1);
+    box-shadow: 0 0 20px rgba(179, 217, 255, 0.8);
 }
 
 .money-display-profile {
@@ -1135,8 +1172,8 @@ header h1 {
 }
 
 .shop-item {
-    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
-    border: 2px solid #ff00ff;
+    background: linear-gradient(135deg, var(--neutral-1) 0%, var(--accent-3) 100%);
+    border: 2px solid var(--primary-1);
     border-radius: 10px;
     padding: 15px;
     text-align: center;
@@ -1146,7 +1183,7 @@ header h1 {
 
 .shop-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(255, 0, 255, 0.4);
+    box-shadow: 0 5px 15px rgba(255, 179, 217, 0.4);
 }
 
 .shop-item.owned {
@@ -1162,7 +1199,7 @@ header h1 {
 .shop-item-name {
     font-weight: bold;
     margin-bottom: 5px;
-    color: #ff00ff;
+    color: var(--primary-2);
 }
 
 .shop-item-price {
@@ -1182,15 +1219,15 @@ header h1 {
     gap: 8px;
     cursor: pointer;
     padding: 10px 15px;
-    background: linear-gradient(135deg, #ffffff 0%, #fff0f5 100%);
-    border: 2px solid #ff00ff;
+    background: linear-gradient(135deg, var(--neutral-1) 0%, var(--accent-3) 100%);
+    border: 2px solid var(--primary-1);
     border-radius: 10px;
     transition: all 0.2s;
 }
 
 .language-selector label:hover {
-    background: linear-gradient(135deg, #ff00ff 0%, #00ffff 100%);
-    color: white;
+    background: var(--gradient-primary);
+    color: var(--neutral-1);
 }
 
 .language-selector input[type="radio"] {
