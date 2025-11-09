@@ -3129,12 +3129,75 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         if (this.child.energy < 8) {
-            this.showDialogue("I'm too tired to be creative right now...");
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å være kreativ akkurat nå..."
+                : "I'm too tired to be creative right now...";
+            this.showDialogue(tiredMsg);
             return;
         }
         
-        this.adjustStat('happiness', 18);
-        this.adjustStat('learning', 12);
+        // Open interactive drawing/creating universe
+        this.openUniverse('drawing');
+    }
+    
+    openDrawingUniverse(content) {
+        if (this.child.energy < 8) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å tegne akkurat nå..."
+                : "I'm too tired to draw right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const activities = this.language === 'no' ? [
+            { name: "Tegne", emoji: "✏️", happiness: 20, learning: 15 },
+            { name: "Male", emoji: "🎨", happiness: 18, learning: 12 },
+            { name: "Lage leir", emoji: "🧱", happiness: 15, learning: 18 },
+            { name: "Lage origami", emoji: "📄", happiness: 12, learning: 20 },
+            { name: "Lage musikk", emoji: "🎵", happiness: 22, learning: 10 }
+        ] : [
+            { name: "Draw", emoji: "✏️", happiness: 20, learning: 15 },
+            { name: "Paint", emoji: "🎨", happiness: 18, learning: 12 },
+            { name: "Make clay", emoji: "🧱", happiness: 15, learning: 18 },
+            { name: "Make origami", emoji: "📄", happiness: 12, learning: 20 },
+            { name: "Make music", emoji: "🎵", happiness: 22, learning: 10 }
+        ];
+        
+        const drawingContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>🎨 Tegn og lag!</h3>
+                <p>Hva vil du lage?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px;">
+                    ${activities.map(act => `
+                        <button class="universe-btn" onclick="game.completeDrawingActivity('${act.name}', ${act.happiness}, ${act.learning}, '${act.emoji}')" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                            ${act.emoji} ${act.name}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>🎨 Draw & Create!</h3>
+                <p>What would you like to create?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px;">
+                    ${activities.map(act => `
+                        <button class="universe-btn" onclick="game.completeDrawingActivity('${act.name}', ${act.happiness}, ${act.learning}, '${act.emoji}')" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                            ${act.emoji} ${act.name}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = drawingContent;
+    }
+    
+    completeDrawingActivity(activityName, happinessGain, learningGain, emoji) {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        this.adjustStat('happiness', happinessGain);
+        this.adjustStat('learning', learningGain);
         this.adjustStat('energy', -6);
         this.setEmotion('happy', 20);
         this.setEmotion('curious', 15);
@@ -3143,22 +3206,41 @@ class MyChildGame {
         this.child.resilience = Math.min(100, this.child.resilience + 3);
         this.adjustRelationship(2);
         
+        if (!this.child.artCreated) this.child.artCreated = 0;
+        this.child.artCreated++;
+        this.checkAchievements();
+        
         let messages = [];
         if (this.child.age < 3) {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Jeg tegner!",
+                "Fine farger!",
+                "Jeg liker å lage kunst!"
+            ] : [
                 "I'm drawing!",
                 "Pretty colors!",
                 "I like making art!"
             ];
         } else if (this.child.age < 7) {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Jeg lager noe nytt! Dette er gøy!",
+                "Jeg elsker å tegne og lage ting!",
+                "Å være kreativ gjør meg glad!",
+                "Jeg lagde noe kult! Se!"
+            ] : [
                 "I'm creating something new! This is fun!",
                 "I love drawing and making things!",
                 "Being creative makes me feel happy!",
                 "I made something cool! Look!"
             ];
         } else {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Å lage noe med hendene mine... Det hjelper meg å uttrykke hvordan jeg føler.",
+                "Når jeg tegner eller lager noe, kan jeg vise følelser jeg ikke alltid kan sette ord på.",
+                "Kunst er som et trygt sted hvor jeg kan være meg selv, uten dømming.",
+                "Jeg elsker å lage ting! Det gjør meg stolt og glad.",
+                "Å lage noe nytt får meg til å føle at jeg kan gjøre hva som helst!"
+            ] : [
                 "Creating something with my hands... It helps me express how I feel.",
                 "When I draw or create, I can show emotions I can't always put into words.",
                 "Art is like a safe space where I can be me, without judgment.",
@@ -3167,24 +3249,32 @@ class MyChildGame {
             ];
         }
         
-        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        const dialogue = messages[Math.floor(Math.random() * messages.length)];
         
-        // Occasionally add learning fact about creativity
+        // Occasionally add learning fact
         if (Math.random() < 0.3) {
-            const creativityFacts = [
+            const creativityFacts = this.language === 'no' ? [
                 "💡 Læringsfakta: Når vi er kreative, aktiveres hjernens høyre side. Dette hjelper oss å tenke på nye måter!",
                 "💡 Læringsfakta: Kunst og kreativitet kan være en måte å uttrykke følelser på når ord ikke er nok.",
                 "💡 Læringsfakta: Å være kreativ bygger selvtillit! Når vi lager noe, føler vi stolthet og glede."
+            ] : [
+                "💡 Learning fact: When we're creative, the right side of our brain is activated. This helps us think in new ways!",
+                "💡 Learning fact: Art and creativity can be a way to express emotions when words aren't enough.",
+                "💡 Learning fact: Being creative builds self-confidence! When we create something, we feel pride and joy."
             ];
             setTimeout(() => this.showMessage(creativityFacts[Math.floor(Math.random() * creativityFacts.length)]), 1000);
         }
         
-        this.showMessage("Creating art helps " + this.child.name + " express " + (this.child.gender === 'girl' ? 'herself' : 'himself') + " and feel proud!");
-        if (!this.child.artCreated) this.child.artCreated = 0;
-        this.child.artCreated++;
-        this.checkAchievements();
-        this.performAction();
-        this.advanceTime();
+        content.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h3>${emoji} ${activityName}</h3>
+                <p style="font-size: 1.1em; margin: 15px 0; font-style: italic;">"${dialogue}"</p>
+                <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +' + happinessGain + ' glede og +' + learningGain + ' læring!' : 'You gained +' + happinessGain + ' happiness and +' + learningGain + ' learning!'}</p>
+                <button onclick="game.closeUniverse(); game.performAction(); game.advanceTime();" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ${this.language === 'no' ? 'Lukk' : 'Close'}
+                </button>
+            </div>
+        `;
     }
     
     quizAboutEmotions() {
