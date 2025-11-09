@@ -6091,11 +6091,16 @@ class MyChildGame {
         
         if (!modal || !title || !content) return;
         
+        modal.style.display = 'block';
+        
         // Set title based on universe type
         const titles = {
-            school: this.language === 'no' ? '🏫 Skoleunivers' : '🏫 School Universe',
-            playground: this.language === 'no' ? '🎮 Lekegrind-univers' : '🎮 Playground Universe',
-            cooking: this.language === 'no' ? '🍳 Matlaging-univers' : '🍳 Cooking Universe'
+            school: this.language === 'no' ? '🏫 Skole' : '🏫 School',
+            playground: this.language === 'no' ? '🎮 Lekegrind' : '🎮 Playground',
+            cooking: this.language === 'no' ? '🍳 Matlaging' : '🍳 Cooking',
+            bath: this.language === 'no' ? '🛁 Badetid' : '🛁 Bath Time',
+            reading: this.language === 'no' ? '📖 Les sammen' : '📖 Read Together',
+            drawing: this.language === 'no' ? '🎨 Tegn og lag' : '🎨 Draw & Create'
         };
         title.textContent = titles[universeType] || 'Univers';
         
@@ -6106,6 +6111,12 @@ class MyChildGame {
             this.openPlaygroundUniverse(content);
         } else if (universeType === 'cooking') {
             this.openCookingUniverse(content);
+        } else if (universeType === 'bath') {
+            this.openBathUniverse(content);
+        } else if (universeType === 'reading') {
+            this.openReadingUniverse(content);
+        } else if (universeType === 'drawing') {
+            this.openDrawingUniverse(content);
         }
         
         modal.style.display = 'block';
