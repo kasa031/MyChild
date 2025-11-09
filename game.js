@@ -503,10 +503,14 @@ class MyChildGame {
     
     getTranslation(key) {
         // Use TranslationManager for translations
-        return this.translationManager.t(this.language, key);
+        // Try ui namespace first, then messages, then activities
+        return this.translationManager.t(this.language, 'ui.' + key) || 
+               this.translationManager.t(this.language, 'messages.' + key) ||
+               this.translationManager.t(this.language, 'activities.' + key) ||
+               key;
     }
     
-    // Legacy method - kept for compatibility
+    // Legacy method - kept for compatibility (deprecated)
     _getTranslation(key) {
         // Simple translation lookup
         const translations = {
