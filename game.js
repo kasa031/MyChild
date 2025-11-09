@@ -6118,8 +6118,6 @@ class MyChildGame {
         } else if (universeType === 'drawing') {
             this.openDrawingUniverse(content);
         }
-        
-        modal.style.display = 'block';
     }
     
     closeUniverse() {
