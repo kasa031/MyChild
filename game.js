@@ -1960,36 +1960,132 @@ class MyChildGame {
     batheChild() {
         if (!this.canPerformAction()) return;
         
-        // Track that child was bathed (like original - important for daily routine)
+        // Open interactive bath universe
+        this.openUniverse('bath');
+    }
+    
+    openBathUniverse(content) {
+        if (this.child.energy < 5) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å bade akkurat nå..."
+                : "I'm too tired to bathe right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const bathContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>🛁 Badetid!</h3>
+                <p>Hva vil du gjøre i badekaret?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="universe-btn" onclick="game.completeBathActivity('bubbles')" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🫧 Lek med bobler
+                    </button>
+                    <button class="universe-btn" onclick="game.completeBathActivity('toys')" style="padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🦆 Lek med leker
+                    </button>
+                    <button class="universe-btn" onclick="game.completeBathActivity('relax')" style="padding: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        😌 Slapp av
+                    </button>
+                    <button class="universe-btn" onclick="game.completeBathActivity('sing')" style="padding: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🎵 Syng badelåter
+                    </button>
+                </div>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>🛁 Bath Time!</h3>
+                <p>What would you like to do in the bathtub?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <button class="universe-btn" onclick="game.completeBathActivity('bubbles')" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🫧 Play with bubbles
+                    </button>
+                    <button class="universe-btn" onclick="game.completeBathActivity('toys')" style="padding: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🦆 Play with toys
+                    </button>
+                    <button class="universe-btn" onclick="game.completeBathActivity('relax')" style="padding: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        😌 Relax
+                    </button>
+                    <button class="universe-btn" onclick="game.completeBathActivity('sing')" style="padding: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                        🎵 Sing bath songs
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = bathContent;
+    }
+    
+    completeBathActivity(activity) {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        // Track that child was bathed
         this.child.lastBathed = this.day;
         this.child.daysWithoutBath = 0;
         
-        this.adjustStat('happiness', 8);
-        this.adjustStat('energy', -5);
-        this.adjustStat('social', 2); // Clean child is more social
+        let happinessGain = 8;
+        let energyCost = 5;
+        let message = '';
+        
+        switch(activity) {
+            case 'bubbles':
+                happinessGain = 12;
+                message = this.language === 'no' 
+                    ? "Bobler er så morsomt! Jeg elsker å se dem flyte rundt! 🫧"
+                    : "Bubbles are so fun! I love watching them float around! 🫧";
+                break;
+            case 'toys':
+                happinessGain = 10;
+                message = this.language === 'no'
+                    ? "Lekene mine i badekaret er de beste! 🦆"
+                    : "My bath toys are the best! 🦆";
+                break;
+            case 'relax':
+                happinessGain = 8;
+                energyCost = 3;
+                message = this.language === 'no'
+                    ? "Dette er så avslappende... Jeg føler meg rolig og trygg. 😌"
+                    : "This is so relaxing... I feel calm and safe. 😌";
+                break;
+            case 'sing':
+                happinessGain = 15;
+                energyCost = 4;
+                message = this.language === 'no'
+                    ? "Jeg elsker å synge i badekaret! Det er så gøy! 🎵"
+                    : "I love singing in the bathtub! It's so fun! 🎵";
+                break;
+        }
+        
+        this.adjustStat('happiness', happinessGain);
+        this.adjustStat('energy', -energyCost);
+        this.adjustStat('social', 2);
         this.adjustRelationship(1);
+        this.setEmotion('happy', 15);
         
-        const messages = [
-            "Bath time! I love playing in the water!",
-            "This is so relaxing! I feel clean and fresh now.",
-            "Bathing is fun! Can we do this again tomorrow?",
-            "I feel so much better after a bath!"
-        ];
-        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        
-        // Occasionally add learning fact about hygiene and self-care
-        if (Math.random() < 0.15) {
-            const hygieneFacts = [
+        // Occasionally add learning fact
+        if (Math.random() < 0.2) {
+            const hygieneFacts = this.language === 'no' ? [
                 "💡 Læringsfakta: Å ta vare på kroppen vår er viktig! Det hjelper oss å føle oss godt, både fysisk og mentalt.",
                 "💡 Læringsfakta: Å ta bad eller dusj kan være avslappende. Varmt vann hjelper kroppen å slappe av, noe som også hjelper hjernen.",
                 "💡 Læringsfakta: Selvpleie er en måte å vise respekt for oss selv. Vi fortjener å ta vare på oss selv!"
+            ] : [
+                "💡 Learning fact: Taking care of our body is important! It helps us feel good, both physically and mentally.",
+                "💡 Learning fact: Taking a bath or shower can be relaxing. Warm water helps the body relax, which also helps the brain.",
+                "💡 Learning fact: Self-care is a way to show respect for ourselves. We deserve to take care of ourselves!"
             ];
             setTimeout(() => this.showMessage(hygieneFacts[Math.floor(Math.random() * hygieneFacts.length)]), 1000);
         }
         
-        this.showMessage("Bathing together - important daily care routine!");
-        this.performAction();
-        this.advanceTime();
+        content.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h3>🛁 ${message}</h3>
+                <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +' + happinessGain + ' glede og +2 sosial!' : 'You gained +' + happinessGain + ' happiness and +2 social!'}</p>
+                <button onclick="game.closeUniverse(); game.performAction(); game.advanceTime();" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ${this.language === 'no' ? 'Lukk' : 'Close'}
+                </button>
+            </div>
+        `;
     }
     
     playWithChild() {
@@ -2063,28 +2159,102 @@ class MyChildGame {
     readToChild() {
         if (!this.canPerformAction()) return;
         
-        this.adjustStat('learning', 15);
-        this.adjustStat('happiness', 10);
+        // Open interactive reading universe
+        this.openUniverse('reading');
+    }
+    
+    openReadingUniverse(content) {
+        if (this.child.energy < 5) {
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er for trøtt til å lese akkurat nå..."
+                : "I'm too tired to read right now...";
+            content.innerHTML = `<p style="padding: 20px; text-align: center;">${tiredMsg}</p>`;
+            return;
+        }
+        
+        const books = this.language === 'no' ? [
+            { title: "Eventyrbok", emoji: "📚", learning: 20, happiness: 12 },
+            { title: "Dyrbok", emoji: "🦁", learning: 18, happiness: 15 },
+            { title: "Historiebok", emoji: "🏛️", learning: 25, happiness: 10 },
+            { title: "Vitenskapsbok", emoji: "🔬", learning: 22, happiness: 12 },
+            { title: "Bildebok", emoji: "🎨", learning: 15, happiness: 18 }
+        ] : [
+            { title: "Fairy Tale", emoji: "📚", learning: 20, happiness: 12 },
+            { title: "Animal Book", emoji: "🦁", learning: 18, happiness: 15 },
+            { title: "History Book", emoji: "🏛️", learning: 25, happiness: 10 },
+            { title: "Science Book", emoji: "🔬", learning: 22, happiness: 12 },
+            { title: "Picture Book", emoji: "🎨", learning: 15, happiness: 18 }
+        ];
+        
+        const readingContent = this.language === 'no' ? `
+            <div style="padding: 20px;">
+                <h3>📖 Les sammen!</h3>
+                <p>Hvilken bok vil du lese?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px;">
+                    ${books.map(book => `
+                        <button class="universe-btn" onclick="game.completeReadingActivity('${book.title}', ${book.learning}, ${book.happiness}, '${book.emoji}')" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                            ${book.emoji} ${book.title}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        ` : `
+            <div style="padding: 20px;">
+                <h3>📖 Read Together!</h3>
+                <p>Which book would you like to read?</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px;">
+                    ${books.map(book => `
+                        <button class="universe-btn" onclick="game.completeReadingActivity('${book.title}', ${book.learning}, ${book.happiness}, '${book.emoji}')" style="padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1.1em;">
+                            ${book.emoji} ${book.title}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+        
+        content.innerHTML = readingContent;
+    }
+    
+    completeReadingActivity(bookTitle, learningGain, happinessGain, emoji) {
+        const content = document.getElementById('universeContent');
+        if (!content) return;
+        
+        this.adjustStat('learning', learningGain);
+        this.adjustStat('happiness', happinessGain);
         this.adjustStat('energy', -5);
         this.adjustRelationship(2);
         this.setEmotion('happy', 15);
-        this.setEmotion('anxious', -10); // Reading helps calm anxiety
+        this.setEmotion('anxious', -10);
         
         let messages = [];
         if (this.child.age < 1) {
-            messages = [
+            messages = this.language === 'no' ? [
+                "*ser på bildene med store øyne*",
+                "*lytter stille*",
+                "*gurgler mot de fargerike sidene*"
+            ] : [
                 "*looks at pictures with wide eyes*",
                 "*listens quietly*",
                 "*coos at the colorful pages*"
             ];
         } else if (this.child.age < 3) {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Fine bilder!",
+                "Jeg liker denne boken!",
+                "Mer historie, takk!"
+            ] : [
                 "Pretty pictures!",
                 "I like this book!",
                 "More story please!"
             ];
         } else {
-            messages = [
+            messages = this.language === 'no' ? [
+                "Jeg elsker denne historien! Kan du lese en til?",
+                "Denne boken er så interessant! Jeg lærer så mye!",
+                "Å lese sammen er så fint... Det får meg til å glemme skolen.",
+                "Jeg vil lære å lese som deg! Dette er flott!",
+                "Når vi leser, kan jeg rømme til andre verdener... Det hjelper."
+            ] : [
                 "I love this story! Can you read another one?",
                 "This book is so interesting! I'm learning so much!",
                 "Reading together is so nice... It makes me forget about school.",
@@ -2092,21 +2262,33 @@ class MyChildGame {
                 "When we read, I can escape to other worlds... It helps."
             ];
         }
-        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
         
-        // Occasionally add learning fact about reading
-        if (Math.random() < 0.2) {
-            const readingFacts = [
+        const dialogue = messages[Math.floor(Math.random() * messages.length)];
+        
+        // Occasionally add learning fact
+        if (Math.random() < 0.3) {
+            const readingFacts = this.language === 'no' ? [
                 "💡 Læringsfakta: Når vi leser, aktiveres mange deler av hjernen vår samtidig! Det er som en treningsøkt for hjernen.",
                 "💡 Læringsfakta: Å lese sammen med noen bygger bånd og hjelper med språkutvikling. Det er spesielt viktig for små barn!",
                 "💡 Læringsfakta: Bøker kan hjelpe oss å forstå andre mennesker og situasjoner bedre. Det bygger empati!"
+            ] : [
+                "💡 Learning fact: When we read, many parts of our brain are activated at once! It's like a workout for the brain.",
+                "💡 Learning fact: Reading together builds bonds and helps with language development. It's especially important for young children!",
+                "💡 Learning fact: Books can help us understand other people and situations better. It builds empathy!"
             ];
             setTimeout(() => this.showMessage(readingFacts[Math.floor(Math.random() * readingFacts.length)]), 1000);
         }
         
-        this.showMessage("Reading together - great for learning and bonding!");
-        this.performAction();
-        this.advanceTime();
+        content.innerHTML = `
+            <div style="padding: 20px; text-align: center;">
+                <h3>${emoji} ${bookTitle}</h3>
+                <p style="font-size: 1.1em; margin: 15px 0; font-style: italic;">"${dialogue}"</p>
+                <p style="font-size: 1.2em; margin: 20px 0;">${this.language === 'no' ? 'Du fikk +' + learningGain + ' læring og +' + happinessGain + ' glede!' : 'You gained +' + learningGain + ' learning and +' + happinessGain + ' happiness!'}</p>
+                <button onclick="game.closeUniverse(); game.performAction(); game.advanceTime();" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    ${this.language === 'no' ? 'Lukk' : 'Close'}
+                </button>
+            </div>
+        `;
     }
     
     daydream() {
