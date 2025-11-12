@@ -71,7 +71,9 @@ class MyChildGame {
             // Bullying tracking (like original - important for narrative)
             bullyingCopingMethod: savedGame && savedGame.child && savedGame.child.bullyingCopingMethod ? savedGame.child.bullyingCopingMethod : null,
             teacherInvolved: savedGame && savedGame.child && savedGame.child.teacherInvolved ? savedGame.child.teacherInvolved : false,
-            lastSupportiveChoice: savedGame && savedGame.child && savedGame.child.lastSupportiveChoice ? savedGame.child.lastSupportiveChoice : null
+            lastSupportiveChoice: savedGame && savedGame.child && savedGame.child.lastSupportiveChoice ? savedGame.child.lastSupportiveChoice : null,
+            // Trust level - affected by past choices
+            trustLevel: savedGame && savedGame.child && savedGame.child.trustLevel !== undefined ? savedGame.child.trustLevel : 50
         };
         
         this.day = savedGame ? savedGame.day : 1;
@@ -250,7 +252,10 @@ class MyChildGame {
             }
             
             const gameData = {
-                child: this.child,
+                child: {
+                    ...this.child,
+                    trustLevel: this.child.trustLevel || 50
+                },
                 day: this.day,
                 year: this.year,
                 timeOfDay: this.timeOfDay,
@@ -259,7 +264,7 @@ class MyChildGame {
                 dialogueQueue: this.dialogueQueue,
                 actionsToday: this.actionsToday,
                 memory: this.memory,
-                    relationship: this.relationship,
+                relationship: this.relationship,
                     bullyingIncidents: this.bullyingIncidents,
                     copingActivities: this.copingActivities,
                     achievements: this.achievements,
@@ -4332,15 +4337,23 @@ class MyChildGame {
             this.setEmotion('sad', 15);
         }
         
-        // Bullying incidents have lasting effects (like original)
+        // Bullying incidents have lasting effects (like original) - STRENGTHENED
         if (this.bullyingIncidents > 0 && this.child.age >= 7) {
-            // Recent bullying affects child more
+            // Recent bullying affects child more - EXTENDED DURATION
             const daysSinceLastBullying = this.day - (this.memory.filter(m => m.event && m.event.includes("Bullying")).pop()?.day || 0);
-            if (daysSinceLastBullying < 3) {
-                this.adjustStat('happiness', -3);
-                this.setEmotion('anxious', 5);
+            if (daysSinceLastBullying < 5) { // Extended from 3 to 5 days
+                this.adjustStat('happiness', -4); // Increased from -3
+                this.setEmotion('anxious', 6); // Increased from 5
+                if (daysSinceLastBullying < 2) {
+                    // Very recent bullying has stronger effect
+                    this.adjustStat('social', -2);
+                    this.adjustStat('energy', -3);
+                }
             }
         }
+        
+        // Choice consequences that last multiple days - NEW
+        this.applyLastingChoiceEffects();
         
         // High relationship provides passive benefits
         if (this.relationship > 80) {
@@ -4358,6 +4371,77 @@ class MyChildGame {
         if (this.child.studyLevel > 50) {
             this.adjustStat('learning', 1);
             this.child.careerProgress = Math.min(100, this.child.careerProgress + 0.5);
+        }
+    }
+    
+    applyLastingChoiceEffects() {
+        // Apply consequences from choices that last multiple days
+        const recentChoices = this.memory.filter(m => 
+            m.lastingEffect && (this.day - m.day) <= 7 // Choices affect for up to 7 days
+        );
+        
+        for (const choice of recentChoices) {
+            const daysSince = this.day - choice.day;
+            
+            // Supportive choices have positive lasting effects
+            if (choice.positive && choice.choiceType === "supportive_listening") {
+                if (daysSince < 3) {
+                    // Strong positive effect for first 3 days
+                    this.adjustStat('happiness', 2);
+                    this.adjustRelationship(1);
+                } else if (daysSince < 7) {
+                    // Weaker positive effect for days 4-7
+                    this.adjustStat('happiness', 1);
+                }
+            }
+            
+            // Dismissive choices have negative lasting effects
+            if (!choice.positive && choice.choiceType === "dismissive") {
+                if (daysSince < 5) {
+                    // Negative effect lasts longer
+                    this.adjustStat('happiness', -2);
+                    this.adjustRelationship(-1);
+                    this.setEmotion('sad', 3);
+                }
+            }
+            
+            // Seeking help choices reduce future bullying impact
+            if (choice.choiceType === "seeking_help" && this.bullyingIncidents > 0) {
+                // Child feels more confident after seeking help
+                this.child.resilience = Math.min(100, this.child.resilience + 0.5);
+            }
+            
+            // United front choices strengthen relationship
+            if (choice.choiceType === "united_front") {
+                if (daysSince < 4) {
+                    this.adjustRelationship(2);
+                    this.adjustStat('happiness', 1);
+                }
+            }
+            
+            // Affirmation choices boost resilience
+            if (choice.choiceType === "affirmation") {
+                if (daysSince < 6) {
+                    this.child.resilience = Math.min(100, this.child.resilience + 0.5);
+                    this.adjustStat('happiness', 1);
+                }
+            }
+        }
+        
+        // Check for patterns in choices that affect future events
+        const supportiveChoices = this.memory.filter(m => 
+            m.positive && m.choiceType && (this.day - m.day) <= 30
+        ).length;
+        
+        const dismissiveChoices = this.memory.filter(m => 
+            !m.positive && m.choiceType && (this.day - m.day) <= 30
+        ).length;
+        
+        // Pattern: If child has many supportive choices, they trust more
+        if (supportiveChoices > dismissiveChoices * 2) {
+            this.child.trustLevel = Math.min(100, (this.child.trustLevel || 50) + 0.2);
+        } else if (dismissiveChoices > supportiveChoices * 2) {
+            this.child.trustLevel = Math.max(0, (this.child.trustLevel || 50) - 0.2);
         }
         
         // Helping others provides passive happiness
@@ -4522,6 +4606,21 @@ class MyChildGame {
         const pronoun = this.child.gender === 'girl' ? (this.language === 'no' ? 'hun' : 'she') : (this.language === 'no' ? 'han' : 'he');
         const pronoun2 = this.child.gender === 'girl' ? (this.language === 'no' ? 'henne' : 'her') : (this.language === 'no' ? 'ham' : 'him');
         
+        // Check past choices to influence current event - CHOICES AFFECT FUTURE EVENTS
+        const hasSupportiveHistory = this.memory.some(m => 
+            m.choiceType === "supportive_listening" && (this.day - m.day) <= 30
+        );
+        const hasDismissiveHistory = this.memory.some(m => 
+            m.choiceType === "dismissive" && (this.day - m.day) <= 30
+        );
+        const hasSeekingHelpHistory = this.memory.some(m => 
+            m.choiceType === "seeking_help" && (this.day - m.day) <= 30
+        );
+        
+        // If child has supportive history, they're more likely to open up
+        // If child has dismissive history, they're less likely to trust
+        const trustLevel = this.child.trustLevel || 50;
+        
         const events = this.language === 'no' ? [
             {
                 dialogue: "Noen barn på skolen... de sa slemme ting i dag. De sa at jeg var annerledes, at jeg ikke hørte hjemme. Det gjorde vondt. Men jeg vet at jeg er god nok akkurat som jeg er. Alle barn fortjener kjærlighet og respekt, uansett hvor de kommer fra eller hvem de er.",
@@ -4529,13 +4628,20 @@ class MyChildGame {
                 choices: [
                     { 
                         text: "Jeg er så lei meg. Fortell meg hva som skjedde. Du er trygg her.", 
-                        effect: () => { 
+                        effect: () => {
+                            // Past choices affect current outcome - MORE PERMANENT
+                            const pastSupport = this.memory.filter(m => 
+                                m.choiceType === "supportive_listening" && (this.day - m.day) <= 30
+                            ).length;
+                            
+                            // More supportive choices = better outcome
+                            const supportBonus = Math.min(5, pastSupport * 0.5); 
                             this.setEmotion('sad', 20);
                             this.setEmotion('anxious', 15);
-                            this.adjustStat('happiness', -15); // More severe impact
-                            this.adjustStat('social', -8); // More severe social impact
-                            this.adjustRelationship(10); // Stronger relationship boost
-                            this.child.resilience = Math.min(100, this.child.resilience + 6); // More resilience
+                            this.adjustStat('happiness', -15 + supportBonus); // Past choices help
+                            this.adjustStat('social', -8 + supportBonus * 0.5); // Past choices help
+                            this.adjustRelationship(10 + supportBonus); // Stronger relationship boost
+                            this.child.resilience = Math.min(100, this.child.resilience + 6 + supportBonus); // More resilience
                             // Permanent memory - affects future events
                             this.memory.push({
                                 day: this.day, 
@@ -4554,13 +4660,20 @@ class MyChildGame {
                     },
                     { 
                         text: "Ikke la dem få deg til å føle deg dårlig. Du er sterk og perfekt akkurat som du er.", 
-                        effect: () => { 
+                        effect: () => {
+                            // Past dismissive choices make this worse - CHOICES HAVE CONSEQUENCES
+                            const pastDismissive = this.memory.filter(m => 
+                                m.choiceType === "dismissive" && (this.day - m.day) <= 30
+                            ).length;
+                            
+                            const dismissivePenalty = Math.min(5, pastDismissive * 0.5);
+                            
                             this.setEmotion('sad', 15);
                             this.setEmotion('angry', 10);
-                            this.adjustStat('happiness', -12); // More negative impact
-                            this.adjustStat('social', -6); // Additional social impact
-                            this.adjustRelationship(1); // Less relationship boost
-                            this.child.resilience = Math.min(100, this.child.resilience + 1); // Less resilience
+                            this.adjustStat('happiness', -12 - dismissivePenalty); // Worse if repeated
+                            this.adjustStat('social', -6 - dismissivePenalty * 0.5); // Worse if repeated
+                            this.adjustRelationship(1 - dismissivePenalty); // Less relationship boost
+                            this.child.resilience = Math.min(100, this.child.resilience + 1 - dismissivePenalty); // Less resilience
                             // Memory of this choice
                             this.memory.push({
                                 day: this.day,
@@ -4570,7 +4683,13 @@ class MyChildGame {
                                 lastingEffect: true
                             });
                             this.child.bullyingCopingMethod = "suppression";
-                            this.showDialogue("Jeg skal prøve å være sterk... men det er vanskelig noen ganger. Jeg føler at jeg må holde det inne."); 
+                            
+                            // If child has low trust, they're less likely to open up
+                            if (this.child.trustLevel < 40) {
+                                this.showDialogue("Jeg prøver... Men jeg føler at jeg ikke kan snakke med deg om dette. Jeg holder det inne."); 
+                            } else {
+                                this.showDialogue("Jeg skal prøve å være sterk... men det er vanskelig noen ganger. Jeg føler at jeg må holde det inne."); 
+                            }
                         } 
                     },
                     { 
