@@ -4767,6 +4767,96 @@ class MyChildGame {
                         } 
                     }
                 ]
+            },
+            {
+                dialogue: this.language === 'no' ? "De tok tingene mine i dag... Jeg føler meg så hjelpeløs. Hvorfor gjør de dette?" : "They took my things today... I feel so helpless. Why do they do this?",
+                message: this.language === 'no' ? "Mobbing: Tyveri og maktmisbruk." : "Bullying: Theft and power abuse.",
+                choices: [
+                    { 
+                        text: this.language === 'no' ? "Dette er ikke greit. Vi må gjøre noe. La oss snakke med læreren sammen." : "This is not okay. We need to do something. Let's talk to the teacher together.", 
+                        effect: () => { 
+                            this.setEmotion('angry', 20);
+                            this.setEmotion('sad', 15);
+                            this.setEmotion('scared', 10);
+                            this.adjustStat('happiness', -18);
+                            this.adjustStat('social', -10);
+                            this.adjustRelationship(9);
+                            this.child.resilience = Math.min(100, this.child.resilience + 7);
+                            this.child.teacherInvolved = true;
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - theft, got help together",
+                                positive: true,
+                                choiceType: "united_front",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Takk... Jeg er redd, men jeg føler meg tryggere når du er med meg. La oss gjøre dette sammen." : "Thank you... I'm scared, but I feel safer when you're with me. Let's do this together.";
+                            this.showDialogue(msg); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: this.language === 'no' ? "Vi kan ignorere dem. De vil gå lei etter hvert." : "We can ignore them. They'll get bored eventually.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 25);
+                            this.setEmotion('angry', 15);
+                            this.adjustStat('happiness', -15);
+                            this.adjustStat('social', -8);
+                            this.adjustRelationship(2);
+                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - theft, ignored",
+                                positive: false,
+                                choiceType: "passive",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Jeg håper du har rett... Men jeg er redd det bare blir verre. Jeg føler meg så hjelpeløs." : "I hope you're right... But I'm afraid it will just get worse. I feel so helpless.";
+                            this.showDialogue(msg); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: this.language === 'no' ? "De sa at jeg ikke hører hjemme her... At jeg er annerledes. Jeg prøver å ikke bry meg, men det gjør så vondt." : "They said I don't belong here... That I'm different. I try not to care, but it hurts so much.",
+                message: this.language === 'no' ? "Mobbing: Eksklusjon og identitetsangrep." : "Bullying: Exclusion and identity attacks.",
+                choices: [
+                    { 
+                        text: this.language === 'no' ? "Du hører hjemme akkurat hvor du er. Du er perfekt akkurat som du er. La oss finne steder hvor du føler deg velkommen." : "You belong exactly where you are. You're perfect just as you are. Let's find places where you feel welcome.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 20);
+                            this.setEmotion('anxious', -10);
+                            this.setEmotion('happy', 10);
+                            this.adjustStat('happiness', -12);
+                            this.adjustStat('social', -8);
+                            this.adjustRelationship(10);
+                            this.child.resilience = Math.min(100, this.child.resilience + 8);
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - identity attack, affirmed belonging",
+                                positive: true,
+                                choiceType: "affirmation",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Takk... Det hjelper å høre det. Jeg vil prøve å huske at jeg hører hjemme, selv når de sier noe annet." : "Thank you... It helps to hear that. I'll try to remember that I belong, even when they say otherwise.";
+                            this.showDialogue(msg); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: this.language === 'no' ? "Ikke hør på dem. De vet ikke hva de snakker om." : "Don't listen to them. They don't know what they're talking about.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 18);
+                            this.setEmotion('angry', 12);
+                            this.adjustStat('happiness', -10);
+                            this.adjustStat('social', -6);
+                            this.adjustRelationship(3);
+                            this.child.resilience = Math.min(100, this.child.resilience + 3);
+                            const msg = this.language === 'no' ? "Jeg prøver... Men det er vanskelig når de sier det hele tiden." : "I'm trying... But it's hard when they say it all the time.";
+                            this.showDialogue(msg); 
+                        } 
+                    }
+                ]
             }
         ];
         
