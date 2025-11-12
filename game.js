@@ -832,6 +832,9 @@ class MyChildGame {
             }
         }
         
+        // Update action display
+        this.updateActionDisplay();
+        
         // Update time
         document.getElementById('currentDay').textContent = this.day;
         document.getElementById('currentYear').textContent = this.year;
