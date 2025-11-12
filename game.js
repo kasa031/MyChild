@@ -1493,13 +1493,28 @@ class MyChildGame {
     
     updateActionDisplay() {
         const actionInfo = document.getElementById('actionInfo');
-        if (actionInfo) {
+        const actionInfoText = document.getElementById('actionInfoText');
+        if (actionInfo && actionInfoText) {
             const remaining = this.maxActionsPerDay - this.actionsToday;
             const actionText = this.language === 'no' 
                 ? `Handlinger: ${remaining}/${this.maxActionsPerDay}`
                 : `Actions: ${remaining}/${this.maxActionsPerDay}`;
-            actionInfo.textContent = actionText;
-            actionInfo.style.color = remaining < 2 ? '#f44336' : remaining < 3 ? '#ff9800' : '#28a745';
+            actionInfoText.textContent = actionText;
+            
+            // Update color based on remaining actions
+            if (remaining === 0) {
+                actionInfo.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+                actionInfo.style.boxShadow = '0 4px 8px rgba(244, 67, 54, 0.3)';
+            } else if (remaining < 2) {
+                actionInfo.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                actionInfo.style.boxShadow = '0 4px 8px rgba(255, 152, 0, 0.3)';
+            } else if (remaining < 3) {
+                actionInfo.style.background = 'linear-gradient(135deg, #ffc107 0%, #ffb300 100%)';
+                actionInfo.style.boxShadow = '0 4px 8px rgba(255, 193, 7, 0.3)';
+            } else {
+                actionInfo.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                actionInfo.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            }
         }
     }
     
@@ -1522,8 +1537,14 @@ class MyChildGame {
     
     canPerformAction() {
         if (this.actionsToday >= this.maxActionsPerDay) {
-            this.showDialogue("I'm tired... Can we rest? It's been a long day.");
-            this.showMessage("You've used all your actions for today. Go to the next day to continue.");
+            const tiredMsg = this.language === 'no'
+                ? "Jeg er trøtt... Kan vi hvile? Det har vært en lang dag."
+                : "I'm tired... Can we rest? It's been a long day.";
+            const noActionsMsg = this.language === 'no'
+                ? "Du har brukt alle handlingene dine for i dag. Gå til neste dag for å fortsette."
+                : "You've used all your actions for today. Go to the next day to continue.";
+            this.showDialogue(tiredMsg);
+            this.showMessage(noActionsMsg);
             return false;
         }
         return true;

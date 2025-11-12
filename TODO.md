@@ -1,0 +1,282 @@
+# 📋 TODO-liste for MyChild
+
+---
+
+## ✅ FULLFØRT
+
+### Fargepalett og design
+- ✅ Analyser farger i bildene i images-mappen og generer ny fargepalett
+- ✅ Oppdater style.css med ny fargepalett basert på bildene
+
+### Tilgjengelighet
+- ✅ Forbedre tilgjengelighet: ARIA-labels, keyboard navigation, kontrast
+
+### Ytelse
+- ✅ Optimaliser ytelse: lazy loading av bilder, debounce events, cache
+
+### Feilhåndtering
+- ✅ Forbedre feilhåndtering: try-catch blokker, bedre feilmeldinger
+
+### Kodeorganisering
+- ✅ Organiser kode: splitt game.js i moduler, bedre kommentarer
+
+### Responsivt design
+- ✅ Forbedre responsivt design: test på flere enheter, forbedre touch-oppførsel
+
+### Univers-innhold
+- ✅ Fullfør interaktivt innhold for alle universer (skole, lekegrind, matlaging)
+- ✅ Legg til interaktivt innhold for resterende aktiviteter (bad, les, tegne)
+
+### Lagre-indikator
+- ✅ Forbedre lagre-indikator: vis tydelig når spillet lagres, feilhåndtering
+
+### Hjelpesystem
+- ✅ Forbedre hjelpesystem: mer detaljert hjelp, tutorials, tooltips
+
+### Lokalisering
+- ✅ Sjekk at alle tekster er oversatt (norsk og engelsk)
+
+### Bildoptimalisering
+- ✅ Optimaliser bilder: komprimer, konverter til WebP, lazy loading
+
+### Browser-kompatibilitet
+- ✅ Test og fiks kompatibilitet på tvers av nettlesere (Chrome, Firefox, Safari, Edge)
+
+### Mobil-UX
+- ✅ Forbedre mobil-opplevelse: større touch-targets, swipe-gestures, bedre layout
+
+### Arbeidssystem
+- ✅ Arbeidssystem er implementert (work() funksjon finnes, linje 3674)
+- ✅ Forskjellige jobber basert på alder
+- ✅ Jobb koster energi og tid (1 handling)
+- ✅ Tjener penger basert på jobbtype
+
+### Matlaging med ingredienser
+- ✅ Matlaging med ingredienser er implementert
+- ✅ Ingredienser koster penger (verifisert: linje 6984 trekker penger)
+- ✅ Sjekk om spilleren har nok penger før matlaging
+- ✅ Vis pris for hver ingrediens
+
+### Tidssystem (grunnleggende)
+- ✅ Begrenset antall handlinger per dag (5 handlinger, maxActionsPerDay = 5)
+
+### Mobbing-hendelser (grunnleggende)
+- ✅ Mobbing-hendelser er implementert (triggerBullyingEvent, linje 4488)
+- ✅ Mobbing tracking og konsekvenser finnes
+
+### Valg-system (grunnleggende)
+- ✅ Valg-system er implementert med minner (memory array)
+- ✅ Valg har konsekvenser
+
+### Ressurshåndtering (grunnleggende)
+- ✅ Penger-system er implementert (32 treff i kode)
+- ✅ Penger brukes til å kjøpe ingredienser
+
+### Barnets følelser (grunnleggende)
+- ✅ Følelser er implementert (emotionalState objekt)
+- ✅ Følelser påvirkes av handlinger
+
+### Daglig rutine (grunnleggende)
+- ✅ Daglige rutiner er implementert (feed, bathe, play, read)
+- ✅ Tracking av siste gang rutiner ble gjort (lastFed, lastBathed, etc.)
+
+### Stat-system (grunnleggende)
+- ✅ Alle stats finnes (happiness, energy, social, learning, hunger)
+
+### Grafikk (grunnleggende)
+- ✅ SVG-basert karakterrenderer implementert
+- ✅ Forbedrede API-prompter med hand-drawn stil
+- ✅ CSS-animasjoner for personlighet
+- ✅ API-prompter oppdatert for scener
+- ✅ Hover-effekter på scener
+- ✅ Fallback-system med SVG-placeholders
+
+---
+
+## ⚠️ GJENSTÅENDE OPPGAVER
+
+### 🔴 HØY PRIORITET
+
+#### 1. ⏰ Visning av handlinger igjen
+**Status:** Delvis implementert (maxActionsPerDay finnes, men vises ikke tydelig i UI)
+**Må gjøres:**
+- Legg til visuell indikator for hvor mange handlinger som gjenstår
+- Vis dette tydelig i UI (f.eks. "3/5 handlinger igjen")
+- Gjør handlinger mer kostbare
+- Gjør det vanskeligere å gjøre alt på én dag
+- Legg til konsekvenser for å bruke opp alle handlinger
+
+#### 2. 😢 Forbedre mobbing-hendelser (sentralt tema)
+**Status:** Implementert, men kan forbedres betydelig
+**Må gjøres:**
+- Gjør mobbing-hendelser hyppigere (juster sannsynlighet)
+- Gjør konsekvensene mer alvorlige
+- Legg til flere mobbing-scenarier
+- Gjør valg rundt mobbing mer viktige
+- Gjør mobbing mer sentralt i spillet
+
+#### 3. 💬 Forsterk valg-system
+**Status:** Implementert, men konsekvenser kan forsterkes
+**Må gjøres:**
+- Gjør valg mer permanente (minner påvirker allerede, men kan forsterkes)
+- Legg til konsekvenser som varer over flere dager
+- Gjør valg mer vanskelige (ingen perfekte løsninger)
+- Gjør valg mer betydelige for historien
+
+#### 4. 📖 Historisk setting (post-WW2) ⚠️
+**Status:** Mangler - Spillet er satt til 2000-tallet, ikke post-WW2
+**Må gjøres:**
+- Endre setting til post-WW2 Norge (1945-1950)
+- Legg til historiske referanser
+- Endre dialogene til å reflektere tidsperioden
+- Legg til historisk kontekst i hendelser
+- **MERK:** Dette er en stor endring som kan påvirke hele spillet
+
+---
+
+### 🟡 MEDIUM PRIORITET
+
+#### 5. 💰 Forbedre ressurshåndtering
+**Status:** Delvis implementert
+**Må gjøres:**
+- Gjør penger viktigere (må ha penger for mat - delvis implementert)
+- Gjør tid viktigere (ikke nok tid til alt)
+- Valg mellom å jobbe eller tilbringe tid med barnet (jobbsystem finnes, men valget kan være tydeligere)
+- Gjør det vanskeligere å ha nok ressurser
+- Balanser penger, mat og tid bedre
+
+#### 6. 😊 Gjør følelser mer synlige i UI
+**Status:** Delvis implementert (emotionDisplay finnes, men kan forbedres)
+**Må gjøres:**
+- Gjør følelser mer synlige i UI (emotionDisplay finnes, men kan være mer prominent)
+- Legg til flere reaksjoner på valg
+- Gjør følelser mer påvirket av handlinger
+- Legg til visuell feedback for følelser (farger, animasjoner)
+- Partikkeleffekter (f.eks. glitter når karakteren er glad)
+
+#### 7. 🎯 Gjør daglige rutiner mer kritiske
+**Status:** Delvis implementert (tracking finnes)
+**Må gjøres:**
+- Gjør daglige rutiner mer kritiske
+- Legg til konsekvenser for å hoppe over rutiner
+- Gjør rutiner mer kostbare (tid/ressurser)
+- Legg til visuell feedback når rutiner mangler
+- Gjør rutiner mer obligatoriske
+
+#### 8. 📊 Gjør stats mer kritiske
+**Status:** Delvis implementert
+**Må gjøres:**
+- Gjør stats mer kritiske
+- Legg til konsekvenser for lave stats
+- Gjør det vanskeligere å holde stats høye
+- Legg til visuell feedback for kritiske stats
+- Fargepalett endres basert på karakterens følelser
+
+---
+
+### 🟢 LAV PRIORITET
+
+#### 9. 🎨 Grafikk-forbedringer (videreutvikling)
+**Status:** Grunnleggende grafikk er implementert
+**Må gjøres:**
+- Lag flere SVG-hårstiler (krøll, langt, kort, etc.)
+- Legg til flere ansiktsuttrykk i SVG
+- Forbedre scene-SVG-er med mer detaljer
+- Integrer flere API-stiler (vannfarge, akvarell, etc.)
+- Lag custom illustrasjoner for hver hendelse
+- Smoothe overganger mellom scener
+
+#### 10. 📔 Dagbok-system (ny funksjon)
+**Status:** Ikke implementert
+**Må gjøres:**
+- Karakterens dagbok: Karakteren kan skrive i dagbok
+- Auto-genererte minner basert på hendelser
+- Dagboksillustrasjoner for viktige hendelser
+
+#### 11. 👥 Vennsystem (ny funksjon)
+**Status:** Ikke implementert
+**Må gjøres:**
+- Alma og Ole Jacob: De kan være venner i spillet
+- Sosiale aktiviteter: Spill sammen med vennen
+- Støtte: Vennene støtter hverandre gjennom utfordringer
+
+#### 12. 💼 Karriere-voksing (ny funksjon)
+**Status:** Delvis implementert (careerProgress finnes)
+**Må gjøres:**
+- Yrkesvalg: Når karakteren blir eldre, kan hen velge karriere
+- Fremgang: Viser hvordan karakteren vokser fra mobbeoffer til suksess
+- Motivasjon: Inspirerende historier om fremgang
+
+#### 13. 🎮 Minispill (ny funksjon)
+**Status:** Ikke implementert
+**Må gjøres:**
+- Lekespill: Enkle minispill fra 2000-tallet (eller post-WW2 hvis setting endres)
+- Belønninger: Spill minispill for å få ekstra stats
+- Nostalgi: Klassiske spill fra perioden
+
+#### 14. 🔒 Sikkerhetssjekkliste (kontinuerlig)
+**Status:** Sjekkliste finnes i SECURITY.md
+**Må gjøres (kontinuerlig):**
+- Verifiser at api-config.js er i .gitignore
+- Sjekk at api-config.local.js brukes for lokale nøkler
+- Sjekk før hver commit at ingen nøkler er eksponert
+
+---
+
+## 📝 Notater og status
+
+### Fullførte systemer
+- **Arbeidssystem**: ✅ FULLFØRT - `work()` funksjonen er implementert med aldersbaserte jobber
+- **Matlaging**: ✅ FULLFØRT - Ingredienser koster penger og penger trekkes ved matlaging
+- **Grafikk (grunnleggende)**: ✅ FULLFØRT - SVG-renderer, API-prompter, animasjoner
+
+### Delvis implementerte systemer
+- **Tidssystem**: ✅ DELVIS - Handlinger er begrenset, men visning i UI kan forbedres
+- **Mobbing**: ✅ DELVIS - Systemet finnes, men kan gjøres hyppigere og mer alvorlig
+- **Valg-system**: ✅ DELVIS - Minner finnes, men konsekvenser kan forsterkes
+- **Ressurshåndtering**: ✅ DELVIS - Penger finnes, men balanse kan forbedres
+- **Følelser**: ✅ DELVIS - Systemet finnes, men UI-visning kan forbedres
+- **Rutiner**: ✅ DELVIS - Tracking finnes, men konsekvenser kan legges til
+- **Stats**: ✅ DELVIS - Stats finnes, men kan gjøres mer kritiske
+
+### Ikke implementerte systemer
+- **Historisk setting (post-WW2)**: ❌ MANGLER - Spillet er satt til 2000-tallet
+- **Dagbok-system**: ❌ MANGLER
+- **Vennsystem**: ❌ MANGLER
+- **Minispill**: ❌ MANGLER
+
+---
+
+## 🎯 Anbefalt rekkefølge
+
+### Fase 1: Kritiske forbedringer (høy prioritet)
+1. **Visning av handlinger igjen** (raskt å implementere, stor påvirkning)
+2. **Forbedre mobbing-hendelser** (viktig for spillets tema)
+3. **Forsterk valg-system** (gjør spillet mer engasjerende)
+4. **Historisk setting** (stor endring - vurder om dette skal gjøres)
+
+### Fase 2: Forbedringer (medium prioritet)
+5. **Forbedre ressurshåndtering** (balanse)
+6. **Gjør følelser mer synlige** (visuell forbedring)
+7. **Gjør rutiner mer kritiske** (spillmekanikk)
+8. **Gjør stats mer kritiske** (spillmekanikk)
+
+### Fase 3: Nye funksjoner (lav prioritet)
+9. **Grafikk-forbedringer** (visuell polish)
+10. **Dagbok-system** (ny funksjon)
+11. **Vennsystem** (ny funksjon)
+12. **Karriere-voksing** (ny funksjon)
+13. **Minispill** (ny funksjon)
+
+---
+
+## 📊 Oppsummering
+
+- **Total fullført:** 30+ oppgaver
+- **Gjenstående (høy prioritet):** 4 oppgaver
+- **Gjenstående (medium prioritet):** 4 oppgaver
+- **Gjenstående (lav prioritet):** 6 oppgaver
+- **Total gjenstående:** 14 oppgaver
+
+**Fokusområde:** Høy prioritet-oppgavene er kritiske for å gjøre spillet mer likt originalen "Mitt barn: Lebensborn".
+
