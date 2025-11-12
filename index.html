@@ -6,23 +6,23 @@
     <title>MyChild - 2000s Edition</title>
     
     <!-- Favicon and Theme Colors -->
-    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23ff00ff'/><stop offset='50%' style='stop-color:%2300ffff'/><stop offset='100%' style='stop-color:%23ff00ff'/></linearGradient></defs><circle cx='50' cy='50' r='50' fill='url(%23bg)'/><circle cx='50' cy='45' r='25' fill='%23ffdbac'/><circle cx='42' cy='40' r='3' fill='%23000'/><circle cx='58' cy='40' r='3' fill='%23000'/><path d='M 40 50 Q 50 58 60 50' stroke='%23000' stroke-width='2' fill='none'/></svg>">
     <meta name="theme-color" content="#ff00ff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MyChild">
     
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <!-- API Configuration - Load local config if available, otherwise use example -->
     <script>
         // Try to load local API config first (not in git)
         const script = document.createElement('script');
-        script.src = 'api-config.local.js';
+        script.src = 'config/api-config.local.js';
         script.onerror = () => {
             // If local config doesn't exist, load example (will be disabled)
             const exampleScript = document.createElement('script');
-            exampleScript.src = 'api-config.example.js';
+            exampleScript.src = 'config/api-config.example.js';
             document.head.appendChild(exampleScript);
         };
         document.head.appendChild(script);
@@ -32,7 +32,7 @@
     <div class="container">
         <header>
             <div class="sticker-decoration sticker-top-left">
-                <img src="images/sticker2000.jpg" alt="2000s sticker" class="sticker-img" loading="lazy">
+                <img src="assets/images/sticker2000.jpg" alt="2000s sticker" class="sticker-img" loading="lazy">
             </div>
             <div class="header-title-wrapper">
                 <h1>MyChild - 2000s Edition</h1>
@@ -95,7 +95,7 @@
         <div class="game-area">
             <div class="child-status">
                 <div class="sticker-decoration sticker-avatar">
-                    <img src="images/stickerbaby1.jpg" alt="Baby sticker" class="sticker-img-small" loading="lazy">
+                    <img src="assets/images/stickerbaby1.jpg" alt="Baby sticker" class="sticker-img-small" loading="lazy">
                 </div>
                 <div class="child-avatar" 
                      onclick="game.openProfile()" 
@@ -107,11 +107,11 @@
                      style="cursor: pointer;" 
                      id="childAvatar">👶</div>
                 <h2 id="childName">Your Child</h2>
-                <div id="emotionDisplay" style="margin-top: 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-size: 0.9em; display: none;">
+                <div id="emotionDisplay" style="margin-top: 15px; padding: 10px 15px; background: rgba(255,255,255,0.3); border-radius: 15px; font-size: 1.1em; display: none; font-weight: bold; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
                     <span id="emotionText"></span>
                 </div>
                 <div class="sticker-decoration sticker-avatar-bottom">
-                    <img src="images/stickerbaby2.jpg" alt="Baby sticker 2" class="sticker-img-small" loading="lazy">
+                    <img src="assets/images/stickerbaby2.jpg" alt="Baby sticker 2" class="sticker-img-small" loading="lazy">
                 </div>
                 <div class="stats">
                     <div class="stat">
@@ -206,7 +206,7 @@
                     <h3 data-translate="activities">Aktiviteter</h3>
                     <div class="action-buttons">
                         <button class="action-btn" onclick="game.openUniverse('playground')">
-                            <img src="images/playoutside.png" alt="Playground" class="action-icon" loading="lazy"> <span data-translate="playground">Lekegrind</span>
+                            <img src="assets/images/playoutside.png" alt="Playground" class="action-icon" loading="lazy"> <span data-translate="playground">Lekegrind</span>
                         </button>
                         <button class="action-btn" onclick="game.goToLocation('nature')">
                             🌳 <span data-translate="nature">Natur</span>
@@ -225,7 +225,7 @@
                     <h4 data-translate="dailyCare">Daglig omsorg</h4>
                     <div class="routine-buttons">
                         <button class="routine-btn feed-btn" onclick="game.feedChild()">
-                            <img src="images/babybottle.png" alt="Feed" class="action-icon feed-icon" loading="lazy"> <span class="btn-text" data-translate="feed">Fôr</span>
+                            <img src="assets/images/babybottle.png" alt="Feed" class="action-icon feed-icon" loading="lazy"> <span class="btn-text" data-translate="feed">Fôr</span>
                         </button>
                         <button class="routine-btn" onclick="game.batheChild()">🛁 <span data-translate="bathe">Bad</span></button>
                         <button class="routine-btn" onclick="game.playWithChild()">🎮 <span data-translate="play">Lek</span></button>
@@ -265,10 +265,10 @@
                         <button class="routine-btn" onclick="game.playVideoGames()">🎮 <span data-translate="games">Spill</span></button>
                         <button class="routine-btn" onclick="game.quizAboutEmotions()">❓ <span data-translate="quiz">Følelses-quiz</span></button>
                         <button class="routine-btn" onclick="game.listenToMusic()">
-                            <img src="images/cd.png" alt="Music" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="music">Hør musikk</span>
+                            <img src="assets/images/cd.png" alt="Music" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="music">Hør musikk</span>
                         </button>
                         <button class="routine-btn" onclick="game.callFriend()">
-                            <img src="images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="call">Ring venn</span>
+                            <img src="assets/images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="call">Ring venn</span>
                         </button>
                     </div>
                 </div>
@@ -279,7 +279,6 @@
                     <div class="time-info">
                         <span>Day: <span id="currentDay">1</span></span>
                         <span>Time: <span id="currentTime">Morning</span></span>
-                        <span id="actionInfo" style="color: #28a745; font-weight: bold;">Actions: 5/5</span>
                     </div>
                 </div>
             </div>
@@ -288,14 +287,14 @@
 
     <!-- Background Music -->
     <audio id="backgroundMusic" loop playsinline preload="auto">
-        <source src="08 - Free.mp3" type="audio/mpeg">
+        <source src="assets/audio/08 - Free.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
 
-    <script src="character-renderer.js"></script>
+    <script src="js/character-renderer.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/translations.js"></script>
-    <script src="game.js"></script>
+    <script src="js/game.js"></script>
     <script>
         // Check if username is provided, redirect to login if not
         window.addEventListener('DOMContentLoaded', function() {

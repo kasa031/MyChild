@@ -1,8 +1,52 @@
-# API Setup Guide
+# Setup Guide for MyChild
 
-## Hvordan sette opp API for profesjonelle tegninger og animasjoner
+Denne guiden dekker både API-oppsett og GitHub Pages-deployment.
 
-### Steg 1: Velg API-provider
+## 📚 Innholdsfortegnelse
+
+1. [GitHub Pages Deployment](#github-pages-deployment)
+2. [API Setup](#api-setup)
+3. [Sikkerhet](#sikkerhet)
+
+---
+
+## 🌐 GitHub Pages Deployment
+
+### Aktiver GitHub Pages
+
+1. Gå til GitHub-repositoryet: https://github.com/kasa031/MyChild
+2. Klikk på **"Settings"** (øverst i repositoryet)
+3. Scroll ned til **"Pages"** i venstre meny
+4. Under **"Source"**, velg:
+   - Branch: **main**
+   - Folder: **/ (root)**
+5. Klikk **"Save"**
+
+### Spillet vil være tilgjengelig på:
+
+**https://kasa031.github.io/MyChild/**
+
+### Del lenken
+
+Etter at GitHub Pages er aktivert (kan ta 1-2 minutter), kan du dele denne lenken:
+
+**https://kasa031.github.io/MyChild/**
+
+Spillet vil fungere direkte i nettleseren - ingen nedlasting eller installasjon nødvendig!
+
+### Tips
+
+- Oppdateringer pushes automatisk til GitHub Pages
+- Det kan ta 1-2 minutter før endringer er synlige
+- Spillet fungerer på alle enheter (PC, tablet, mobil)
+
+---
+
+## 🎨 API Setup
+
+### Hvordan sette opp API for profesjonelle tegninger og animasjoner
+
+#### Steg 1: Velg API-provider
 
 Spillet støtter flere API-providers:
 - **OpenAI DALL-E** - For profesjonelle illustrasjoner
@@ -10,9 +54,9 @@ Spillet støtter flere API-providers:
 - **Lottie** - For animasjoner
 - **Custom API** - Din egen API
 
-### Steg 2: Konfigurer API
+#### Steg 2: Konfigurer API
 
-Åpne `api-config.js` og fyll ut:
+Åpne `config/api-config.js` (eller `config/api-config.local.js` for lokale nøkler) og fyll ut:
 
 ```javascript
 imageAPI: {
@@ -24,11 +68,11 @@ imageAPI: {
 }
 ```
 
-### Steg 3: Implementer API-kall
+#### Steg 3: Implementer API-kall
 
-I `api-config.js`, implementer funksjonene basert på din API:
+I `config/api-config.js`, implementer funksjonene basert på din API:
 
-#### For DALL-E (OpenAI):
+##### For DALL-E (OpenAI):
 ```javascript
 callDALLE: async function(prompt) {
     const response = await fetch('https://api.openai.com/v1/images/generations', {
@@ -48,7 +92,7 @@ callDALLE: async function(prompt) {
 }
 ```
 
-#### For Custom API:
+##### For Custom API:
 ```javascript
 callCustomAPI: async function(prompt, location) {
     const response = await fetch(`${this.baseURL}/generate`, {
@@ -68,7 +112,7 @@ callCustomAPI: async function(prompt, location) {
 }
 ```
 
-### Steg 4: Aktiver animasjoner (valgfritt)
+#### Steg 4: Aktiver animasjoner (valgfritt)
 
 For animasjoner, konfigurer `animationAPI`:
 
@@ -139,15 +183,7 @@ imageAPI: {
 }
 ```
 
-## Sikkerhet
-
-⚠️ **VIKTIG**: Ikke legg `api-config.js` med API-nøkler i GitHub hvis repositoryet er public!
-
-1. Legg til `api-config.js` i `.gitignore`
-2. Opprett `api-config.example.js` som mal
-3. Bruk miljøvariabler eller server-side proxy for produksjon
-
-## Testing
+### Testing
 
 Etter konfigurasjon, test API-et:
 
@@ -155,10 +191,22 @@ Etter konfigurasjon, test API-et:
 2. Sjekk at `APIConfig.imageAPI.enabled === true`
 3. Spillet vil automatisk bruke API for bilder
 
-## Hjelp
+### Hjelp
 
 Hvis du har spørsmål om din spesifikke API, gi meg:
 - API-navn/provider
 - API-dokumentasjon URL
 - Din API-nøkkel (hvis du vil ha hjelp med implementasjon)
+
+---
+
+## 🔒 Sikkerhet
+
+⚠️ **VIKTIG**: Ikke legg `config/api-config.js` med API-nøkler i GitHub hvis repositoryet er public!
+
+1. Legg til `config/api-config.js` i `.gitignore`
+2. Opprett `config/api-config.example.js` som mal
+3. Bruk miljøvariabler eller server-side proxy for produksjon
+
+Se [SECURITY.md](SECURITY.md) for detaljerte sikkerhetsregler.
 

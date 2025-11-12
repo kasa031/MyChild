@@ -2,6 +2,36 @@
 
 Et livssimulasjonsspill inspirert av "Mitt barn, livets børn" men med mindre fokus på mobbing og handlingen satt på 2000-tallet.
 
+## 📁 Prosjektstruktur
+
+```
+MyChild/
+├── index.html              # Hovedspillside
+├── login.html              # Innloggingsside
+├── css/
+│   └── style.css           # Hovedstilark
+├── js/
+│   ├── game.js             # Hovedspilllogikk
+│   ├── character-renderer.js # Karakterrendering
+│   ├── translations.js     # Oversettelsessystem
+│   └── utils.js            # Hjelpefunksjoner og polyfills
+├── assets/
+│   ├── images/             # Spillbilder
+│   ├── audio/              # Lydfiler
+│   ├── animations/         # Animasjoner (GIF)
+│   ├── favicon.ico         # Favicon
+│   └── favicon.svg         # Favicon (SVG)
+├── config/
+│   ├── api-config.example.js  # API-konfigurasjonsmal
+│   ├── api-config.js       # API-konfigurasjon (ikke i git)
+│   └── api-config.local.js # Lokal API-konfigurasjon (ikke i git)
+└── docs/
+    ├── README.md           # Denne filen
+    ├── SETUP.md            # Oppsettsguide (API + GitHub Pages)
+    ├── SECURITY.md         # Sikkerhetsregler
+    └── TODO.md             # Oppgaveliste
+```
+
 ## 🌐 Spill spillet online
 
 **Spill nå:** https://kasa031.github.io/MyChild/
@@ -46,12 +76,12 @@ Et livssimulasjonsspill inspirert av "Mitt barn, livets børn" men med mindre fo
 
 **VIKTIG:** Dette prosjektet bruker API-nøkler. For å beskytte dine nøkler:
 
-1. **Aldri committ `api-config.js`** - Denne filen er i `.gitignore`
-2. **Bruk `api-config.local.js`** for lokale nøkler (også i .gitignore)
-3. **Se `SECURITY.md`** for detaljerte sikkerhetsregler
+1. **Aldri committ `config/api-config.js`** - Denne filen er i `.gitignore`
+2. **Bruk `config/api-config.local.js`** for lokale nøkler (også i .gitignore)
+3. **Se `docs/SECURITY.md`** for detaljerte sikkerhetsregler
 4. **Hvis du har committet en nøkkel ved feil:** Rotér nøkkelen umiddelbart hos API-leverandøren
 
-Les mer i [SECURITY.md](SECURITY.md)
+Les mer i [docs/SECURITY.md](SECURITY.md)
 
 ## Spesielle funksjoner (likt originalen)
 
@@ -124,26 +154,26 @@ Genererte bilder caches automatisk for å unngå unødvendige API-kall.
 
 Spillet støtter også manuelt lagt til bilder for scener:
 
-1. **Legg bildene i `images`-mappen:**
-   - `images/home.jpg` - Bilde av hjemmet
-   - `images/school.jpg` - Bilde av skolen  
-   - `images/playground.jpg` - Bilde av lekegrind
-   - `images/friend.jpg` - Bilde av venners hus
+1. **Legg bildene i `assets/images`-mappen:**
+   - `assets/images/home.jpg` - Bilde av hjemmet
+   - `assets/images/school.jpg` - Bilde av skolen  
+   - `assets/images/playground.jpg` - Bilde av lekegrind
+   - `assets/images/friend.jpg` - Bilde av venners hus
 
 2. **Aktiver bildene på en av disse måtene:**
 
    **Alternativ 1: Via nettleserens konsoll (F12)**
    ```javascript
-   game.setSceneImage('home', 'images/home.jpg');
-   game.setSceneImage('school', 'images/school.jpg');
-   game.setSceneImage('playground', 'images/playground.jpg');
-   game.setSceneImage('friend', 'images/friend.jpg');
+   game.setSceneImage('home', 'assets/images/home.jpg');
+   game.setSceneImage('school', 'assets/images/school.jpg');
+   game.setSceneImage('playground', 'assets/images/playground.jpg');
+   game.setSceneImage('friend', 'assets/images/friend.jpg');
    ```
 
    **Alternativ 2: Rediger game.js direkte**
    I `locations`-objektet (linje ~20), endre:
    ```javascript
-   home: { name: "Home", emoji: "🏠", color: "#ffb3ba", image: "images/home.jpg" },
+   home: { name: "Home", emoji: "🏠", color: "#ffb3ba", image: "assets/images/home.jpg" },
    ```
 
 **Bildestørrelse:** Anbefalt 800x600px eller større for best kvalitet.

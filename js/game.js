@@ -85,6 +85,7 @@ class MyChildGame {
         this.dialogueQueue = savedGame ? savedGame.dialogueQueue : [];
         this.actionsToday = savedGame ? savedGame.actionsToday : 0;
         this.maxActionsPerDay = 5; // Like original - limited actions per day (reduced from 6 to make it more challenging)
+        this.consequencesAppliedToday = false; // Track if exhaustion consequences have been applied today
         this.memory = savedGame ? savedGame.memory : []; // Track important events and choices
         this.relationship = savedGame ? savedGame.relationship : 50; // Relationship strength (hidden stat)
             this.bullyingIncidents = savedGame ? savedGame.bullyingIncidents : 0; // Track bullying incidents
@@ -111,11 +112,11 @@ class MyChildGame {
         };
         
         this.locations = {
-            home: { name: "Home", color: "#ffb3ba", image: "images/home.jpg", usePlaceholder: false },
-            school: { name: "School", color: "#bae1ff", image: "images/school.jpg", usePlaceholder: false },
-            playground: { name: "Playground", color: "#baffc9", image: "images/playground.jpg", usePlaceholder: false },
-            friend: { name: "Friend's House", color: "#ffffba", image: "images/friend.jpg", usePlaceholder: false },
-            nature: { name: "Nature", color: "#90EE90", image: "images/nature.jpg", usePlaceholder: false }
+            home: { name: "Home", color: "#ffb3ba", image: "assets/images/home.jpg", usePlaceholder: false },
+            school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
+            playground: { name: "Playground", color: "#baffc9", image: "assets/images/playground.jpg", usePlaceholder: false },
+            friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
+            nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: false }
         };
         
         // Try to load images automatically (async)
@@ -948,8 +949,8 @@ class MyChildGame {
         // Check if we should use real photos (for older children)
         if (this.child.age >= 3) {
             const photoPath = this.child.gender === 'girl' 
-                ? 'images/girlcloseuppicture.png' 
-                : 'images/boycloseuppicture.png';
+                ? 'assets/images/girlcloseuppicture.png' 
+                : 'assets/images/boycloseuppicture.png';
             
             // Only use photo if avatar is currently emoji
             if (avatar.textContent && !avatar.querySelector('img')) {
@@ -1024,16 +1025,17 @@ class MyChildGame {
     }
     
     updateEmotionDisplay() {
-        // Show child's current emotion (like original game)
+        // Show child's current emotion (like original game) - ENHANCED
         const emotionDisplay = document.getElementById('emotionDisplay');
         const emotionText = document.getElementById('emotionText');
+        const childAvatar = document.getElementById('childAvatar');
         
         if (!emotionDisplay || !emotionText) return;
         
         const emotions = this.child.emotionalState;
         const maxEmotion = Object.entries(emotions).reduce((a, b) => emotions[a[0]] > emotions[b[1]] ? a : b);
         
-        if (maxEmotion[1] > 30) {
+        if (maxEmotion[1] > 20) { // Lowered threshold from 30 to 20 for more visibility
             const emotionNames = {
                 happy: this.language === 'no' ? '😊 Glad' : '😊 Happy',
                 sad: this.language === 'no' ? '😢 Lei seg' : '😢 Sad',
@@ -1042,24 +1044,75 @@ class MyChildGame {
                 anxious: this.language === 'no' ? '😰 Engstelig' : '😰 Anxious',
                 surprised: this.language === 'no' ? '😲 Overrasket' : '😲 Surprised',
                 embarrassed: this.language === 'no' ? '😳 Flau' : '😳 Embarrassed',
-                curious: this.language === 'no' ? '🤔 Nysgjerrig' : '🤔 Curious'
+                curious: this.language === 'no' ? '🤔 Nysgjerrig' : '🤔 Curious',
+                tired: this.language === 'no' ? '😴 Trøtt' : '😴 Tired',
+                lonely: this.language === 'no' ? '😔 Ensom' : '😔 Lonely'
             };
             
-            emotionText.textContent = emotionNames[maxEmotion[0]] || maxEmotion[0];
+            const emotionName = maxEmotion[0];
+            const intensity = maxEmotion[1];
+            const intensityText = intensity > 70 ? (this.language === 'no' ? ' (Sterkt)' : ' (Strong)') : 
+                                 intensity > 50 ? (this.language === 'no' ? ' (Moderat)' : ' (Moderate)') : '';
+            
+            emotionText.textContent = (emotionNames[emotionName] || emotionName) + intensityText;
             emotionDisplay.style.display = 'block';
             
-            // Color based on emotion
-            if (maxEmotion[0] === 'happy' || maxEmotion[0] === 'curious') {
-                emotionDisplay.style.background = 'rgba(76, 175, 80, 0.3)';
-            } else if (maxEmotion[0] === 'sad' || maxEmotion[0] === 'anxious') {
-                emotionDisplay.style.background = 'rgba(33, 150, 243, 0.3)';
-            } else if (maxEmotion[0] === 'angry' || maxEmotion[0] === 'scared') {
-                emotionDisplay.style.background = 'rgba(244, 67, 54, 0.3)';
+            // Enhanced visual feedback based on emotion and intensity
+            const intensityMultiplier = Math.min(1.5, 1 + (intensity / 100));
+            
+            // Color, size, and animation based on emotion
+            if (emotionName === 'happy' || emotionName === 'curious' || emotionName === 'surprised') {
+                emotionDisplay.style.background = `linear-gradient(135deg, rgba(76, 175, 80, ${0.4 * intensityMultiplier}), rgba(129, 199, 132, ${0.3 * intensityMultiplier}))`;
+                emotionDisplay.style.boxShadow = `0 4px 15px rgba(76, 175, 80, ${0.4 * intensityMultiplier})`;
+                emotionDisplay.style.animation = 'emotionGlow 2s ease-in-out infinite';
+                emotionDisplay.style.border = `2px solid rgba(76, 175, 80, ${0.6 * intensityMultiplier})`;
+                if (childAvatar) {
+                    childAvatar.setAttribute('data-emotion', 'happy');
+                    childAvatar.style.filter = 'brightness(1.1)';
+                }
+            } else if (emotionName === 'sad' || emotionName === 'anxious' || emotionName === 'lonely') {
+                emotionDisplay.style.background = `linear-gradient(135deg, rgba(33, 150, 243, ${0.4 * intensityMultiplier}), rgba(100, 181, 246, ${0.3 * intensityMultiplier}))`;
+                emotionDisplay.style.boxShadow = `0 4px 15px rgba(33, 150, 243, ${0.4 * intensityMultiplier})`;
+                emotionDisplay.style.animation = 'emotionPulse 2.5s ease-in-out infinite';
+                emotionDisplay.style.border = `2px solid rgba(33, 150, 243, ${0.6 * intensityMultiplier})`;
+                if (childAvatar) {
+                    childAvatar.setAttribute('data-emotion', 'sad');
+                    childAvatar.style.filter = 'brightness(0.9) saturate(0.8)';
+                }
+            } else if (emotionName === 'angry' || emotionName === 'scared') {
+                emotionDisplay.style.background = `linear-gradient(135deg, rgba(244, 67, 54, ${0.5 * intensityMultiplier}), rgba(239, 83, 80, ${0.4 * intensityMultiplier}))`;
+                emotionDisplay.style.boxShadow = `0 4px 15px rgba(244, 67, 54, ${0.5 * intensityMultiplier})`;
+                emotionDisplay.style.animation = 'emotionShake 1s ease-in-out infinite';
+                emotionDisplay.style.border = `2px solid rgba(244, 67, 54, ${0.7 * intensityMultiplier})`;
+                if (childAvatar) {
+                    childAvatar.setAttribute('data-emotion', 'angry');
+                    childAvatar.style.filter = 'brightness(1.05) saturate(1.2)';
+                }
+            } else if (emotionName === 'tired') {
+                emotionDisplay.style.background = `linear-gradient(135deg, rgba(158, 158, 158, ${0.4 * intensityMultiplier}), rgba(189, 189, 189, ${0.3 * intensityMultiplier}))`;
+                emotionDisplay.style.boxShadow = `0 4px 15px rgba(158, 158, 158, ${0.3 * intensityMultiplier})`;
+                emotionDisplay.style.animation = 'emotionFade 3s ease-in-out infinite';
+                emotionDisplay.style.border = `2px solid rgba(158, 158, 158, ${0.5 * intensityMultiplier})`;
+                if (childAvatar) {
+                    childAvatar.setAttribute('data-emotion', 'tired');
+                    childAvatar.style.filter = 'brightness(0.85)';
+                }
             } else {
-                emotionDisplay.style.background = 'rgba(255, 255, 255, 0.3)';
+                emotionDisplay.style.background = `linear-gradient(135deg, rgba(255, 255, 255, ${0.4 * intensityMultiplier}), rgba(245, 245, 245, ${0.3 * intensityMultiplier}))`;
+                emotionDisplay.style.boxShadow = `0 4px 15px rgba(0, 0, 0, ${0.2 * intensityMultiplier})`;
+                emotionDisplay.style.border = `2px solid rgba(200, 200, 200, ${0.5 * intensityMultiplier})`;
             }
+            
+            // Make display more prominent
+            emotionDisplay.style.fontSize = `${0.95 + (intensity / 200)}em`; // Scale with intensity
+            emotionDisplay.style.fontWeight = intensity > 60 ? 'bold' : 'normal';
+            emotionDisplay.style.padding = `${8 + (intensity / 20)}px ${12 + (intensity / 15)}px`;
         } else {
             emotionDisplay.style.display = 'none';
+            if (childAvatar) {
+                childAvatar.removeAttribute('data-emotion');
+                childAvatar.style.filter = '';
+            }
         }
     }
     
@@ -1237,7 +1290,7 @@ class MyChildGame {
                     this.updateScene().catch(e => console.log('Scene update error:', e));
                 }
             };
-            img.src = `images/${imgName}`;
+            img.src = `assets/images/${imgName}`;
         });
         
         // Preload critical images after checking
@@ -1505,23 +1558,43 @@ class MyChildGame {
         if (actionInfo && actionInfoText) {
             const remaining = this.maxActionsPerDay - this.actionsToday;
             const actionText = this.language === 'no' 
-                ? `Handlinger: ${remaining}/${this.maxActionsPerDay}`
-                : `Actions: ${remaining}/${this.maxActionsPerDay}`;
+                ? `⚡ Handlinger igjen: ${remaining}/${this.maxActionsPerDay}`
+                : `⚡ Actions remaining: ${remaining}/${this.maxActionsPerDay}`;
             actionInfoText.textContent = actionText;
             
-            // Update color based on remaining actions
+            // Update color, size, and animation based on remaining actions
             if (remaining === 0) {
                 actionInfo.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
-                actionInfo.style.boxShadow = '0 4px 8px rgba(244, 67, 54, 0.3)';
-            } else if (remaining < 2) {
+                actionInfo.style.boxShadow = '0 6px 12px rgba(244, 67, 54, 0.5)';
+                actionInfo.style.animation = 'pulse 1.5s ease-in-out infinite';
+                actionInfo.style.fontSize = '1.3em';
+                actionInfo.style.padding = '16px 24px';
+                actionInfo.style.border = '3px solid #ff5252';
+                // Add warning icon
+                actionInfoText.textContent = this.language === 'no'
+                    ? '⚠️ Alle handlinger brukt opp! Gå til neste dag.'
+                    : '⚠️ All actions used! Go to next day.';
+            } else if (remaining === 1) {
+                actionInfo.style.background = 'linear-gradient(135deg, #ff5722 0%, #e64a19 100%)';
+                actionInfo.style.boxShadow = '0 5px 10px rgba(255, 87, 34, 0.4)';
+                actionInfo.style.animation = 'pulse 2s ease-in-out infinite';
+                actionInfo.style.fontSize = '1.25em';
+                actionInfo.style.padding = '14px 22px';
+                actionInfo.style.border = '2px solid #ff7043';
+            } else if (remaining < 3) {
                 actionInfo.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
                 actionInfo.style.boxShadow = '0 4px 8px rgba(255, 152, 0, 0.3)';
-            } else if (remaining < 3) {
-                actionInfo.style.background = 'linear-gradient(135deg, #ffc107 0%, #ffb300 100%)';
-                actionInfo.style.boxShadow = '0 4px 8px rgba(255, 193, 7, 0.3)';
+                actionInfo.style.animation = 'none';
+                actionInfo.style.fontSize = '1.15em';
+                actionInfo.style.padding = '12px 20px';
+                actionInfo.style.border = '2px solid #ffb74d';
             } else {
                 actionInfo.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 actionInfo.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                actionInfo.style.animation = 'none';
+                actionInfo.style.fontSize = '1.1em';
+                actionInfo.style.padding = '12px 20px';
+                actionInfo.style.border = '2px solid rgba(255,255,255,0.3)';
             }
         }
     }
@@ -1546,16 +1619,40 @@ class MyChildGame {
     canPerformAction() {
         if (this.actionsToday >= this.maxActionsPerDay) {
             const tiredMsg = this.language === 'no'
-                ? "Jeg er trøtt... Kan vi hvile? Det har vært en lang dag."
-                : "I'm tired... Can we rest? It's been a long day.";
+                ? "Jeg er så trøtt... Jeg kan ikke gjøre mer i dag. Jeg trenger hvile."
+                : "I'm so tired... I can't do more today. I need to rest.";
             const noActionsMsg = this.language === 'no'
-                ? "Du har brukt alle handlingene dine for i dag. Gå til neste dag for å fortsette."
-                : "You've used all your actions for today. Go to the next day to continue.";
+                ? "⚠️ Du har brukt alle handlingene dine for i dag! Gå til neste dag for å fortsette. Barnet blir trøtt og stats kan synke hvis du prøver å gjøre for mye."
+                : "⚠️ You've used all your actions for today! Go to the next day to continue. The child gets tired and stats may decrease if you try to do too much.";
+            
+            // Apply consequences for using all actions
+            if (!this.consequencesAppliedToday) {
+                this.applyActionExhaustionConsequences();
+                this.consequencesAppliedToday = true;
+            }
+            
             this.showDialogue(tiredMsg);
             this.showMessage(noActionsMsg);
             return false;
         }
         return true;
+    }
+    
+    applyActionExhaustionConsequences() {
+        // Child gets tired from too many actions
+        this.adjustStat('energy', -5);
+        this.adjustStat('happiness', -3);
+        
+        // Update emotional state
+        if (this.child.energy < 30) {
+            this.setEmotion('tired');
+        }
+        
+        const exhaustionMsg = this.language === 'no'
+            ? "Barnet er utmattet etter en lang dag. Energi og lykke redusert."
+            : "The child is exhausted after a long day. Energy and happiness reduced.";
+        
+        console.log(exhaustionMsg);
     }
     
     performAction() {
@@ -1832,7 +1929,7 @@ class MyChildGame {
         const sceneImage = document.getElementById('sceneImage');
         if (sceneImage && this.child.age < 3) {
             const sleepingImg = document.createElement('img');
-            sleepingImg.src = 'images/sleepingbaby.jpg';
+            sleepingImg.src = 'assets/images/sleepingbaby.jpg';
             sleepingImg.alt = 'Sleeping baby';
             sleepingImg.style.width = '100%';
             sleepingImg.style.height = '100%';
@@ -1876,7 +1973,7 @@ class MyChildGame {
             const sceneImage = document.getElementById('sceneImage');
             if (sceneImage && this.child.age < 3) {
                 const sleepingImg = document.createElement('img');
-                sleepingImg.src = 'images/sleepingbaby.jpg';
+                sleepingImg.src = 'assets/images/sleepingbaby.jpg';
                 sleepingImg.alt = 'Sleeping baby';
                 sleepingImg.style.width = '100%';
                 sleepingImg.style.height = '100%';
@@ -3418,7 +3515,7 @@ class MyChildGame {
         const sceneImage = document.getElementById('sceneImage');
         if (sceneImage) {
             const cdImg = document.createElement('img');
-            cdImg.src = 'images/cd.png';
+            cdImg.src = 'assets/images/cd.png';
             cdImg.alt = 'CD Player';
             cdImg.style.width = '100%';
             cdImg.style.height = '100%';
@@ -3494,7 +3591,7 @@ class MyChildGame {
         const sceneImage = document.getElementById('sceneImage');
         if (sceneImage) {
             const phoneImg = document.createElement('img');
-            phoneImg.src = 'images/nokiaphone.png';
+            phoneImg.src = 'assets/images/nokiaphone.png';
             phoneImg.alt = 'Nokia Phone';
             phoneImg.style.width = '100%';
             phoneImg.style.height = '100%';
@@ -4195,6 +4292,7 @@ class MyChildGame {
         this.day++;
         this.timeOfDay = 0;
         this.actionsToday = 0; // Reset actions for new day
+        this.consequencesAppliedToday = false; // Reset consequences flag
         
         // Age progression
         if (this.day % 30 === 0) {
@@ -4565,27 +4663,35 @@ class MyChildGame {
         // Higher chance at school, but can happen anywhere
         let bullyingChance = 0;
         if (this.currentLocation === 'school') {
-            // Much higher chance at school (like original) - INCREASED
-            bullyingChance = this.child.resilience < 50 ? 0.75 : 0.55;
+            // Much higher chance at school (like original) - FURTHER INCREASED
+            bullyingChance = this.child.resilience < 50 ? 0.85 : 0.65; // Increased from 0.75/0.55
         } else if (this.currentLocation === 'playground') {
-            // Can also happen at playground - INCREASED
-            bullyingChance = this.child.resilience < 50 ? 0.55 : 0.35;
+            // Can also happen at playground - FURTHER INCREASED
+            bullyingChance = this.child.resilience < 50 ? 0.65 : 0.45; // Increased from 0.55/0.35
         } else {
-            // Lower chance elsewhere, but still possible - INCREASED
-            bullyingChance = this.child.resilience < 30 ? 0.3 : 0.15;
+            // Lower chance elsewhere, but still possible - FURTHER INCREASED
+            bullyingChance = this.child.resilience < 30 ? 0.4 : 0.2; // Increased from 0.3/0.15
         }
         
-        // More frequent if child is older (school age) - INCREASED MULTIPLIER
+        // More frequent if child is older (school age) - FURTHER INCREASED MULTIPLIER
         if (this.child.age >= 7) {
-            bullyingChance *= 1.8;
+            bullyingChance *= 2.0; // Increased from 1.8
+        }
+        if (this.child.age >= 10) {
+            bullyingChance *= 1.3; // Even more frequent for older children
         }
         
-        // More frequent if child has been bullied recently (trauma effect)
+        // More frequent if child has been bullied recently (trauma effect) - STRONGER
         const recentBullying = this.memory.filter(m => 
             m.event && m.event.includes("Bullying") && (this.day - m.day) < 5
         ).length;
         if (recentBullying > 0) {
-            bullyingChance *= (1 + recentBullying * 0.2); // 20% increase per recent incident
+            bullyingChance *= (1 + recentBullying * 0.25); // Increased from 0.2 to 0.25 (25% increase per recent incident)
+        }
+        
+        // If child has low resilience, bullying is even more likely
+        if (this.child.resilience < 30) {
+            bullyingChance *= 1.4; // 40% more likely if resilience is very low
         }
         
         // Check for bullying first (more important than narrative events)
@@ -4984,6 +5090,106 @@ class MyChildGame {
                             this.adjustRelationship(3);
                             this.child.resilience = Math.min(100, this.child.resilience + 3);
                             const msg = this.language === 'no' ? "Jeg prøver... Men det er vanskelig når de sier det hele tiden." : "I'm trying... But it's hard when they say it all the time.";
+                            this.showDialogue(msg); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: this.language === 'no' ? "De laget en gruppe uten meg i dag... Alle andre var med, bare ikke jeg. Jeg føler meg så utenfor." : "They made a group without me today... Everyone else was included, just not me. I feel so left out.",
+                message: this.language === 'no' ? "Mobbing: Sosial eksklusjon og gruppepress." : "Bullying: Social exclusion and group pressure.",
+                choices: [
+                    { 
+                        text: this.language === 'no' ? "Jeg forstår hvor vondt det gjør. La oss finne andre som verdsetter deg for den du er." : "I understand how much that hurts. Let's find others who value you for who you are.", 
+                        effect: () => { 
+                            this.setEmotion('sad', 22);
+                            this.setEmotion('lonely', 20);
+                            this.setEmotion('anxious', 15);
+                            this.adjustStat('happiness', -18);
+                            this.adjustStat('social', -12);
+                            this.adjustRelationship(8);
+                            this.child.resilience = Math.min(100, this.child.resilience + 5);
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - exclusion, found support",
+                                positive: true,
+                                choiceType: "supportive_listening",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Takk... Jeg håper jeg kan finne venner som ser meg for den jeg er. Det er så vanskelig å være alene." : "Thank you... I hope I can find friends who see me for who I am. It's so hard to be alone.";
+                            this.showDialogue(msg); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: this.language === 'no' ? "Kanskje du kan prøve å være mer som dem, så de vil ha deg med?" : "Maybe you can try to be more like them, so they'll want you?", 
+                        effect: () => { 
+                            this.setEmotion('sad', 25);
+                            this.setEmotion('lonely', 22);
+                            this.setEmotion('anxious', 20);
+                            this.adjustStat('happiness', -20);
+                            this.adjustStat('social', -15);
+                            this.adjustRelationship(-5); // Negative impact - wrong approach
+                            this.child.resilience = Math.min(100, this.child.resilience - 2); // Actually reduces resilience
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - exclusion, told to change self",
+                                positive: false,
+                                choiceType: "dismissive",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Jeg prøver... Men jeg føler at jeg må skjule den jeg er. Det gjør meg så trist. Jeg vil bare være meg selv." : "I'm trying... But I feel like I have to hide who I am. It makes me so sad. I just want to be myself.";
+                            this.showDialogue(msg); 
+                        } 
+                    }
+                ]
+            },
+            {
+                dialogue: this.language === 'no' ? "De sendte en slem melding til meg på internett i dag... Jeg visste ikke hva jeg skulle gjøre. Det føltes så skummelt." : "They sent me a mean message online today... I didn't know what to do. It felt so scary.",
+                message: this.language === 'no' ? "Mobbing: Digital mobbing og cyberbullying." : "Bullying: Digital bullying and cyberbullying.",
+                choices: [
+                    { 
+                        text: this.language === 'no' ? "Dette er ikke greit. La oss dokumentere dette og snakke med en voksen sammen. Du er ikke alene." : "This is not okay. Let's document this and talk to an adult together. You're not alone.", 
+                        effect: () => { 
+                            this.setEmotion('scared', 25);
+                            this.setEmotion('anxious', 20);
+                            this.setEmotion('sad', 15);
+                            this.adjustStat('happiness', -20);
+                            this.adjustStat('social', -12);
+                            this.adjustStat('energy', -10);
+                            this.adjustRelationship(10);
+                            this.child.resilience = Math.min(100, this.child.resilience + 7);
+                            this.child.teacherInvolved = true;
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - cyberbullying, got help",
+                                positive: true,
+                                choiceType: "seeking_help",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Takk... Jeg er redd, men jeg føler meg tryggere når du er med meg. La oss gjøre noe sammen." : "Thank you... I'm scared, but I feel safer when you're with me. Let's do something together.";
+                            this.showDialogue(msg); 
+                            this.saveGame();
+                        } 
+                    },
+                    { 
+                        text: this.language === 'no' ? "Prøv å ignorere det. Det vil gå over." : "Try to ignore it. It will pass.", 
+                        effect: () => { 
+                            this.setEmotion('scared', 20);
+                            this.setEmotion('anxious', 18);
+                            this.setEmotion('sad', 15);
+                            this.adjustStat('happiness', -15);
+                            this.adjustStat('social', -10);
+                            this.adjustRelationship(2);
+                            this.child.resilience = Math.min(100, this.child.resilience + 1);
+                            this.memory.push({
+                                day: this.day,
+                                event: "Bullying - cyberbullying, ignored",
+                                positive: false,
+                                choiceType: "passive",
+                                lastingEffect: true
+                            });
+                            const msg = this.language === 'no' ? "Jeg prøver... Men det er så vanskelig å ignorere når det er der hele tiden. Jeg føler meg så hjelpeløs." : "I'm trying... But it's so hard to ignore when it's there all the time. I feel so helpless.";
                             this.showDialogue(msg); 
                         } 
                     }

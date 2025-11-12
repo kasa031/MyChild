@@ -67,6 +67,7 @@
 ### Valg-system (grunnleggende)
 - ✅ Valg-system er implementert med minner (memory array)
 - ✅ Valg har konsekvenser
+- ✅ Varige konsekvenser implementert (applyLastingChoiceEffects(), trustLevel)
 
 ### Ressurshåndtering (grunnleggende)
 - ✅ Penger-system er implementert (32 treff i kode)
@@ -98,30 +99,32 @@
 ### 🔴 HØY PRIORITET
 
 #### 1. ⏰ Visning av handlinger igjen
-**Status:** Delvis implementert (maxActionsPerDay finnes, men vises ikke tydelig i UI)
-**Må gjøres:**
-- Legg til visuell indikator for hvor mange handlinger som gjenstår
-- Vis dette tydelig i UI (f.eks. "3/5 handlinger igjen")
-- Gjør handlinger mer kostbare
-- Gjør det vanskeligere å gjøre alt på én dag
-- Legg til konsekvenser for å bruke opp alle handlinger
+**Status:** ✅ FULLFØRT
+**Gjort:**
+- ✅ Forbedret visuell indikator med større tekst, farger og animasjoner
+- ✅ Legg til pulserende animasjon når handlinger er oppbrukt eller nær oppbrukt
+- ✅ Konsekvenser implementert: Energi og lykke reduseres når alle handlinger er brukt
+- ✅ Mer prominent visning med større tekst og tydelige farger
+- ✅ Fjernet duplikat i time-control området
 
 #### 2. 😢 Forbedre mobbing-hendelser (sentralt tema)
-**Status:** Implementert, men kan forbedres betydelig
-**Må gjøres:**
-- Gjør mobbing-hendelser hyppigere (juster sannsynlighet)
-- Gjør konsekvensene mer alvorlige
-- Legg til flere mobbing-scenarier
-- Gjør valg rundt mobbing mer viktige
-- Gjør mobbing mer sentralt i spillet
+**Status:** ✅ FORBEDRET
+**Gjort:**
+- ✅ Økt sannsynlighet for mobbing betydelig (85% ved skole for lav resilience, 65% for høy)
+- ✅ Økt multiplikator for eldre barn (2.0x for 7+, 1.3x ekstra for 10+)
+- ✅ Styrket trauma-effekt (25% økning per nylig hendelse, opp fra 20%)
+- ✅ Lagt til ekstra sannsynlighet for lav resilience (40% ekstra)
+- ✅ Lagt til nye mobbing-scenarier: Sosial eksklusjon og digital mobbing
+- ✅ Gjort konsekvensene mer alvorlige i flere scenarier
+- ✅ Valg rundt mobbing påvirker allerede fremtidige hendelser (trustLevel, lastingEffect)
 
 #### 3. 💬 Forsterk valg-system
-**Status:** Implementert, men konsekvenser kan forsterkes
-**Må gjøres:**
-- Gjør valg mer permanente (minner påvirker allerede, men kan forsterkes)
-- Legg til konsekvenser som varer over flere dager
-- Gjør valg mer vanskelige (ingen perfekte løsninger)
-- Gjør valg mer betydelige for historien
+**Status:** ✅ FULLFØRT - applyLastingChoiceEffects() og trustLevel implementert
+**Må gjøres (valgfritt - kan forsterkes videre):**
+- ✅ Konsekvenser varer over flere dager (implementert - opptil 7 dager)
+- ✅ Valg påvirker fremtidige hendelser (trustLevel implementert)
+- Gjør valg mer vanskelige (ingen perfekte løsninger) - kan forbedres
+- Gjør valg mer betydelige for historien - kan forbedres
 
 #### 4. 📖 Historisk setting (post-WW2) ⚠️
 **Status:** Mangler - Spillet er satt til 2000-tallet, ikke post-WW2
@@ -146,13 +149,16 @@
 - Balanser penger, mat og tid bedre
 
 #### 6. 😊 Gjør følelser mer synlige i UI
-**Status:** Delvis implementert (emotionDisplay finnes, men kan forbedres)
-**Må gjøres:**
-- Gjør følelser mer synlige i UI (emotionDisplay finnes, men kan være mer prominent)
-- Legg til flere reaksjoner på valg
-- Gjør følelser mer påvirket av handlinger
-- Legg til visuell feedback for følelser (farger, animasjoner)
-- Partikkeleffekter (f.eks. glitter når karakteren er glad)
+**Status:** ✅ FORBEDRET
+**Gjort:**
+- ✅ Gjort følelser mer synlige i UI med større tekst, tydeligere farger og animasjoner
+- ✅ Lagt til intensitetsindikator (Sterkt/Moderat)
+- ✅ Lagt til animasjoner basert på følelser (glow for glad, pulse for trist, shake for sint, fade for trøtt)
+- ✅ Avatar endrer filter basert på følelser (brightness, saturation)
+- ✅ Gradient-bakgrunn og box-shadow basert på følelse og intensitet
+- ✅ Lavere terskel for visning (20 i stedet for 30) for mer synlighet
+- ✅ Størrelse og padding skalerer med intensitet
+- ✅ Lagt til flere følelser (tired, lonely)
 
 #### 7. 🎯 Gjør daglige rutiner mer kritiske
 **Status:** Delvis implementert (tracking finnes)
@@ -225,15 +231,23 @@
 
 ## 📝 Notater og status
 
+### Kodegjennomgang (sist oppdatert: nå)
+- ✅ Alle funksjoner som kalles er definert og implementert
+- ✅ Ingen tomme funksjoner eller placeholder-kode funnet
+- ✅ Alle univers-funksjoner (skole, lekegrind, matlaging, bad, les, tegne) er fullt implementert
+- ✅ Alle hjelpefunksjoner (updateEmotionalState, checkForEvents, showFinalSuccessMessage) er implementert
+- ✅ Ingen manglende implementasjoner funnet
+
 ### Fullførte systemer
 - **Arbeidssystem**: ✅ FULLFØRT - `work()` funksjonen er implementert med aldersbaserte jobber
 - **Matlaging**: ✅ FULLFØRT - Ingredienser koster penger og penger trekkes ved matlaging
 - **Grafikk (grunnleggende)**: ✅ FULLFØRT - SVG-renderer, API-prompter, animasjoner
+- **Valg-system med varige konsekvenser**: ✅ FULLFØRT - applyLastingChoiceEffects() og trustLevel implementert
 
 ### Delvis implementerte systemer
-- **Tidssystem**: ✅ DELVIS - Handlinger er begrenset, men visning i UI kan forbedres
+- **Tidssystem**: ✅ DELVIS - Handlinger er begrenset, visning i UI finnes (actionInfoText) men kan gjøres mer prominent
 - **Mobbing**: ✅ DELVIS - Systemet finnes, men kan gjøres hyppigere og mer alvorlig
-- **Valg-system**: ✅ DELVIS - Minner finnes, men konsekvenser kan forsterkes
+- **Valg-system**: ✅ FULLFØRT - Varige konsekvenser og trustLevel implementert (kan forsterkes videre)
 - **Ressurshåndtering**: ✅ DELVIS - Penger finnes, men balanse kan forbedres
 - **Følelser**: ✅ DELVIS - Systemet finnes, men UI-visning kan forbedres
 - **Rutiner**: ✅ DELVIS - Tracking finnes, men konsekvenser kan legges til
@@ -272,11 +286,11 @@
 
 ## 📊 Oppsummering
 
-- **Total fullført:** 30+ oppgaver
-- **Gjenstående (høy prioritet):** 4 oppgaver
+- **Total fullført:** 32+ oppgaver
+- **Gjenstående (høy prioritet):** 3 oppgaver (valg-system er nå fullført)
 - **Gjenstående (medium prioritet):** 4 oppgaver
 - **Gjenstående (lav prioritet):** 6 oppgaver
-- **Total gjenstående:** 14 oppgaver
+- **Total gjenstående:** 13 oppgaver
 
 **Fokusområde:** Høy prioritet-oppgavene er kritiske for å gjøre spillet mer likt originalen "Mitt barn: Lebensborn".
 
