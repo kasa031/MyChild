@@ -265,7 +265,7 @@ class MyChildGame {
                 actionsToday: this.actionsToday,
                 memory: this.memory,
                 relationship: this.relationship,
-                    bullyingIncidents: this.bullyingIncidents,
+                bullyingIncidents: this.bullyingIncidents,
                     copingActivities: this.copingActivities,
                     achievements: this.achievements,
                     factsShown: this.factsShown,
@@ -4694,13 +4694,20 @@ class MyChildGame {
                     },
                     { 
                         text: "Kanskje vi burde snakke med læreren om dette.", 
-                        effect: () => { 
-                            this.setEmotion('anxious', 15); // More anxiety
-                            this.setEmotion('scared', 10);
-                            this.adjustStat('happiness', -8);
-                            this.adjustStat('social', -5); // More social impact
-                            this.adjustRelationship(3);
-                            this.child.resilience = Math.min(100, this.child.resilience + 4); // Good resilience boost
+                        effect: () => {
+                            // If child has sought help before, they're more confident
+                            const pastHelpSeeking = this.memory.filter(m => 
+                                m.choiceType === "seeking_help" && (this.day - m.day) <= 30
+                            ).length;
+                            
+                            const helpBonus = Math.min(3, pastHelpSeeking * 0.3);
+                            
+                            this.setEmotion('anxious', 15 - helpBonus); // Less anxiety if done before
+                            this.setEmotion('scared', 10 - helpBonus);
+                            this.adjustStat('happiness', -8 + helpBonus); // Better if done before
+                            this.adjustStat('social', -5 + helpBonus * 0.5); // Better if done before
+                            this.adjustRelationship(3 + helpBonus); // Better relationship
+                            this.child.resilience = Math.min(100, this.child.resilience + 4 + helpBonus); // Good resilience boost
                             // Memory - this is a brave choice
                             this.memory.push({
                                 day: this.day,
@@ -4712,7 +4719,12 @@ class MyChildGame {
                             this.child.bullyingCopingMethod = "seeking_help";
                             // Future bullying might be less severe if teacher gets involved
                             this.child.teacherInvolved = true;
-                            this.showDialogue("Jeg er redd... hva hvis de blir sinte? Men... kanskje det er det riktige å gjøre. Jeg vil prøve."); 
+                            
+                            if (pastHelpSeeking > 0) {
+                                this.showDialogue("Jeg har gjort dette før... Jeg vet at det hjelper. La oss gjøre det igjen."); 
+                            } else {
+                                this.showDialogue("Jeg er redd... hva hvis de blir sinte? Men... kanskje det er det riktige å gjøre. Jeg vil prøve."); 
+                            }
                         } 
                     }
                 ]
