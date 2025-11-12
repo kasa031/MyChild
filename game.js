@@ -4481,19 +4481,27 @@ class MyChildGame {
         // Higher chance at school, but can happen anywhere
         let bullyingChance = 0;
         if (this.currentLocation === 'school') {
-            // Much higher chance at school (like original)
-            bullyingChance = this.child.resilience < 50 ? 0.6 : 0.4;
+            // Much higher chance at school (like original) - INCREASED
+            bullyingChance = this.child.resilience < 50 ? 0.75 : 0.55;
         } else if (this.currentLocation === 'playground') {
-            // Can also happen at playground
-            bullyingChance = this.child.resilience < 50 ? 0.4 : 0.25;
+            // Can also happen at playground - INCREASED
+            bullyingChance = this.child.resilience < 50 ? 0.55 : 0.35;
         } else {
-            // Lower chance elsewhere, but still possible
-            bullyingChance = this.child.resilience < 30 ? 0.2 : 0.1;
+            // Lower chance elsewhere, but still possible - INCREASED
+            bullyingChance = this.child.resilience < 30 ? 0.3 : 0.15;
         }
         
-        // More frequent if child is older (school age)
+        // More frequent if child is older (school age) - INCREASED MULTIPLIER
         if (this.child.age >= 7) {
-            bullyingChance *= 1.5;
+            bullyingChance *= 1.8;
+        }
+        
+        // More frequent if child has been bullied recently (trauma effect)
+        const recentBullying = this.memory.filter(m => 
+            m.event && m.event.includes("Bullying") && (this.day - m.day) < 5
+        ).length;
+        if (recentBullying > 0) {
+            bullyingChance *= (1 + recentBullying * 0.2); // 20% increase per recent incident
         }
         
         // Check for bullying first (more important than narrative events)
@@ -4524,10 +4532,10 @@ class MyChildGame {
                         effect: () => { 
                             this.setEmotion('sad', 20);
                             this.setEmotion('anxious', 15);
-                            this.adjustStat('happiness', -10);
-                            this.adjustStat('social', -5);
-                            this.adjustRelationship(8); // Stronger relationship boost
-                            this.child.resilience = Math.min(100, this.child.resilience + 5); // More resilience
+                            this.adjustStat('happiness', -15); // More severe impact
+                            this.adjustStat('social', -8); // More severe social impact
+                            this.adjustRelationship(10); // Stronger relationship boost
+                            this.child.resilience = Math.min(100, this.child.resilience + 6); // More resilience
                             // Permanent memory - affects future events
                             this.memory.push({
                                 day: this.day, 
@@ -4549,9 +4557,10 @@ class MyChildGame {
                         effect: () => { 
                             this.setEmotion('sad', 15);
                             this.setEmotion('angry', 10);
-                            this.adjustStat('happiness', -8); // More negative impact
-                            this.adjustRelationship(2); // Less relationship boost
-                            this.child.resilience = Math.min(100, this.child.resilience + 2);
+                            this.adjustStat('happiness', -12); // More negative impact
+                            this.adjustStat('social', -6); // Additional social impact
+                            this.adjustRelationship(1); // Less relationship boost
+                            this.child.resilience = Math.min(100, this.child.resilience + 1); // Less resilience
                             // Memory of this choice
                             this.memory.push({
                                 day: this.day,
@@ -4640,10 +4649,11 @@ class MyChildGame {
                         effect: () => { 
                             this.setEmotion('scared', 25);
                             this.setEmotion('sad', 20);
-                            this.adjustStat('happiness', -15);
-                            this.adjustStat('energy', -10);
-                            this.adjustRelationship(6);
-                            this.child.resilience = Math.min(100, this.child.resilience + 5);
+                            this.adjustStat('happiness', -20); // More severe
+                            this.adjustStat('energy', -15); // More severe
+                            this.adjustStat('social', -10); // Additional impact
+                            this.adjustRelationship(8); // Better relationship boost
+                            this.child.resilience = Math.min(100, this.child.resilience + 6); // More resilience
                             this.memory.push({day: this.day, event: "Physical bullying - got help", positive: true});
                             const msg = this.language === 'no' ? "Jeg er okay... Takk for at du bryr deg. Jeg er redd, men jeg vet at du vil hjelpe meg." : "I'm okay... Thank you for caring. I'm scared but I know you'll help me.";
                             this.showDialogue(msg); 
