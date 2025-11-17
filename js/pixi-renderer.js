@@ -140,14 +140,13 @@ class PixiCharacterRenderer {
     }
     
     drawMouth(graphics, cx, cy, emotion) {
-        graphics.lineStyle(3, 0x333333);
+        graphics.lineStyle(3, 0x333333, 1);
+        graphics.lineCap = 'round';
         
         if (emotion === 'happy') {
-            graphics.quadraticCurveTo(cx, cy + 10, cx + 15, cy);
             graphics.moveTo(cx - 15, cy);
             graphics.quadraticCurveTo(cx, cy + 10, cx + 15, cy);
         } else if (emotion === 'sad') {
-            graphics.quadraticCurveTo(cx, cy - 10, cx + 15, cy);
             graphics.moveTo(cx - 15, cy);
             graphics.quadraticCurveTo(cx, cy - 10, cx + 15, cy);
         } else {
@@ -178,28 +177,37 @@ class PixiCharacterRenderer {
     }
     
     applyEmotionFilters(emotion) {
-        if (!this.container) return;
+        if (!this.container || !window.PIXI || !window.PIXI.filters) return;
         
         // Remove existing filters
         this.container.filters = [];
         
-        // Add filters based on emotion
-        if (emotion === 'happy') {
-            const colorMatrix = new PIXI.filters.ColorMatrixFilter();
-            colorMatrix.brightness(1.1, false);
-            colorMatrix.saturate(1.15, false);
-            this.container.filters = [colorMatrix];
-        } else if (emotion === 'sad') {
-            const colorMatrix = new PIXI.filters.ColorMatrixFilter();
-            colorMatrix.brightness(0.9, false);
-            colorMatrix.saturate(0.85, false);
-            this.container.filters = [colorMatrix];
-        } else if (emotion === 'angry') {
-            const colorMatrix = new PIXI.filters.ColorMatrixFilter();
-            colorMatrix.brightness(1.05, false);
-            colorMatrix.saturate(1.2, false);
-            colorMatrix.hue(5, false);
-            this.container.filters = [colorMatrix];
+        try {
+            // Add filters based on emotion
+            if (emotion === 'happy') {
+                const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                colorMatrix.brightness(1.1, false);
+                colorMatrix.saturate(1.15, false);
+                this.container.filters = [colorMatrix];
+            } else if (emotion === 'sad') {
+                const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                colorMatrix.brightness(0.9, false);
+                colorMatrix.saturate(0.85, false);
+                this.container.filters = [colorMatrix];
+            } else if (emotion === 'angry') {
+                const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                colorMatrix.brightness(1.05, false);
+                colorMatrix.saturate(1.2, false);
+                colorMatrix.hue(5, false);
+                this.container.filters = [colorMatrix];
+            } else if (emotion === 'excited') {
+                const colorMatrix = new PIXI.filters.ColorMatrixFilter();
+                colorMatrix.brightness(1.15, false);
+                colorMatrix.saturate(1.2, false);
+                this.container.filters = [colorMatrix];
+            }
+        } catch (e) {
+            console.warn('Failed to apply Pixi.js filters:', e);
         }
     }
     
