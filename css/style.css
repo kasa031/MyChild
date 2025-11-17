@@ -87,6 +87,7 @@
 }
 
 .stat-updating {
+    -webkit-animation: statPulse 0.5s ease;
     animation: statPulse 0.5s ease;
     color: var(--primary-1);
     font-weight: bold;
@@ -96,6 +97,7 @@ body {
     font-family: 'Comic Sans MS', Arial, sans-serif;
     background: var(--gradient-primary);
     background-size: 200% 200%;
+    -webkit-animation: gradientShift 8s ease infinite;
     animation: gradientShift 8s ease infinite;
     min-height: 100vh;
     padding: 20px;
@@ -117,6 +119,7 @@ body::before {
         radial-gradient(circle at 40% 80%, rgba(255,255,255,0.3) 2px, transparent 2px);
     background-size: 200px 200px, 150px 150px, 180px 180px;
     background-position: 0 0, 100px 100px, 50px 200px;
+    -webkit-animation: sparkle 3s linear infinite;
     animation: sparkle 3s linear infinite;
     pointer-events: none;
     z-index: 0;
@@ -159,6 +162,7 @@ body::before {
 header {
     background: var(--gradient-primary);
     background-size: 200% 200%;
+    -webkit-animation: gradientShift 5s ease infinite;
     animation: gradientShift 5s ease infinite;
     color: var(--neutral-1);
     padding: 20px;
@@ -174,6 +178,7 @@ header::before {
     position: absolute;
     font-size: 2em;
     opacity: 0.5;
+    -webkit-animation: float 3s ease-in-out infinite;
     animation: float 3s ease-in-out infinite;
 }
 
@@ -183,6 +188,7 @@ header::after {
     font-size: 1.5em;
     opacity: 0.5;
     right: 10%;
+    -webkit-animation: float 2s ease-in-out infinite reverse;
     animation: float 2s ease-in-out infinite reverse;
 }
 
@@ -339,6 +345,7 @@ header h1 {
     border-radius: 20px;
     z-index: -1;
     opacity: 0.5;
+    -webkit-animation: borderGlow 3s ease infinite;
     animation: borderGlow 3s ease infinite;
 }
 
@@ -389,6 +396,7 @@ header h1 {
 
 /* Animation for character avatar when happy */
 .child-avatar.animated {
+    -webkit-animation: characterPulse 2s ease-in-out infinite;
     animation: characterPulse 2s ease-in-out infinite;
 }
 
@@ -399,6 +407,7 @@ header h1 {
 
 /* Subtle animation for emotions */
 .child-avatar[data-emotion="happy"] {
+    -webkit-animation: gentlePulse 2s ease-in-out infinite;
     animation: gentlePulse 2s ease-in-out infinite;
     filter: brightness(1.1) saturate(1.15);
 }
@@ -409,6 +418,7 @@ header h1 {
 }
 
 .child-avatar[data-emotion="angry"] {
+    -webkit-animation: slightShake 0.5s ease-in-out infinite;
     animation: slightShake 0.5s ease-in-out infinite;
     filter: brightness(1.05) saturate(1.2) hue-rotate(5deg);
 }

@@ -10721,7 +10721,7 @@ class MyChildGame {
                 this.updateProfileTab();
             } else if (tabName === 'diary') {
                 tabContent = document.getElementById('diaryTab');
-                menuTab = document.getElementById('diaryTab');
+                menuTab = document.getElementById('diaryTabBtn');
                 this.updateDiaryTab();
             }
             
