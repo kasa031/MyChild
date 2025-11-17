@@ -1,0 +1,25 @@
+# GitHub Actions workflow to add headers (if using GitHub Pages with custom domain)
+# Note: This requires a custom domain and server configuration
+# For standard GitHub Pages, headers are limited
+
+name: Add Security Headers
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  headers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Note
+        run: |
+          echo "GitHub Pages doesn't support custom HTTP headers directly."
+          echo "For full header support, consider:"
+          echo "1. Using Cloudflare Pages or Netlify (supports _headers file)"
+          echo "2. Using a custom domain with Cloudflare (can add headers via Page Rules)"
+          echo "3. Using a reverse proxy/CDN that supports header injection"
+
