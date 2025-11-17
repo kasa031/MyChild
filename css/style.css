@@ -375,7 +375,9 @@ header h1 {
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+    /* Subtle filters for visual enhancement */
+    filter: brightness(1.05) saturate(1.1) contrast(1.05);
 }
 
 .child-avatar svg {
@@ -398,18 +400,22 @@ header h1 {
 /* Subtle animation for emotions */
 .child-avatar[data-emotion="happy"] {
     animation: gentlePulse 2s ease-in-out infinite;
+    filter: brightness(1.1) saturate(1.15);
 }
 
 .child-avatar[data-emotion="sad"] {
     opacity: 0.85;
+    filter: brightness(0.9) saturate(0.85) contrast(0.95);
 }
 
 .child-avatar[data-emotion="angry"] {
     animation: slightShake 0.5s ease-in-out infinite;
+    filter: brightness(1.05) saturate(1.2) hue-rotate(5deg);
 }
 
 .child-avatar[data-emotion="excited"] {
     animation: gentleBounce 1s ease-in-out infinite;
+    filter: brightness(1.15) saturate(1.2);
 }
 
 @keyframes gentlePulse {
@@ -517,9 +523,11 @@ header h1 {
     background: var(--gradient-primary);
     background-size: 200% 100%;
     animation: gradientShift 2s ease infinite;
-    transition: width 0.3s ease;
+    transition: width 0.3s ease, filter 0.3s ease;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(255, 179, 217, 0.5);
+    /* Subtle glow effect */
+    filter: brightness(1.05);
 }
 
 .stat-fill.hunger-fill {
@@ -614,6 +622,14 @@ header h1 {
     object-fit: cover;
     border-radius: 10px;
     display: block;
+    transition: filter 0.5s ease, transform 0.5s ease;
+    /* Subtle enhancement for scene images */
+    filter: brightness(1.02) contrast(1.05) saturate(1.08);
+}
+
+.scene-image:hover img {
+    filter: brightness(1.05) contrast(1.08) saturate(1.12);
+    transform: scale(1.01);
 }
 
 .scene-image svg {

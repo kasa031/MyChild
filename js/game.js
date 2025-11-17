@@ -178,6 +178,7 @@ class MyChildGame {
         // Initialize music
         this.musicEnabled = true;
         this.backgroundMusic = null;
+        this.pixiRenderer = null; // Pixi.js character renderer
         
         // API configuration
         this.apiConfig = window.APIConfig || null;
@@ -1512,7 +1513,36 @@ class MyChildGame {
             }
         }
         
-        // Try to use custom SVG renderer first
+        // Try Pixi.js renderer first (enhanced 2D graphics)
+        if (window.PixiCharacterRenderer && window.PIXI) {
+            try {
+                // Check if Pixi renderer is already initialized
+                if (!this.pixiRenderer) {
+                    this.pixiRenderer = new PixiCharacterRenderer();
+                    if (!this.pixiRenderer.init(avatar)) {
+                        this.pixiRenderer = null;
+                    }
+                }
+                
+                if (this.pixiRenderer && this.pixiRenderer.initialized) {
+                    const pixiView = this.pixiRenderer.renderCharacter(this.child, emotion);
+                    if (pixiView) {
+                        // Pixi.js handles rendering directly to the container
+                        // Set emotion attribute for CSS filters
+                        avatar.setAttribute('data-emotion', emotion);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('Pixi.js rendering failed, falling back to SVG:', e);
+                if (this.pixiRenderer) {
+                    this.pixiRenderer.destroy();
+                    this.pixiRenderer = null;
+                }
+            }
+        }
+        
+        // Try to use custom SVG renderer as fallback
         if (window.CharacterRenderer) {
             try {
                 const renderer = new CharacterRenderer();
