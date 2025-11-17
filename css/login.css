@@ -112,12 +112,16 @@
 }
 
 #settingsSection {
-    display: none;
+    display: none !important;
     margin-top: 30px;
     padding: 20px;
     background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%);
     border-radius: 20px;
     border: 3px solid #ff00ff;
+}
+
+#settingsSection[style*="display: block"] {
+    display: block !important;
 }
 
 #settingsSection h3 {

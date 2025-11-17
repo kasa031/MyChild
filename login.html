@@ -627,13 +627,22 @@
                 }
                 loadExistingGames();
             } else if (option === 'settings') {
-                if (settingsSection) settingsSection.style.display = 'block';
+                console.log('Showing settings section');
+                if (settingsSection) {
+                    settingsSection.style.setProperty('display', 'block', 'important');
+                    console.log('Settings section display set to block');
+                } else {
+                    console.error('settingsSection element not found!');
+                }
                 const settingsTab = document.getElementById('settingsTab');
                 if (settingsTab) {
                     settingsTab.classList.add('active');
                     settingsTab.style.background = 'linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%)';
                     settingsTab.style.color = 'white';
                     settingsTab.style.border = '2px solid #ffffff';
+                    console.log('Settings tab activated');
+                } else {
+                    console.error('settingsTab element not found!');
                 }
             }
         }
