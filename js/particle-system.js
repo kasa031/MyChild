@@ -53,12 +53,12 @@ class ParticleSystem {
         if (!this.initialized) return;
         
         const colors = {
-            happy: ['#FFD700', '#FFA500', '#FF6B6B', '#FFE66D'],
-            sad: ['#87CEEB', '#B0C4DE', '#708090'],
-            excited: ['#FF00FF', '#00FFFF', '#FFFF00', '#FF1493'],
-            achievement: ['#FFD700', '#FFA500', '#FF6B6B'],
-            statIncrease: ['#4CAF50', '#8BC34A', '#CDDC39'],
-            statDecrease: ['#F44336', '#E91E63', '#9C27B0']
+            happy: ['#FFD700', '#FFA500', '#FF6B6B', '#FFE66D', '#FFB6C1'],
+            sad: ['#87CEEB', '#B0C4DE', '#708090', '#4682B4'],
+            excited: ['#FF00FF', '#00FFFF', '#FFFF00', '#FF1493', '#FF69B4'],
+            achievement: ['#FFD700', '#FFA500', '#FF6B6B', '#FFE66D'],
+            statIncrease: ['#4CAF50', '#8BC34A', '#CDDC39', '#66BB6A'],
+            statDecrease: ['#F44336', '#E91E63', '#9C27B0', '#EF5350']
         };
         
         const effectColors = colors[type] || colors.happy;
@@ -70,10 +70,12 @@ class ParticleSystem {
                 vx: (Math.random() - 0.5) * 4,
                 vy: (Math.random() - 0.5) * 4 - 2, // Slight upward bias
                 life: 1.0,
-                decay: 0.02 + Math.random() * 0.02,
-                size: 3 + Math.random() * 4,
+                decay: 0.015 + Math.random() * 0.015,
+                size: 3 + Math.random() * 5,
                 color: effectColors[Math.floor(Math.random() * effectColors.length)],
-                type: type
+                type: type,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.15
             });
         }
         
@@ -203,11 +205,29 @@ class ParticleSystem {
                 } else if (p.type === 'stat' && p.symbol) {
                     this.drawSymbol(p.x, p.y, p.size, p.color, p.symbol);
                 } else {
-                    // Regular circle particle
+                    // Regular circle particle with glow effect
+                    this.ctx.save();
+                    
+                    // Outer glow
+                    this.ctx.shadowColor = p.color;
+                    this.ctx.shadowBlur = p.size * 2;
+                    this.ctx.shadowOffsetX = 0;
+                    this.ctx.shadowOffsetY = 0;
+                    
+                    // Main particle
                     this.ctx.beginPath();
                     this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                     this.ctx.fillStyle = p.color;
                     this.ctx.fill();
+                    
+                    // Inner highlight
+                    this.ctx.shadowBlur = 0;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x - p.size * 0.3, p.y - p.size * 0.3, p.size * 0.4, 0, Math.PI * 2);
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                    this.ctx.fill();
+                    
+                    this.ctx.restore();
                 }
                 
                 this.ctx.restore();

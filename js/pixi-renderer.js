@@ -65,8 +65,19 @@ class PixiCharacterRenderer {
             // Create character graphics
             const graphics = new PIXI.Graphics();
             
-            // Draw face circle
+            // Draw face circle with gradient effect
             const faceColor = this.getSkinColor(character);
+            // Create gradient-like effect using multiple circles
+            graphics.beginFill(this.lightenColor(faceColor, 0.15));
+            graphics.drawCircle(100, 100, 95);
+            graphics.endFill();
+            
+            // Add highlight for 3D effect
+            graphics.beginFill(0xffffff, 0.3);
+            graphics.drawCircle(85, 85, 25);
+            graphics.endFill();
+            
+            // Base face color
             graphics.beginFill(faceColor);
             graphics.drawCircle(100, 100, 95);
             graphics.endFill();
@@ -209,6 +220,14 @@ class PixiCharacterRenderer {
         } catch (e) {
             console.warn('Failed to apply Pixi.js filters:', e);
         }
+    }
+    
+    lightenColor(hex, amount) {
+        const num = parseInt(hex.toString(16), 16);
+        const r = Math.min(255, ((num >> 16) & 0xff) + amount * 255);
+        const g = Math.min(255, ((num >> 8) & 0xff) + amount * 255);
+        const b = Math.min(255, (num & 0xff) + amount * 255);
+        return (Math.floor(r) << 16) | (Math.floor(g) << 8) | Math.floor(b);
     }
     
     getSkinColor(character) {

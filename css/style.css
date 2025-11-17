@@ -622,14 +622,17 @@ header h1 {
     object-fit: cover;
     border-radius: 10px;
     display: block;
-    transition: filter 0.5s ease, transform 0.5s ease;
+    transition: filter 0.5s ease, transform 0.5s ease, opacity 0.5s ease;
     /* Subtle enhancement for scene images */
     filter: brightness(1.02) contrast(1.05) saturate(1.08);
+    /* Add subtle shadow for depth */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .scene-image:hover img {
     filter: brightness(1.05) contrast(1.08) saturate(1.12);
     transform: scale(1.01);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .scene-image svg {

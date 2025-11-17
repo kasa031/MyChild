@@ -1744,8 +1744,15 @@ class MyChildGame {
     }
     
     loadSceneImage(location, sceneImageElement) {
-        // Use image if available, otherwise use SVG placeholder
-        if (location.image && !location.usePlaceholder) {
+        // Smooth transition effect
+        if (sceneImageElement) {
+            sceneImageElement.style.transition = 'opacity 0.5s ease-in-out';
+            sceneImageElement.style.opacity = '0';
+        }
+        
+        setTimeout(() => {
+            // Use image if available, otherwise use SVG placeholder
+            if (location.image && !location.usePlaceholder) {
             const img = document.createElement('img');
             img.loading = 'lazy'; // Lazy load images
             img.alt = location.name;
@@ -1824,6 +1831,16 @@ class MyChildGame {
                     placeholder.remove();
                 }
                 location.imageLoaded = true;
+                
+                // Smooth fade-in effect
+                img.style.opacity = '0';
+                img.style.transition = 'opacity 0.5s ease-in-out';
+                setTimeout(() => {
+                    img.style.opacity = '1';
+                    if (sceneImageElement) {
+                        sceneImageElement.style.opacity = '1';
+                    }
+                }, 50);
             };
             
             if (!sceneImageElement.contains(img)) {

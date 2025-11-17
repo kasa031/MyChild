@@ -92,6 +92,29 @@ class CanvasCharacterRenderer {
         this.ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         this.ctx.fillStyle = gradient;
         this.ctx.fill();
+        
+        // Add shadow for depth
+        this.ctx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+        this.ctx.shadowBlur = 10;
+        this.ctx.shadowOffsetX = 2;
+        this.ctx.shadowOffsetY = 2;
+        
+        // Add highlight
+        const highlightGradient = this.ctx.createRadialGradient(cx - 25, cy - 25, 0, cx - 25, cy - 25, 30);
+        highlightGradient.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
+        highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.fillStyle = highlightGradient;
+        this.ctx.beginPath();
+        this.ctx.arc(cx - 25, cy - 25, 30, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Reset shadow
+        this.ctx.shadowColor = 'transparent';
+        this.ctx.shadowBlur = 0;
+        this.ctx.shadowOffsetX = 0;
+        this.ctx.shadowOffsetY = 0;
+        
+        // Border
         this.ctx.strokeStyle = '#ddd';
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
