@@ -179,6 +179,8 @@ class MyChildGame {
         this.musicEnabled = true;
         this.backgroundMusic = null;
         this.pixiRenderer = null; // Pixi.js character renderer
+        this.canvasRenderer = null; // Canvas API character renderer
+        this.particleSystem = null; // Particle system for visual effects
         
         // API configuration
         this.apiConfig = window.APIConfig || null;
@@ -1399,6 +1401,8 @@ class MyChildGame {
                 if (childAvatar) {
                     childAvatar.setAttribute('data-emotion', 'happy');
                     childAvatar.style.filter = 'brightness(1.1)';
+                    // Trigger happy particle effect
+                    this.triggerParticleEffect('happy');
                 }
             } else if (emotionName === 'sad' || emotionName === 'anxious' || emotionName === 'lonely') {
                 emotionDisplay.style.background = `linear-gradient(135deg, rgba(33, 150, 243, ${0.4 * intensityMultiplier}), rgba(100, 181, 246, ${0.3 * intensityMultiplier}))`;
@@ -1513,7 +1517,7 @@ class MyChildGame {
             }
         }
         
-        // Try Pixi.js renderer first (enhanced 2D graphics)
+        // Try Pixi.js renderer first (enhanced 2D graphics with WebGL)
         if (window.PixiCharacterRenderer && window.PIXI) {
             try {
                 // Check if Pixi renderer is already initialized
@@ -1527,17 +1531,46 @@ class MyChildGame {
                 if (this.pixiRenderer && this.pixiRenderer.initialized) {
                     const pixiView = this.pixiRenderer.renderCharacter(this.child, emotion);
                     if (pixiView) {
-                        // Pixi.js handles rendering directly to the container
+                        // Initialize particle system if not already done
+                        this.initParticleSystem(avatar);
                         // Set emotion attribute for CSS filters
                         avatar.setAttribute('data-emotion', emotion);
                         return;
                     }
                 }
             } catch (e) {
-                console.log('Pixi.js rendering failed, falling back to SVG:', e);
+                console.log('Pixi.js rendering failed, falling back to Canvas:', e);
                 if (this.pixiRenderer) {
                     this.pixiRenderer.destroy();
                     this.pixiRenderer = null;
+                }
+            }
+        }
+        
+        // Try Canvas API renderer (high-performance 2D)
+        if (window.CanvasCharacterRenderer) {
+            try {
+                if (!this.canvasRenderer) {
+                    this.canvasRenderer = new CanvasCharacterRenderer();
+                    if (!this.canvasRenderer.init(avatar)) {
+                        this.canvasRenderer = null;
+                    }
+                }
+                
+                if (this.canvasRenderer && this.canvasRenderer.initialized) {
+                    const canvasView = this.canvasRenderer.renderCharacter(this.child, emotion);
+                    if (canvasView) {
+                        // Initialize particle system if not already done
+                        this.initParticleSystem(avatar);
+                        avatar.setAttribute('data-emotion', emotion);
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.log('Canvas rendering failed, falling back to SVG:', e);
+                if (this.canvasRenderer) {
+                    this.canvasRenderer.destroy();
+                    this.canvasRenderer = null;
                 }
             }
         }
@@ -1971,6 +2004,15 @@ class MyChildGame {
         // Relationship affects stat changes
         if (this.relationship > 70 && amount > 0) {
             this.child[stat] = Math.min(100, this.child[stat] + Math.floor(amount * 0.1));
+        }
+        
+        // Trigger particle effects for significant stat changes
+        if (Math.abs(amount) >= 10) {
+            if (amount > 0) {
+                this.triggerParticleEffect('statIncrease');
+            } else {
+                this.triggerParticleEffect('statDecrease');
+            }
         }
         
         // Check for death if all stats reach 0
