@@ -33,6 +33,10 @@
             // If local config doesn't exist, load example (will be disabled)
             const exampleScript = document.createElement('script');
             exampleScript.src = 'config/api-config.example.js';
+            exampleScript.onerror = () => {
+                // If example also doesn't exist, create a minimal config
+                window.API_CONFIG = { enabled: false };
+            };
             document.head.appendChild(exampleScript);
         };
         document.head.appendChild(script);

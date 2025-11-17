@@ -1850,6 +1850,7 @@ class MyChildGame {
             // Use SVG placeholder
             sceneImageElement.innerHTML = this.getPlaceholderSVG(this.currentLocation);
         }
+        }, 100); // Close setTimeout with delay
     }
     
     getPlaceholderSVG(location) {
