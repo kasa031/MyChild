@@ -991,10 +991,12 @@ header h1 {
 /* Action icons */
 /* Image optimization */
 img {
+    /* Edge support - must come first */
     image-rendering: -webkit-optimize-contrast;
+    /* Standard support */
     image-rendering: crisp-edges;
+    /* Fallback */
     image-rendering: optimize-quality;
-    /* Note: -webkit-optimize-contrast is for Edge, crisp-edges is standard */
     will-change: auto; /* Only when needed */
 }
 

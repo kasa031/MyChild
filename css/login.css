@@ -210,6 +210,10 @@
     justify-content: center;
 }
 
+.customization-options-spaced {
+    margin-top: 15px;
+}
+
 .option-group-centered {
     max-width: 200px;
     margin: 0 auto;
@@ -225,5 +229,39 @@
 
 .game-last-saved {
     color: #666;
+}
+
+.game-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.game-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.game-load-btn {
+    padding: 5px 10px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.game-delete-btn {
+    padding: 5px 10px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 

@@ -100,6 +100,11 @@ self.addEventListener('fetch', (event) => {
           headers.set('X-Content-Type-Options', 'nosniff');
           headers.delete('Expires'); // Remove Expires header (prefer Cache-Control)
           
+          // Set Content-Type with charset for HTML files
+          if (isHTML) {
+            headers.set('Content-Type', 'text/html; charset=utf-8');
+          }
+          
           return new Response(response.body, {
             status: response.status,
             statusText: response.statusText,
@@ -140,6 +145,11 @@ self.addEventListener('fetch', (event) => {
           
           headers.set('X-Content-Type-Options', 'nosniff');
           headers.delete('Expires'); // Remove Expires header (prefer Cache-Control)
+          
+          // Set Content-Type with charset for HTML files
+          if (isHTML) {
+            headers.set('Content-Type', 'text/html; charset=utf-8');
+          }
           
           return new Response(networkResponse.body, {
             status: networkResponse.status,

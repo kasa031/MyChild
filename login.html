@@ -21,8 +21,8 @@
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="assets/favicon.svg">
     
-    <link rel="stylesheet" href="css/style.css?v=2.0.0">
-    <link rel="stylesheet" href="css/login.css?v=2.0.0">
+    <link rel="stylesheet" href="css/style.css?v=2.0.1">
+    <link rel="stylesheet" href="css/login.css?v=2.0.1">
     <style>
         .login-container {
             max-width: 95%;
@@ -471,7 +471,7 @@
                 </div>
                 
                 <div class="option-group option-group-spaced">
-                    <label id="emojiPicker-label" for="emojiPicker">Velg emoji for karakteren:</label>
+                    <label id="emojiPicker-label">Velg emoji for karakteren:</label>
                     <div class="emoji-picker" id="emojiPicker" role="group" aria-labelledby="emojiPicker-label">
                         <div class="emoji-option" data-emoji="👶">👶</div>
                         <div class="emoji-option" data-emoji="🧒">🧒</div>
@@ -522,7 +522,7 @@
                     </div>
                 </div>
                 
-                <div class="customization-options" style="margin-top: 15px;">
+                <div class="customization-options customization-options-spaced">
                     <div class="option-group">
                         <label for="hairColor">Hårfarge:</label>
                         <select id="hairColor" name="hairColor" aria-label="Velg hårfarge">
@@ -676,20 +676,20 @@
             
             games.forEach(game => {
                 const gameDiv = document.createElement('div');
-                gameDiv.style.cssText = 'padding: 10px; margin: 5px 0; background: #f0f0f0; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;';
+                gameDiv.className = 'game-item';
                 
                 const lastSaved = game.lastSaved ? new Date(game.lastSaved).toLocaleString('no-NO') : 'Ukjent';
                 const buttonDiv = document.createElement('div');
-                buttonDiv.style.cssText = 'display: flex; gap: 5px;';
+                buttonDiv.className = 'game-buttons';
                 
                 const loadBtn = document.createElement('button');
                 loadBtn.textContent = 'Last inn';
-                loadBtn.style.cssText = 'padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                loadBtn.className = 'game-load-btn';
                 loadBtn.onclick = () => loadGame(game.username);
                 
                 const deleteBtn = document.createElement('button');
                 deleteBtn.textContent = '🗑️';
-                deleteBtn.style.cssText = 'padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer;';
+                deleteBtn.className = 'game-delete-btn';
                 deleteBtn.onclick = () => {
                     if (confirm(`Er du sikker på at du vil slette spillet "${game.username}"?`)) {
                         try {
