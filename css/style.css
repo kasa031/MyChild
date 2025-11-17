@@ -994,6 +994,7 @@ img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
     image-rendering: optimize-quality;
+    /* Note: -webkit-optimize-contrast is for Edge, crisp-edges is standard */
     will-change: auto; /* Only when needed */
 }
 
@@ -1060,6 +1061,7 @@ img {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0.7);
+    -webkit-backdrop-filter: blur(5px);
     backdrop-filter: blur(5px);
 }
 
@@ -1814,6 +1816,7 @@ button:focus-visible,
     top: 0;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.95);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
     border-bottom: 3px solid var(--primary-1);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);

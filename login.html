@@ -2,7 +2,6 @@
 <html lang="nb">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MyChild - Login</title>
     
@@ -473,8 +472,8 @@
                 </div>
                 
                 <div class="option-group" style="margin-top: 15px;">
-                    <label>Velg emoji for karakteren:</label>
-                    <div class="emoji-picker" id="emojiPicker">
+                    <label for="emojiPicker">Velg emoji for karakteren:</label>
+                    <div class="emoji-picker" id="emojiPicker" role="group" aria-labelledby="emojiPicker-label">
                         <div class="emoji-option" data-emoji="👶">👶</div>
                         <div class="emoji-option" data-emoji="🧒">🧒</div>
                         <div class="emoji-option" data-emoji="👦">👦</div>
