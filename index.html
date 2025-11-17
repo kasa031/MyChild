@@ -269,7 +269,30 @@
                         <button class="routine-btn" onclick="game.drawOrCreate()">🎨 <span data-translate="draw">Tegn/Lag</span></button>
                         <button class="routine-btn" onclick="game.openUniverse('cooking')">🍳 <span data-translate="cook">Lag mat</span></button>
                         <button class="routine-btn" onclick="game.rest()">😴 <span data-translate="rest">Hvile/Søvn</span></button>
+                        <!-- Age-specific activities -->
+                        <button class="routine-btn" id="pottyTrainingBtn" onclick="game.pottyTraining()" style="display: none;">🚽 <span>Pottetrening (1-2 år)</span></button>
+                        <button class="routine-btn" id="spellingBtn" onclick="game.learnSpelling()" style="display: none;">🔤 <span>Stave (2-4 år)</span></button>
+                        <button class="routine-btn" id="bikeBtn" onclick="game.learnBike()" style="display: none;">🚲 <span>Lær å sykle (6-7 år)</span></button>
+                        <button class="routine-btn" id="swimBtn" onclick="game.learnSwimming()" style="display: none;">🏊 <span>Lær å svømme (5+ år)</span></button>
                     </div>
+                    <h4>Livet og sosiale ferdigheter</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.learnSharing()">🤝 <span>Lær å dele</span></button>
+                        <button class="routine-btn" onclick="game.learnRespect()">💙 <span>Respektere forskjeller</span></button>
+                        <button class="routine-btn" onclick="game.learnPatience()">⏳ <span>Tålmodighet</span></button>
+                        <button class="routine-btn" onclick="game.learnSelfDiscipline()">🎯 <span>Selvdisiplin</span></button>
+                        <button class="routine-btn" onclick="game.learnPlanning()">📋 <span>Planlegging</span></button>
+                    </div>
+                    <!-- Age-specific: Parent work for babies -->
+                    <button class="routine-btn" id="parentWorkBtn" onclick="game.sendParentToWork()" style="display: none;">👨‍💼 <span>Send forelder på jobb (Baby)</span></button>
+                    <!-- Age-specific: Pet system (5+) -->
+                    <button class="routine-btn" id="getPetBtn" onclick="game.choosePet()" style="display: none;">🐾 <span>Få kjæledyr (5+ år)</span></button>
+                    <button class="routine-btn" id="careForPetBtn" onclick="game.careForPet()" style="display: none;">🐕 <span>Ta vare på kjæledyr</span></button>
+                    <!-- Age-specific: Relationship and family (18+) -->
+                    <button class="routine-btn" id="findPartnerBtn" onclick="game.findPartner()" style="display: none;">💑 <span>Finn partner (18+ år)</span></button>
+                    <button class="routine-btn" id="marryBtn" onclick="game.proposeMarriage()" style="display: none;">💍 <span>Gifte seg</span></button>
+                    <button class="routine-btn" id="adoptBtn" onclick="game.adoptChild()" style="display: none;">👶 <span>Adoptere barn</span></button>
+                    <button class="routine-btn" id="careForFamilyBtn" onclick="game.careForFamily()" style="display: none;">👨‍👩‍👧 <span>Ta vare på familien</span></button>
                     <h4 data-translate="support">Støtte og mestring</h4>
                     <div class="routine-buttons">
                         <button class="routine-btn" onclick="game.daydream()">💭 <span data-translate="daydream">Drøm</span></button>

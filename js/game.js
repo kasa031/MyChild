@@ -10,8 +10,16 @@ class MyChildGame {
         // Load customization
         this.loadCustomization();
         
+        // Determine world mode (2000s or 2085 dystopia)
+        this.worldMode = this.customization?.worldMode || '2000s';
+        
         // Load saved game or create new
         const savedGame = this.loadGame();
+        
+        // Override world mode from saved game if it exists
+        if (savedGame && savedGame.worldMode) {
+            this.worldMode = savedGame.worldMode;
+        }
         
         this.child = savedGame ? savedGame.child : {
             name: this.customization.name || (this.customization.gender === 'girl' ? 'Jente' : 'Gutt'),
@@ -88,11 +96,26 @@ class MyChildGame {
             hasMovedOut: savedGame && savedGame.child && savedGame.child.hasMovedOut ? savedGame.child.hasMovedOut : false,
             climateAwareness: savedGame && savedGame.child && savedGame.child.climateAwareness ? savedGame.child.climateAwareness : 0,
             aiLiteracy: savedGame && savedGame.child && savedGame.child.aiLiteracy ? savedGame.child.aiLiteracy : 0,
-            resourceManagement: savedGame && savedGame.child && savedGame.child.resourceManagement ? savedGame.child.resourceManagement : 0
+            resourceManagement: savedGame && savedGame.child && savedGame.child.resourceManagement ? savedGame.child.resourceManagement : 0,
+            // Siblings system
+            siblings: savedGame && savedGame.child && savedGame.child.siblings ? savedGame.child.siblings : (this.customization?.siblings || 'none'),
+            siblingRelationship: savedGame && savedGame.child && savedGame.child.siblingRelationship !== undefined ? savedGame.child.siblingRelationship : 50,
+            // Problem choices and consequences tracking
+            problemChoices: savedGame && savedGame.child && savedGame.child.problemChoices ? savedGame.child.problemChoices : [],
+            lastDinnerChoice: savedGame && savedGame.child && savedGame.child.lastDinnerChoice ? savedGame.child.lastDinnerChoice : null,
+            // Pet system (age 5+)
+            pet: savedGame && savedGame.child && savedGame.child.pet ? savedGame.child.pet : null,
+            // Parent work system (for babies)
+            parentWorkCooldown: savedGame && savedGame.child && savedGame.child.parentWorkCooldown !== undefined ? savedGame.child.parentWorkCooldown : 0,
+            // Relationship and family system (age 18+)
+            partner: savedGame && savedGame.child && savedGame.child.partner ? savedGame.child.partner : null,
+            isMarried: savedGame && savedGame.child && savedGame.child.isMarried !== undefined ? savedGame.child.isMarried : false,
+            adoptedChildren: savedGame && savedGame.child && savedGame.child.adoptedChildren ? savedGame.child.adoptedChildren : []
         };
         
         this.day = savedGame ? savedGame.day : 1;
-        this.year = savedGame ? savedGame.year : 2085; // Future dystopia setting
+        // Set year based on world mode
+        this.year = savedGame ? savedGame.year : (this.worldMode === '2085' ? 2085 : 2000);
         this.age = savedGame ? savedGame.age : 0; // Track character age in years (replaces day system)
         this.timeOfDay = savedGame ? savedGame.timeOfDay : 0;
         this.timeNames = ["Morning", "Afternoon", "Evening", "Night"];
@@ -127,13 +150,26 @@ class MyChildGame {
             style: 'normal'
         };
         
-        this.locations = {
-            home: { name: "Home", color: "#ffb3ba", image: "assets/images/home.jpg", usePlaceholder: false },
-            school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
-            playground: { name: "Playground", color: "#baffc9", image: "assets/images/playground.jpg", usePlaceholder: false },
-            friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
-            nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: false }
-        };
+        // Set locations based on world mode
+        if (this.worldMode === '2085') {
+            // Dystopian future locations
+            this.locations = {
+                home: { name: "Home", color: "#ff6b6b", image: "assets/images/pollutioncity.jpg", usePlaceholder: false },
+                school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
+                playground: { name: "Playground", color: "#ff8e8e", image: "assets/images/worldcollapse.jpg", usePlaceholder: false },
+                friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
+                nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: false }
+            };
+        } else {
+            // 2000s normal world locations
+            this.locations = {
+                home: { name: "Home", color: "#ffb3ba", image: "assets/images/dreamgreenhome.jpg", usePlaceholder: false },
+                school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
+                playground: { name: "Playground", color: "#baffc9", image: "assets/images/playground.jpg", usePlaceholder: false },
+                friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
+                nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: false }
+            };
+        }
         
         // Try to load images automatically (async)
         setTimeout(() => this.loadSceneImages(), 100);
@@ -175,6 +211,9 @@ class MyChildGame {
         }
         
         this.initializeGame();
+        
+        // Update page title based on world mode
+        this.updatePageTitle();
         
         // Initialize PWA install prompt
         this.deferredPrompt = null;
@@ -281,6 +320,7 @@ class MyChildGame {
                 },
                 day: this.day,
                 year: this.year,
+                worldMode: this.worldMode, // Save world mode
                 timeOfDay: this.timeOfDay,
                 currentLocation: this.currentLocation,
                 pendingEvent: this.pendingEvent,
@@ -814,6 +854,25 @@ class MyChildGame {
         }
     }
     
+    updatePageTitle() {
+        // Update page title and header based on world mode
+        const titleElement = document.querySelector('.header-title-wrapper h1');
+        if (titleElement) {
+            if (this.worldMode === '2085') {
+                titleElement.textContent = 'MyChild - 2085: Dystopia Edition';
+            } else {
+                titleElement.textContent = 'MyChild - 2000s Edition';
+            }
+        }
+        
+        // Update document title
+        if (this.worldMode === '2085') {
+            document.title = 'MyChild - 2085: Dystopia Edition';
+        } else {
+            document.title = 'MyChild - 2000s Edition';
+        }
+    }
+    
     updateDisplay() {
         // Update stats with animation
         const updateStatWithAnimation = (elementId, value) => {
@@ -911,6 +970,7 @@ class MyChildGame {
         // Update action display
         this.updateActionDisplay();
         this.updateRoutineDisplay();
+        this.updateAgeSpecificButtons();
         
         // Update time
         // Update age display instead of day (2085 uses years)
@@ -979,6 +1039,9 @@ class MyChildGame {
         // Check for critical states
         this.checkCriticalStates();
         
+        // Check for death
+        this.checkForDeath();
+        
         // Check for achievements
         this.checkAchievements();
     }
@@ -1038,19 +1101,167 @@ class MyChildGame {
         }
     }
     
+    showActivityImage(imagePath, duration = 2000) {
+        // Show an activity image overlay in the scene temporarily
+        const sceneImage = document.getElementById('sceneImage');
+        if (!sceneImage) return;
+        
+        // Remove any existing activity image
+        const existingActivityImg = sceneImage.querySelector('.activity-overlay');
+        if (existingActivityImg) {
+            existingActivityImg.remove();
+        }
+        
+        // Create overlay image
+        const activityImg = document.createElement('img');
+        activityImg.src = imagePath;
+        activityImg.className = 'activity-overlay';
+        activityImg.style.position = 'absolute';
+        activityImg.style.top = '50%';
+        activityImg.style.left = '50%';
+        activityImg.style.transform = 'translate(-50%, -50%)';
+        activityImg.style.maxWidth = '60%';
+        activityImg.style.maxHeight = '60%';
+        activityImg.style.objectFit = 'contain';
+        activityImg.style.zIndex = '1000';
+        activityImg.style.opacity = '0';
+        activityImg.style.transition = 'opacity 0.5s ease-in-out';
+        activityImg.style.pointerEvents = 'none';
+        activityImg.style.borderRadius = '15px';
+        activityImg.style.boxShadow = '0 0 30px rgba(255, 0, 255, 0.5), 0 0 60px rgba(0, 255, 255, 0.3)';
+        
+        // Ensure sceneImage has relative positioning
+        if (getComputedStyle(sceneImage).position === 'static') {
+            sceneImage.style.position = 'relative';
+        }
+        
+        sceneImage.appendChild(activityImg);
+        
+        // Fade in
+        setTimeout(() => {
+            activityImg.style.opacity = '1';
+        }, 10);
+        
+        // Fade out and remove after duration
+        setTimeout(() => {
+            activityImg.style.opacity = '0';
+            setTimeout(() => {
+                if (activityImg.parentNode) {
+                    activityImg.remove();
+                }
+            }, 500);
+        }, duration);
+        
+        // Handle image load errors
+        activityImg.onerror = () => {
+            activityImg.remove();
+        };
+    }
+    
     updateChildAvatarImage() {
-        // Use real photos if available based on gender
+        // Use real photos if available based on age, gender, health, and wealth
         const avatar = document.querySelector('.child-avatar');
         if (!avatar) return;
         
-        // Check if we should use real photos (for older children)
-        if (this.child.age >= 3) {
-            const photoPath = this.child.gender === 'girl' 
-                ? 'assets/images/girlcloseuppicture.png' 
-                : 'assets/images/boycloseuppicture.png';
+        // Determine image based on age, gender, health, and wealth
+        let photoPath = null;
+        const age = this.child.age;
+        const isGirl = this.child.gender === 'girl';
+        const isSick = this.child.energy < 20 || this.child.happiness < 20 || this.child.hunger < 20;
+        const isRich = this.child.money > 100000;
+        
+        // Baby (0-2 years)
+        if (age <= 2) {
+            // Use sleeping baby if energy is low, otherwise use baby stickers
+            if (this.child.energy < 30) {
+                photoPath = 'assets/images/sleepingbaby.jpg';
+            } else {
+                // Alternate between baby stickers
+                photoPath = (age % 2 === 0) 
+                    ? 'assets/images/stickerbaby1.jpg' 
+                    : 'assets/images/stickerbaby2.jpg';
+            }
+        }
+        // Child (3-12 years)
+        else if (age >= 3 && age <= 12) {
+            if (isSick) {
+                photoPath = isGirl 
+                    ? 'assets/images/sickwoman.jpg' 
+                    : 'assets/images/sickman.jpg';
+            } else if (this.child.happiness > 70) {
+                // Happy child
+                photoPath = isGirl 
+                    ? 'assets/images/happygirl.jpg' 
+                    : 'assets/images/happyboy.jpg';
+            } else if (this.child.happiness < 30) {
+                // Sad child
+                photoPath = isGirl 
+                    ? 'assets/images/sadgirl.jpg' 
+                    : 'assets/images/sadboy.jpg';
+            } else {
+                photoPath = isGirl 
+                    ? 'assets/images/girlcloseuppicture.png' 
+                    : 'assets/images/boycloseuppicture.png';
+            }
+        }
+        // Teenager (13-17 years)
+        else if (age >= 13 && age <= 17) {
+            if (isSick) {
+                photoPath = isGirl 
+                    ? 'assets/images/sickwoman.jpg' 
+                    : 'assets/images/sickman.jpg';
+            } else {
+                // Use bike images for 2000s world, fullbody for 2085
+                if (this.worldMode === '2000s' && age >= 13 && age <= 15) {
+                    photoPath = isGirl 
+                        ? 'assets/images/girlonbike.jpg' 
+                        : 'assets/images/boyonbike.jpg';
+                } else {
+                    photoPath = isGirl 
+                        ? 'assets/images/teenagegirlfullbody.jpg' 
+                        : 'assets/images/teenageboyfullbody.jpg';
+                }
+            }
+        }
+        // Young adult (18-64 years)
+        else if (age >= 18 && age < 65) {
+            if (isSick) {
+                photoPath = isGirl 
+                    ? 'assets/images/sickwoman.jpg' 
+                    : 'assets/images/sickman.jpg';
+            } else if (isGirl && age >= 18 && age <= 30) {
+                // Use punk girl for young adult women
+                photoPath = 'assets/images/punkgirl.jpg';
+            } else {
+                // Use closeup pictures for adults
+                photoPath = isGirl 
+                    ? 'assets/images/girlcloseuppicture.png' 
+                    : 'assets/images/boycloseuppicture.png';
+            }
+        }
+        // Elderly (65+ years)
+        else if (age >= 65) {
+            if (isSick) {
+                photoPath = isGirl 
+                    ? 'assets/images/sickwoman.jpg' 
+                    : 'assets/images/sickman.jpg';
+            } else if (isRich) {
+                photoPath = isGirl 
+                    ? 'assets/images/oldrichlady.jpg' 
+                    : 'assets/images/oldrichman.jpg';
+            } else {
+                photoPath = isGirl 
+                    ? 'assets/images/oldwoman.jpg' 
+                    : 'assets/images/oldman.jpg';
+            }
+        }
+        
+        // Update avatar image if we have a path
+        if (photoPath) {
+            const existingImg = avatar.querySelector('img');
             
-            // Only use photo if avatar is currently emoji
-            if (avatar.textContent && !avatar.querySelector('img')) {
+            // Only update if image path changed or no image exists
+            if (!existingImg || existingImg.src !== photoPath || !existingImg.src.includes(photoPath.split('/').pop())) {
                 const img = document.createElement('img');
                 img.src = photoPath;
                 img.alt = this.child.name;
@@ -1059,10 +1270,15 @@ class MyChildGame {
                 img.style.objectFit = 'cover';
                 img.style.borderRadius = '50%';
                 img.style.transition = 'opacity 0.3s';
+                
                 img.onerror = () => {
-                    // If image doesn't exist, keep emoji
+                    // If image doesn't exist, keep emoji or existing image
                     img.style.display = 'none';
+                    if (!avatar.textContent && avatar.getAttribute('data-emoji')) {
+                        avatar.textContent = avatar.getAttribute('data-emoji');
+                    }
                 };
+                
                 img.onload = () => {
                     // Fade in photo
                     img.style.opacity = '0';
@@ -1071,14 +1287,20 @@ class MyChildGame {
                     }, 100);
                 };
                 
-                // Don't replace if already has image
-                if (!avatar.querySelector('img')) {
-                    const currentEmoji = avatar.textContent;
+                // Store emoji as fallback
+                const currentEmoji = avatar.textContent || avatar.getAttribute('data-emoji') || (isGirl ? '👧' : '👦');
+                avatar.setAttribute('data-emoji', currentEmoji);
+                
+                // Replace content with image
                     avatar.innerHTML = '';
                     avatar.appendChild(img);
-                    // Keep emoji as fallback text
-                    avatar.setAttribute('data-emoji', currentEmoji);
-                }
+            }
+        } else {
+            // No image path determined, use emoji
+            const emoji = avatar.getAttribute('data-emoji') || (isGirl ? '👧' : '👦');
+            if (!avatar.textContent || avatar.querySelector('img')) {
+                avatar.innerHTML = '';
+                avatar.textContent = emoji;
             }
         }
     }
@@ -1705,8 +1927,85 @@ class MyChildGame {
             this.child[stat] = Math.min(100, this.child[stat] + Math.floor(amount * 0.1));
         }
         
+        // Check for death if all stats reach 0
+        this.checkForDeath();
+        
         this.updateDisplay();
         return this.child[stat] - oldValue;
+    }
+    
+    checkForDeath() {
+        // Don't check if character is already dead
+        if (this.child.isDead) {
+            return;
+        }
+        
+        // Check if all main stats (happiness, hunger, energy, social, learning) are at 0
+        if (this.child.happiness <= 0 && 
+            this.child.hunger <= 0 && 
+            this.child.energy <= 0 && 
+            this.child.social <= 0 && 
+            this.child.learning <= 0) {
+            
+            // Character has died
+            this.handleDeath();
+        }
+    }
+    
+    handleDeath() {
+        // Stop the game
+        clearInterval(this.autoSaveInterval);
+        
+        // Show death message
+        const deathMessage = this.language === 'no'
+            ? "💀 Karakteren din har dødd. Alle stats (happiness, hunger, energy, social, learning) nådde null. Spillet er over."
+            : "💀 Your character has died. All stats (happiness, hunger, energy, social, learning) reached zero. Game over.";
+        
+        const deathDialogue = this.language === 'no'
+            ? "Jeg klarte det ikke... Verden i 2085 var for hard. Jeg er så lei meg..."
+            : "I couldn't make it... The world in 2085 was too harsh. I'm so sorry...";
+        
+        // Show death messages
+        this.showDialogue(deathDialogue);
+        this.showMessage(deathMessage);
+        
+        // Disable all game actions
+        const gameButtons = document.querySelectorAll('button');
+        gameButtons.forEach(btn => {
+            if (!btn.id || (btn.id !== 'logoutBtn' && !btn.id.includes('Tab'))) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+            }
+        });
+        
+        // Disable next year button
+        const nextYearBtn = document.querySelector('.time-btn');
+        if (nextYearBtn) {
+            nextYearBtn.disabled = true;
+            nextYearBtn.style.opacity = '0.5';
+            nextYearBtn.style.cursor = 'not-allowed';
+        }
+        
+        // Add death entry to diary
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? '💀 Jeg døde i dag. Alle mine stats nådde null. Verden i 2085 var for hard for meg. Jeg håper noen kan lære av mine feil og redde fremtiden.'
+                : '💀 I died today. All my stats reached zero. The world in 2085 was too harsh for me. I hope someone can learn from my mistakes and save the future.',
+            false
+        );
+        
+        // Save game state with death flag
+        this.child.isDead = true;
+        this.saveGame();
+        
+        // Show restart option after 3 seconds
+        setTimeout(() => {
+            const restartMsg = this.language === 'no'
+                ? "Vil du starte på nytt? Gå tilbake til login-siden og opprett et nytt spill."
+                : "Do you want to start over? Go back to the login page and create a new game.";
+            this.showMessage(restartMsg);
+        }, 3000);
     }
     
     adjustRelationship(amount) {
@@ -1714,6 +2013,15 @@ class MyChildGame {
     }
     
     canPerformAction() {
+        // Don't allow actions if character is dead
+        if (this.child.isDead) {
+            const deadMsg = this.language === 'no'
+                ? "💀 Karakteren din er død. Spillet er over."
+                : "💀 Your character is dead. Game over.";
+            this.showMessage(deadMsg);
+            return false;
+        }
+        
         if (this.actionsToday >= this.maxActionsPerDay) {
             const tiredMsg = this.language === 'no'
                 ? "Jeg er så trøtt... Jeg kan ikke gjøre mer i dag. Jeg trenger hvile."
@@ -2071,6 +2379,12 @@ class MyChildGame {
         friend.friendshipLevel = Math.min(100, friend.friendshipLevel + 5);
         friend.lastInteraction = this.day;
         
+        // Show communication image (phone or mail)
+        const communicationImage = this.child.age >= 10 
+            ? 'assets/images/nokiaphone.png' 
+            : 'assets/images/mailicon.png';
+        this.showActivityImage(communicationImage, 2000);
+        
         // Social activities with friend
         const activities = [
             { 
@@ -2340,14 +2654,80 @@ class MyChildGame {
     feedChild() {
         if (!this.canPerformAction()) return;
         
-        // Check if we have food (money to buy food) - like original game
-        // Food costs more as child gets older (increased to make money more critical)
-        const foodCost = this.child.age < 5 ? 4 : this.child.age < 10 ? 7 : this.child.age < 14 ? 12 : 18;
+        // Show dinner choice menu
+        this.showDinnerChoice();
+    }
+    
+    showDinnerChoice() {
+        // Show family image if siblings exist
+        if (this.child.siblings !== 'none') {
+            this.showActivityImage('assets/images/lafamilia.jpg', 2000);
+        }
         
-        if (this.child.money < foodCost) {
+        const dinnerOptions = [
+            {
+                name: this.language === 'no' ? 'Pizza' : 'Pizza',
+                cost: 8,
+                hunger: 30,
+                happiness: 15,
+                energy: 5,
+                health: -5, // Less healthy
+                message: this.language === 'no' 
+                    ? "Pizza er godt, men ikke så sunt. Jeg blir mett, men kanskje ikke så mye energi."
+                    : "Pizza is good, but not so healthy. I'm full, but maybe not so much energy."
+            },
+            {
+                name: this.language === 'no' ? 'Fisk med grønnsaker' : 'Fish with vegetables',
+                cost: 12,
+                hunger: 35,
+                happiness: 10,
+                energy: 15,
+                health: 10, // Healthy
+                message: this.language === 'no'
+                    ? "Fisk og grønnsaker er sunt! Jeg får mye energi og føler meg bra."
+                    : "Fish and vegetables are healthy! I get lots of energy and feel good."
+            },
+            {
+                name: this.language === 'no' ? 'Hamburger og pommes' : 'Hamburger and fries',
+                cost: 10,
+                hunger: 32,
+                happiness: 18,
+                energy: 8,
+                health: -8, // Less healthy
+                message: this.language === 'no'
+                    ? "Hamburger er digg, men ikke så sunt. Jeg blir mett og glad, men kanskje litt trøtt senere."
+                    : "Hamburger is tasty, but not so healthy. I'm full and happy, but maybe a bit tired later."
+            },
+            {
+                name: this.language === 'no' ? 'Pasta med kjøttsaus' : 'Pasta with meat sauce',
+                cost: 9,
+                hunger: 33,
+                happiness: 12,
+                energy: 12,
+                health: 3, // Moderately healthy
+                message: this.language === 'no'
+                    ? "Pasta er godt og mettende. Jeg får nok energi til å fortsette dagen."
+                    : "Pasta is good and filling. I get enough energy to continue the day."
+            },
+            {
+                name: this.language === 'no' ? 'Salat med kylling' : 'Salad with chicken',
+                cost: 11,
+                hunger: 28,
+                happiness: 8,
+                energy: 18,
+                health: 15, // Very healthy
+                message: this.language === 'no'
+                    ? "Salat er veldig sunt! Jeg får mye energi, men kanskje ikke så mett."
+                    : "Salad is very healthy! I get lots of energy, but maybe not so full."
+            }
+        ];
+        
+        // Check if we have enough money
+        const minCost = Math.min(...dinnerOptions.map(opt => opt.cost));
+        if (this.child.money < minCost) {
             const noMoneyMsg = this.language === 'no'
-                ? "Vi har ikke nok penger for mat... Vi trenger " + foodCost + " kroner, men har bare " + this.child.money + " kroner. Kanskje jeg burde jobbe først?"
-                : "We don't have enough money for food... We need " + foodCost + " kroner, but only have " + this.child.money + " kroner. Maybe I should work first?";
+                ? "Vi har ikke nok penger for middag... Vi trenger minst " + minCost + " kroner, men har bare " + this.child.money + " kroner. Kanskje jeg burde jobbe først?"
+                : "We don't have enough money for dinner... We need at least " + minCost + " kroner, but only have " + this.child.money + " kroner. Maybe I should work first?";
             this.showDialogue(noMoneyMsg);
             this.showMessage(this.language === 'no' 
                 ? "💡 Tips: Jobb for å tjene penger så du kan kjøpe mat! Mat er viktig!"
@@ -2355,65 +2735,1771 @@ class MyChildGame {
             return;
         }
         
-        // Cost money to feed (like original game - critical resource management)
-        this.child.money = Math.max(0, this.child.money - foodCost);
+        // Show dinner choice dialog
+        const dinnerMsg = this.language === 'no'
+            ? "Hva skal vi spise til middag i dag?"
+            : "What should we eat for dinner today?";
+        this.showDialogue(dinnerMsg);
+        
+        // Create choice buttons
+        setTimeout(() => {
+            const choiceContainer = document.createElement('div');
+            choiceContainer.id = 'dinnerChoiceContainer';
+            choiceContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 20px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '🍽️ Velg middag' : '🍽️ Choose dinner';
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            choiceContainer.appendChild(title);
+            
+            dinnerOptions.forEach((option, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.style.cssText = 'display: block; width: 100%; margin: 10px 0; padding: 15px; text-align: left;';
+                btn.innerHTML = `<strong>${option.name}</strong><br>
+                    <small>💰 ${option.cost} kr | 🍽️ Hunger: +${option.hunger} | 😊 Happiness: +${option.happiness} | ⚡ Energy: +${option.energy} | ${option.health > 0 ? '✅' : '⚠️'} Health: ${option.health > 0 ? '+' : ''}${option.health}</small>`;
+                
+                btn.onclick = () => {
+                    this.chooseDinner(option);
+                    choiceContainer.remove();
+                };
+                
+                // Disable if not enough money
+                if (this.child.money < option.cost) {
+                    btn.disabled = true;
+                    btn.style.opacity = '0.5';
+                    btn.style.cursor = 'not-allowed';
+                }
+                
+                choiceContainer.appendChild(btn);
+            });
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => choiceContainer.remove();
+            choiceContainer.appendChild(cancelBtn);
+            
+            document.body.appendChild(choiceContainer);
+        }, 500);
+    }
+    
+    chooseDinner(option) {
+        if (this.child.money < option.cost) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har ikke nok penger for dette valget."
+                : "You don't have enough money for this choice.");
+            return;
+        }
+        
+        // Deduct cost
+        this.child.money = Math.max(0, this.child.money - option.cost);
+        this.child.lastDinnerChoice = option.name;
+        
+        // Track that child was fed
+        this.child.lastFed = this.day;
+        this.child.daysWithoutFood = 0;
+        
+        // Show activity image for babies
+        if (this.child.age <= 2) {
+            this.showActivityImage('assets/images/babybottle.png', 2000);
+        } else {
+            // Show happy/sad images based on choice quality
+            if (option.health > 5) {
+                const happyImage = this.child.gender === 'girl' 
+                    ? 'assets/images/happygirl.jpg' 
+                    : 'assets/images/happyboy.jpg';
+                this.showActivityImage(happyImage, 2000);
+            } else if (option.health < -5) {
+                const sadImage = this.child.gender === 'girl' 
+                    ? 'assets/images/sadgirl.jpg' 
+                    : 'assets/images/sadboy.jpg';
+                this.showActivityImage(sadImage, 2000);
+            }
+        }
+        
+        // Apply effects
+        this.adjustStat('hunger', option.hunger);
+        this.adjustStat('happiness', option.happiness);
+        this.adjustStat('energy', option.energy);
+        
+        // Health effects (affects energy and happiness over time)
+        if (option.health > 0) {
+            this.adjustStat('energy', Math.floor(option.health / 2));
+            this.setEmotion('happy', 5);
+        } else if (option.health < 0) {
+            this.adjustStat('energy', Math.floor(option.health / 2));
+            this.setEmotion('sad', 3);
+        }
+        
+        this.adjustRelationship(2);
+        this.setEmotion('happy', 10);
+        this.setEmotion('anxious', -5);
+        
+        // Show message
+        this.showDialogue(option.message);
         
         // Show cost message
         if (this.child.age >= 5) {
             const costMsg = this.language === 'no'
-                ? "Kjøpte mat for " + foodCost + " kroner. Gjenstående: " + this.child.money + " kroner."
-                : "Bought food for " + foodCost + " kroner. Remaining: " + this.child.money + " kroner.";
-            setTimeout(() => this.showMessage(costMsg), 500);
+                ? "Kjøpte " + option.name + " for " + option.cost + " kroner. Gjenstående: " + this.child.money + " kroner."
+                : "Bought " + option.name + " for " + option.cost + " kroner. Remaining: " + this.child.money + " kroner.";
+            setTimeout(() => this.showMessage(costMsg), 1000);
         }
         
-        // Track that child was fed (like original - important for daily routine)
-        this.child.lastFed = this.day;
-        this.child.daysWithoutFood = 0;
-        
-        this.adjustStat('hunger', 35);
-        this.adjustStat('happiness', 10);
-        this.adjustStat('energy', 5);
-        this.adjustRelationship(2);
-        this.setEmotion('happy', 10);
-        this.setEmotion('anxious', -5); // Eating together is comforting
-        
-        let messages = [];
-        if (this.child.age < 1) {
-            messages = [
-                "*gurgles happily*",
-                "*coos and smiles*",
-                "*drinks milk contentedly*"
-            ];
-        } else if (this.child.age < 3) {
-            messages = [
-                "Yummy! More please!",
-                "I like this food!",
-                "Mmm, tasty!"
-            ];
-        } else {
-            messages = [
-                "Thank you! This food is so yummy!",
-                "I was so hungry! This tastes great!",
-                "Mmm, this is delicious! Can I have more?",
-                "I love eating with you! Thank you for the meal!",
-                "Eating together makes me feel safe... Thank you."
-            ];
-        }
-        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
-        
-        // Occasionally add learning fact about nutrition
-        if (Math.random() < 0.15) {
-            const nutritionFacts = [
-                "💡 Læringsfakta: God mat gir hjernen vår energi! Hjernen vår bruker mye energi, så det er viktig å spise næringsrikt.",
-                "💡 Læringsfakta: Frukter og grønnsaker inneholder vitaminer som hjelper hjernen vår å fungere best!",
-                "💡 Læringsfakta: Når vi spiser sammen med andre, bygger vi også relasjoner. Det er godt for både kropp og sinn!"
-            ];
-            setTimeout(() => this.showMessage(nutritionFacts[Math.floor(Math.random() * nutritionFacts.length)]), 1000);
+        // Learning about consequences
+        if (option.health < 0) {
+            setTimeout(() => {
+                const lessonMsg = this.language === 'no'
+                    ? "💡 Læring: Usunn mat kan gi deg kortvarig glede, men ikke så mye energi. Sunn mat gir deg mer energi på sikt!"
+                    : "💡 Learning: Unhealthy food can give you short-term happiness, but not so much energy. Healthy food gives you more energy in the long run!";
+                this.showMessage(lessonMsg);
+            }, 2000);
         }
         
-        this.showMessage("You fed your child. A well-fed child is a happy child!");
         this.performAction();
         this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Problem situations with choices and consequences
+    triggerProblemSituation() {
+        // Randomly trigger problem situations (age 5+)
+        if (this.child.age < 5 || Math.random() > 0.3) {
+            return;
+        }
+        
+        const problems = [
+            {
+                name: 'siblingConflict',
+                condition: () => this.child.siblings !== 'none',
+                question: this.language === 'no'
+                    ? "Din søsken har tatt leketøyet ditt uten å spørre. Hva gjør du?"
+                    : "Your sibling took your toy without asking. What do you do?",
+                choices: [
+                    {
+                        text: this.language === 'no' ? "Snakk rolig med søsken" : "Talk calmly with sibling",
+                        good: true,
+                        happiness: 5,
+                        social: 8,
+                        siblingRelationship: 10,
+                        message: this.language === 'no'
+                            ? "Du snakket rolig med søsken. De forsto og ga leketøyet tilbake. Godt valg!"
+                            : "You talked calmly with your sibling. They understood and gave the toy back. Good choice!",
+                        image: 'assets/images/happygirl.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Ta leketøyet tilbake med makt" : "Take the toy back by force",
+                        good: false,
+                        happiness: -5,
+                        social: -5,
+                        siblingRelationship: -15,
+                        message: this.language === 'no'
+                            ? "Du tok leketøyet med makt. Søsken ble lei seg og krangelen ble verre. Dette var ikke et godt valg."
+                            : "You took the toy by force. Your sibling got sad and the conflict got worse. This was not a good choice.",
+                        image: 'assets/images/sadgirl.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Gå til foreldre for hjelp" : "Go to parents for help",
+                        good: true,
+                        happiness: 3,
+                        social: 5,
+                        siblingRelationship: 5,
+                        message: this.language === 'no'
+                            ? "Du ba foreldre om hjelp. De hjalp dere med å løse konflikten. Godt valg!"
+                            : "You asked parents for help. They helped you solve the conflict. Good choice!",
+                        image: 'assets/images/lafamilia.jpg'
+                    }
+                ]
+            },
+            {
+                name: 'friendBullying',
+                condition: () => this.child.age >= 7,
+                question: this.language === 'no'
+                    ? "Du ser at en venn blir mobbet på skolen. Hva gjør du?"
+                    : "You see a friend being bullied at school. What do you do?",
+                choices: [
+                    {
+                        text: this.language === 'no' ? "Hjelp vennen og si ifra til lærer" : "Help friend and tell teacher",
+                        good: true,
+                        happiness: 10,
+                        social: 15,
+                        helpingOthers: 1,
+                        message: this.language === 'no'
+                            ? "Du hjalp vennen og sa ifra. Dette var modig og riktig! Du lærte at å hjelpe andre er viktig."
+                            : "You helped your friend and told the teacher. This was brave and right! You learned that helping others is important.",
+                        image: 'assets/images/happyboy.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Gjør ingenting, gå videre" : "Do nothing, walk away",
+                        good: false,
+                        happiness: -8,
+                        social: -10,
+                        message: this.language === 'no'
+                            ? "Du gjorde ingenting. Vennen ble skuffet og du følte deg dårlig. Dette var ikke et godt valg."
+                            : "You did nothing. Your friend was disappointed and you felt bad. This was not a good choice.",
+                        image: 'assets/images/sadboy.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Prøv å snakke med mobberne" : "Try to talk to the bullies",
+                        good: true,
+                        happiness: 5,
+                        social: 8,
+                        resilience: 5,
+                        message: this.language === 'no'
+                            ? "Du prøvde å snakke med mobberne. Det var modig, men ikke alltid trygt. Godt forsøk!"
+                            : "You tried to talk to the bullies. It was brave, but not always safe. Good attempt!",
+                        image: 'assets/images/happyboy.jpg'
+                    }
+                ]
+            },
+            {
+                name: 'homeworkChoice',
+                condition: () => this.child.age >= 7 && this.child.age <= 17,
+                question: this.language === 'no'
+                    ? "Du har lekser, men vennene dine vil at du skal leke. Hva gjør du?"
+                    : "You have homework, but your friends want you to play. What do you do?",
+                choices: [
+                    {
+                        text: this.language === 'no' ? "Gjør lekser først, leke senere" : "Do homework first, play later",
+                        good: true,
+                        learning: 15,
+                        studyLevel: 5,
+                        happiness: 5,
+                        message: this.language === 'no'
+                            ? "Du gjorde lekser først. Du lærte at å prioritere er viktig. Nå kan du leke med god samvittighet!"
+                            : "You did homework first. You learned that prioritizing is important. Now you can play with a clear conscience!",
+                        image: 'assets/images/happyboy.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Lek først, gjør lekser senere" : "Play first, do homework later",
+                        good: false,
+                        learning: -5,
+                        studyLevel: -3,
+                        happiness: 10,
+                        energy: -10,
+                        message: this.language === 'no'
+                            ? "Du lekte først, men ble for trøtt til å gjøre lekser. Du lærte at det er vanskelig å gjøre lekser når man er trøtt."
+                            : "You played first, but got too tired to do homework. You learned that it's hard to do homework when you're tired.",
+                        image: 'assets/images/sadboy.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Ikke gjør lekser i det hele tatt" : "Don't do homework at all",
+                        good: false,
+                        learning: -10,
+                        studyLevel: -8,
+                        happiness: 15,
+                        social: 5,
+                        message: this.language === 'no'
+                            ? "Du valgte å ikke gjøre lekser. Du hadde det gøy, men falt bak på skolen. Dette var ikke et godt valg på sikt."
+                            : "You chose not to do homework. You had fun, but fell behind at school. This was not a good choice in the long run.",
+                        image: 'assets/images/sadgirl.jpg'
+                    }
+                ]
+            },
+            {
+                name: 'elderlyHelp',
+                condition: () => this.child.age >= 10,
+                question: this.language === 'no'
+                    ? "Du ser en eldre dame som sliter med å bære handleposer. Hva gjør du?"
+                    : "You see an elderly lady struggling to carry shopping bags. What do you do?",
+                choices: [
+                    {
+                        text: this.language === 'no' ? "Hjelp henne med posene" : "Help her with the bags",
+                        good: true,
+                        happiness: 15,
+                        social: 10,
+                        helpingOthers: 1,
+                        message: this.language === 'no'
+                            ? "Du hjalp den eldre damen. Hun var veldig takknemlig! Du lærte at å hjelpe andre gir deg en god følelse."
+                            : "You helped the elderly lady. She was very grateful! You learned that helping others gives you a good feeling.",
+                        image: 'assets/images/gratefuloldlady.jpg'
+                    },
+                    {
+                        text: this.language === 'no' ? "Gå forbi uten å hjelpe" : "Walk past without helping",
+                        good: false,
+                        happiness: -5,
+                        social: -3,
+                        message: this.language === 'no'
+                            ? "Du gikk forbi uten å hjelpe. Du følte deg litt dårlig etterpå. Dette var ikke et godt valg."
+                            : "You walked past without helping. You felt a bit bad afterwards. This was not a good choice.",
+                        image: 'assets/images/sadboy.jpg'
+                    }
+                ]
+            }
+        ];
+        
+        // Filter problems based on conditions
+        const availableProblems = problems.filter(p => !p.condition || p.condition());
+        
+        if (availableProblems.length === 0) return;
+        
+        const problem = availableProblems[Math.floor(Math.random() * availableProblems.length)];
+        
+        // Show problem
+        this.showDialogue(problem.question);
+        
+        // Show choice buttons after a delay
+        setTimeout(() => {
+            const choiceContainer = document.createElement('div');
+            choiceContainer.id = 'problemChoiceContainer';
+            choiceContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 20px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '🤔 Hva vil du gjøre?' : '🤔 What will you do?';
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            choiceContainer.appendChild(title);
+            
+            problem.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-primary';
+                btn.style.cssText = `display: block; width: 100%; margin: 10px 0; padding: 15px; text-align: left; ${choice.good ? 'border-left: 5px solid #4CAF50;' : 'border-left: 5px solid #f44336;'}`;
+                btn.innerHTML = `<strong>${choice.text}</strong>`;
+                
+                btn.onclick = () => {
+                    this.makeProblemChoice(problem, choice);
+                    choiceContainer.remove();
+                };
+                
+                choiceContainer.appendChild(btn);
+            });
+            
+            document.body.appendChild(choiceContainer);
+        }, 1000);
+    }
+    
+    makeProblemChoice(problem, choice) {
+        // Track choice
+        this.child.problemChoices.push({
+            problem: problem.name,
+            choice: choice.text,
+            good: choice.good,
+            day: this.day
+        });
+        
+        // Apply consequences
+        if (choice.happiness !== undefined) this.adjustStat('happiness', choice.happiness);
+        if (choice.social !== undefined) this.adjustStat('social', choice.social);
+        if (choice.learning !== undefined) this.adjustStat('learning', choice.learning);
+        if (choice.studyLevel !== undefined) this.child.studyLevel = Math.max(0, Math.min(100, this.child.studyLevel + choice.studyLevel));
+        if (choice.energy !== undefined) this.adjustStat('energy', choice.energy);
+        if (choice.siblingRelationship !== undefined) this.child.siblingRelationship = Math.max(0, Math.min(100, this.child.siblingRelationship + choice.siblingRelationship));
+        if (choice.helpingOthers !== undefined) this.child.helpingOthers += choice.helpingOthers;
+        if (choice.resilience !== undefined) this.child.resilience = Math.max(0, Math.min(100, this.child.resilience + choice.resilience));
+        
+        // Track good vs bad choices
+        if (choice.good) {
+            this.child.goodChoices++;
+        } else {
+            this.child.shortTermChoices++;
+        }
+        
+        // Show image if available
+        if (choice.image) {
+            this.showActivityImage(choice.image, 2500);
+        }
+        
+        // Show message
+        this.showDialogue(choice.message);
+        
+        // Show learning message about consequences
+        setTimeout(() => {
+            const lessonMsg = choice.good 
+                ? (this.language === 'no'
+                    ? "💡 Læring: Gode valg gir deg positive konsekvenser på sikt. Du lærte noe viktig i dag!"
+                    : "💡 Learning: Good choices give you positive consequences in the long run. You learned something important today!")
+                : (this.language === 'no'
+                    ? "💡 Læring: Dårlige valg kan gi deg kortsiktig glede, men negative konsekvenser på sikt. Prøv å tenke på fremtiden neste gang!"
+                    : "💡 Learning: Bad choices can give you short-term happiness, but negative consequences in the long run. Try to think about the future next time!");
+            this.showMessage(lessonMsg);
+        }, 2000);
+        
+        // Add diary entry
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag måtte jeg ta et valg: ' + problem.question + ' Jeg valgte: ' + choice.text + '. ' + (choice.good ? 'Dette var et godt valg!' : 'Dette var kanskje ikke det beste valget.')
+                : 'Today I had to make a choice: ' + problem.question + ' I chose: ' + choice.text + '. ' + (choice.good ? 'This was a good choice!' : 'This might not have been the best choice.'),
+            choice.good
+        );
+        
+        this.saveGame();
+    }
+    
+    // Age-specific learning activities
+    updateAgeSpecificButtons() {
+        // Show/hide age-specific learning buttons
+        const pottyBtn = document.getElementById('pottyTrainingBtn');
+        const spellingBtn = document.getElementById('spellingBtn');
+        const bikeBtn = document.getElementById('bikeBtn');
+        const swimBtn = document.getElementById('swimBtn');
+        
+        // Pottetrening (1-2 år)
+        if (pottyBtn) {
+            if (this.child.age >= 1 && this.child.age <= 2) {
+                pottyBtn.style.display = 'inline-block';
+            } else {
+                pottyBtn.style.display = 'none';
+            }
+        }
+        
+        // Stave (2-4 år)
+        if (spellingBtn) {
+            if (this.child.age >= 2 && this.child.age <= 4) {
+                spellingBtn.style.display = 'inline-block';
+            } else {
+                spellingBtn.style.display = 'none';
+            }
+        }
+        
+        // Sykkel (6-7 år)
+        if (bikeBtn) {
+            if (this.child.age >= 6 && this.child.age <= 7) {
+                bikeBtn.style.display = 'inline-block';
+            } else {
+                bikeBtn.style.display = 'none';
+            }
+        }
+        
+        // Svømme (5+ år)
+        if (swimBtn) {
+            if (this.child.age >= 5) {
+                swimBtn.style.display = 'inline-block';
+            } else {
+                swimBtn.style.display = 'none';
+            }
+        }
+    }
+    
+    // Pottetrening for 1-2 år
+    pottyTraining() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 1 || this.child.age > 2) {
+            this.showMessage(this.language === 'no' 
+                ? "Pottetrening er for barn mellom 1-2 år."
+                : "Potty training is for children between 1-2 years old.");
+            return;
+        }
+        
+        this.adjustStat('happiness', 8);
+        this.adjustStat('learning', 12);
+        this.adjustStat('energy', -5);
+        this.setEmotion('happy', 10);
+        this.setEmotion('curious', 8);
+        this.adjustRelationship(2);
+        
+        const messages = this.language === 'no' ? [
+            "Jeg lærer å bruke potten! Det er spennende!",
+            "Pottetrening er vanskelig, men jeg prøver!",
+            "Jeg blir bedre på å bruke potten hver dag!"
+        ] : [
+            "I'm learning to use the potty! It's exciting!",
+            "Potty training is hard, but I'm trying!",
+            "I'm getting better at using the potty every day!"
+        ];
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Learning fact
+        setTimeout(() => {
+            const fact = this.language === 'no'
+                ? "💡 Læring: Pottetrening lærer barn selvkontroll og tålmodighet. Det er viktig å være støttende og positiv!"
+                : "💡 Learning: Potty training teaches children self-control and patience. It's important to be supportive and positive!";
+            this.showMessage(fact);
+        }, 1000);
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Staveøvelser for 2-4 år
+    learnSpelling() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 2 || this.child.age > 4) {
+            this.showMessage(this.language === 'no' 
+                ? "Staveøvelser er for barn mellom 2-4 år."
+                : "Spelling exercises are for children between 2-4 years old.");
+            return;
+        }
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å stave akkurat nå..."
+                : "I'm too tired to spell right now...");
+            return;
+        }
+        
+        // Simple words for spelling
+        const words = this.language === 'no' ? [
+            { word: "MAMMA", letters: ["M", "A", "M", "M", "A"] },
+            { word: "PAPPA", letters: ["P", "A", "P", "P", "A"] },
+            { word: "BIL", letters: ["B", "I", "L"] },
+            { word: "HUS", letters: ["H", "U", "S"] },
+            { word: "BARN", letters: ["B", "A", "R", "N"] },
+            { word: "SOL", letters: ["S", "O", "L"] }
+        ] : [
+            { word: "MOM", letters: ["M", "O", "M"] },
+            { word: "DAD", letters: ["D", "A", "D"] },
+            { word: "CAT", letters: ["C", "A", "T"] },
+            { word: "DOG", letters: ["D", "O", "G"] },
+            { word: "SUN", letters: ["S", "U", "N"] },
+            { word: "CAR", letters: ["C", "A", "R"] }
+        ];
+        
+        const selectedWord = words[Math.floor(Math.random() * words.length)];
+        
+        this.showDialogue(this.language === 'no' 
+            ? "La oss stave ordet '" + selectedWord.word + "' sammen! Bokstavene er: " + selectedWord.letters.join(", ")
+            : "Let's spell the word '" + selectedWord.word + "' together! The letters are: " + selectedWord.letters.join(", "));
+        
+        // Interactive spelling game
+        setTimeout(() => {
+            const spellingContainer = document.createElement('div');
+            spellingContainer.id = 'spellingContainer';
+            spellingContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '🔤 Stave: ' + selectedWord.word : '🔤 Spell: ' + selectedWord.word;
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            spellingContainer.appendChild(title);
+            
+            const lettersContainer = document.createElement('div');
+            lettersContainer.style.cssText = 'display: flex; gap: 10px; justify-content: center; margin: 20px 0; flex-wrap: wrap;';
+            
+            // Shuffled letters
+            const shuffledLetters = [...selectedWord.letters].sort(() => Math.random() - 0.5);
+            const selectedLetters = [];
+            
+            shuffledLetters.forEach((letter, idx) => {
+                const letterBtn = document.createElement('button');
+                letterBtn.textContent = letter;
+                letterBtn.style.cssText = 'padding: 15px 20px; font-size: 1.5em; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; cursor: pointer; min-width: 50px;';
+                letterBtn.onclick = () => {
+                    if (selectedLetters.length < selectedWord.letters.length) {
+                        selectedLetters.push(letter);
+                        letterBtn.disabled = true;
+                        letterBtn.style.opacity = '0.5';
+                        updateSpellingDisplay();
+                    }
+                };
+                lettersContainer.appendChild(letterBtn);
+            });
+            
+            const wordDisplay = document.createElement('div');
+            wordDisplay.id = 'wordDisplay';
+            wordDisplay.style.cssText = 'font-size: 2em; text-align: center; margin: 20px 0; min-height: 50px; letter-spacing: 10px;';
+            wordDisplay.textContent = '_ '.repeat(selectedWord.letters.length);
+            
+            const updateSpellingDisplay = () => {
+                let display = '';
+                for (let i = 0; i < selectedWord.letters.length; i++) {
+                    display += (selectedLetters[i] || '_') + ' ';
+                }
+                wordDisplay.textContent = display.trim();
+                
+                if (selectedLetters.length === selectedWord.letters.length) {
+                    const isCorrect = selectedLetters.every((letter, idx) => letter === selectedWord.letters[idx]);
+                    
+                    setTimeout(() => {
+                        if (isCorrect) {
+                            wordDisplay.style.color = '#4CAF50';
+                            wordDisplay.textContent = selectedWord.word;
+                            this.adjustStat('happiness', 15);
+                            this.adjustStat('learning', 20);
+                            this.setEmotion('happy', 20);
+                            this.showDialogue(this.language === 'no' 
+                                ? "Riktig! Jeg kan stave '" + selectedWord.word + "'!"
+                                : "Correct! I can spell '" + selectedWord.word + "'!");
+                            
+                            setTimeout(() => {
+                                const fact = this.language === 'no'
+                                    ? "💡 Læring: Å stave ord hjelper med å bygge ordforråd og forståelse av språk. Det er første steg mot lesing!"
+                                    : "💡 Learning: Spelling words helps build vocabulary and language understanding. It's the first step towards reading!";
+                                this.showMessage(fact);
+                                spellingContainer.remove();
+                                this.performAction();
+                                this.advanceTime();
+                                this.saveGame();
+                            }, 2000);
+                        } else {
+                            wordDisplay.style.color = '#f44336';
+                            this.showDialogue(this.language === 'no' 
+                                ? "Hmm, det var ikke riktig. La oss prøve igjen! Riktig rekkefølge er: " + selectedWord.letters.join(", ")
+                                : "Hmm, that wasn't right. Let's try again! The correct order is: " + selectedWord.letters.join(", "));
+                            selectedLetters.length = 0;
+                            updateSpellingDisplay();
+                            // Re-enable buttons
+                            lettersContainer.querySelectorAll('button').forEach(btn => {
+                                btn.disabled = false;
+                                btn.style.opacity = '1';
+                            });
+                        }
+                    }, 500);
+                }
+            };
+            
+            spellingContainer.appendChild(wordDisplay);
+            spellingContainer.appendChild(lettersContainer);
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => spellingContainer.remove();
+            spellingContainer.appendChild(cancelBtn);
+            
+            document.body.appendChild(spellingContainer);
+        }, 1000);
+        
+        this.adjustStat('energy', -8);
+    }
+    
+    // Lære å sykle (6-7 år)
+    learnBike() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 6 || this.child.age > 7) {
+            this.showMessage(this.language === 'no' 
+                ? "Sykkeletrening er for barn mellom 6-7 år."
+                : "Bike training is for children between 6-7 years old.");
+            return;
+        }
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å øve på sykkel akkurat nå..."
+                : "I'm too tired to practice biking right now...");
+            return;
+        }
+        
+        // Show bike image
+        const bikeImage = this.child.gender === 'girl' 
+            ? 'assets/images/girlonbike.jpg' 
+            : 'assets/images/boyonbike.jpg';
+        this.showActivityImage(bikeImage, 3000);
+        
+        // Progress tracking
+        if (!this.child.bikeProgress) this.child.bikeProgress = 0;
+        this.child.bikeProgress = Math.min(100, this.child.bikeProgress + 15);
+        
+        const progress = this.child.bikeProgress;
+        let message = "";
+        
+        if (progress < 30) {
+            message = this.language === 'no'
+                ? "Jeg lærer å balansere på sykkelen. Det er vanskelig, men jeg prøver!"
+                : "I'm learning to balance on the bike. It's hard, but I'm trying!";
+        } else if (progress < 60) {
+            message = this.language === 'no'
+                ? "Jeg kan balansere litt nå! Jeg lærer å tråkke og styre samtidig."
+                : "I can balance a bit now! I'm learning to pedal and steer at the same time.";
+        } else if (progress < 90) {
+            message = this.language === 'no'
+                ? "Jeg blir bedre! Jeg kan sykle korte strekninger uten hjelp!"
+                : "I'm getting better! I can bike short distances without help!";
+        } else {
+            message = this.language === 'no'
+                ? "Jeg kan sykle! Jeg er så stolt! Dette er en stor milepæl!"
+                : "I can bike! I'm so proud! This is a big milestone!";
+        }
+        
+        this.showDialogue(message);
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('learning', 12);
+        this.adjustStat('energy', -15);
+        this.adjustStat('social', 5);
+        this.setEmotion('happy', 20);
+        this.setEmotion('curious', 15);
+        this.child.resilience = Math.min(100, this.child.resilience + 3);
+        this.adjustRelationship(2);
+        
+        // Learning fact
+        setTimeout(() => {
+            const fact = this.language === 'no'
+                ? "💡 Læring: Å lære å sykle krever tålmodighet, balanse og mot. Det lærer også selvdisiplin og utholdenhet!"
+                : "💡 Learning: Learning to bike requires patience, balance and courage. It also teaches self-discipline and perseverance!";
+            this.showMessage(fact);
+        }, 2000);
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Lære å svømme (5+ år)
+    learnSwimming() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 5) {
+            this.showMessage(this.language === 'no' 
+                ? "Svømmeundervisning er for barn fra 5 år og oppover."
+                : "Swimming lessons are for children from 5 years old and up.");
+            return;
+        }
+        
+        if (this.child.energy < 20) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å svømme akkurat nå..."
+                : "I'm too tired to swim right now...");
+            return;
+        }
+        
+        // Progress tracking
+        if (!this.child.swimmingProgress) this.child.swimmingProgress = 0;
+        this.child.swimmingProgress = Math.min(100, this.child.swimmingProgress + 10);
+        
+        const progress = this.child.swimmingProgress;
+        let message = "";
+        
+        if (progress < 25) {
+            message = this.language === 'no'
+                ? "Jeg lærer å flyte i vannet. Det er vanskelig, men jeg prøver!"
+                : "I'm learning to float in the water. It's hard, but I'm trying!";
+        } else if (progress < 50) {
+            message = this.language === 'no'
+                ? "Jeg kan flyte nå! Jeg lærer å sparke med beina."
+                : "I can float now! I'm learning to kick with my legs.";
+        } else if (progress < 75) {
+            message = this.language === 'no'
+                ? "Jeg kan svømme litt nå! Jeg lærer å koordinere armer og ben."
+                : "I can swim a bit now! I'm learning to coordinate arms and legs.";
+        } else {
+            message = this.language === 'no'
+                ? "Jeg kan svømme! Dette er viktig for sikkerhet og er også god trening!"
+                : "I can swim! This is important for safety and is also great exercise!";
+        }
+        
+        this.showDialogue(message);
+        
+        this.adjustStat('happiness', 12);
+        this.adjustStat('learning', 15);
+        this.adjustStat('energy', -20);
+        this.adjustStat('social', 8);
+        this.setEmotion('happy', 18);
+        this.child.resilience = Math.min(100, this.child.resilience + 2);
+        this.adjustRelationship(2);
+        
+        // Learning fact
+        setTimeout(() => {
+            const fact = this.language === 'no'
+                ? "💡 Læring: Svømming er en livsviktig ferdighet for sikkerhet. Det er også utmerket trening for hele kroppen!"
+                : "💡 Learning: Swimming is a vital skill for safety. It's also excellent exercise for the whole body!";
+            this.showMessage(fact);
+        }, 2000);
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Lære å dele
+    learnSharing() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt akkurat nå..."
+                : "I'm too tired right now...");
+            return;
+        }
+        
+        // Show family image if siblings exist
+        if (this.child.siblings !== 'none') {
+            this.showActivityImage('assets/images/lafamilia.jpg', 2000);
+        }
+        
+        this.adjustStat('happiness', 10);
+        this.adjustStat('social', 15);
+        this.adjustStat('learning', 8);
+        this.adjustStat('energy', -5);
+        this.setEmotion('happy', 15);
+        this.adjustRelationship(3);
+        
+        if (this.child.siblings !== 'none') {
+            this.child.siblingRelationship = Math.min(100, (this.child.siblingRelationship || 50) + 10);
+        }
+        
+        const messages = this.language === 'no' ? [
+            "Jeg lærte å dele leketøyene mine med andre. Det føles bra å være snill!",
+            "Når jeg deler, blir andre glade og jeg blir også glad!",
+            "Å dele lærer meg at det er viktig å tenke på andre også."
+        ] : [
+            "I learned to share my toys with others. It feels good to be kind!",
+            "When I share, others become happy and I become happy too!",
+            "Sharing teaches me that it's important to think about others too."
+        ];
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Learning fact
+        setTimeout(() => {
+            const fact = this.language === 'no'
+                ? "💡 Læring: Å dele lærer oss empati og sosial intelligens. Det bygger gode relasjoner og gjør verden bedre!"
+                : "💡 Learning: Sharing teaches us empathy and social intelligence. It builds good relationships and makes the world better!";
+            this.showMessage(fact);
+        }, 1000);
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Lære å respektere forskjeller
+    learnRespect() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt akkurat nå..."
+                : "I'm too tired right now...");
+            return;
+        }
+        
+        this.adjustStat('happiness', 8);
+        this.adjustStat('social', 18);
+        this.adjustStat('learning', 12);
+        this.adjustStat('energy', -5);
+        this.setEmotion('curious', 15);
+        this.adjustRelationship(2);
+        
+        const messages = this.language === 'no' ? [
+            "Jeg lærte at alle er forskjellige, og det er greit! Vi skal respektere hverandre.",
+            "Det er viktig å forstå at folk har ulike bakgrunner og opplevelser. Det gjør verden interessant!",
+            "Å respektere forskjeller lærer meg å være åpen og inkluderende."
+        ] : [
+            "I learned that everyone is different, and that's okay! We should respect each other.",
+            "It's important to understand that people have different backgrounds and experiences. That makes the world interesting!",
+            "Respecting differences teaches me to be open and inclusive."
+        ];
+        
+        this.showDialogue(messages[Math.floor(Math.random() * messages.length)]);
+        
+        // Learning fact
+        setTimeout(() => {
+            const fact = this.language === 'no'
+                ? "💡 Læring: Å respektere forskjeller lærer oss toleranse og forståelse. Det er grunnlaget for et inkluderende samfunn!"
+                : "💡 Learning: Respecting differences teaches us tolerance and understanding. It's the foundation of an inclusive society!";
+            this.showMessage(fact);
+        }, 1000);
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Lære tålmodighet
+    learnPatience() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt akkurat nå..."
+                : "I'm too tired right now...");
+            return;
+        }
+        
+        // Interactive patience exercise
+        this.showDialogue(this.language === 'no' 
+            ? "La oss øve på tålmodighet! Jeg skal vente i 5 sekunder uten å gjøre noe..."
+            : "Let's practice patience! I'll wait for 5 seconds without doing anything...");
+        
+        setTimeout(() => {
+            const patienceContainer = document.createElement('div');
+            patienceContainer.id = 'patienceContainer';
+            patienceContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; text-align: center; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '⏳ Tålmodighet-øvelse' : '⏳ Patience Exercise';
+            title.style.cssText = 'margin-top: 0;';
+            patienceContainer.appendChild(title);
+            
+            const timer = document.createElement('div');
+            timer.id = 'patienceTimer';
+            timer.style.cssText = 'font-size: 3em; margin: 20px 0;';
+            timer.textContent = '5';
+            patienceContainer.appendChild(timer);
+            
+            const instruction = document.createElement('p');
+            instruction.textContent = this.language === 'no' 
+                ? 'Vent rolig... Ikke klikk på noe!'
+                : 'Wait calmly... Don\'t click anything!';
+            patienceContainer.appendChild(instruction);
+            
+            document.body.appendChild(patienceContainer);
+            
+            let countdown = 5;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                timer.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    timer.textContent = this.language === 'no' ? '✓ Ferdig!' : '✓ Done!';
+                    timer.style.color = '#4CAF50';
+                    
+                    this.adjustStat('happiness', 12);
+                    this.adjustStat('learning', 15);
+                    this.adjustStat('energy', -3);
+                    this.setEmotion('happy', 15);
+                    this.child.resilience = Math.min(100, (this.child.resilience || 50) + 5);
+                    this.adjustRelationship(2);
+                    
+                    this.showDialogue(this.language === 'no' 
+                        ? "Jeg klarte det! Jeg ventet tålmodig. Det føles bra å ha selvkontroll!"
+                        : "I did it! I waited patiently. It feels good to have self-control!");
+                    
+                    setTimeout(() => {
+                        const fact = this.language === 'no'
+                            ? "💡 Læring: Tålmodighet er en viktig ferdighet. Det hjelper oss med å håndtere frustrasjon og gjøre bedre valg!"
+                            : "💡 Learning: Patience is an important skill. It helps us handle frustration and make better choices!";
+                        this.showMessage(fact);
+                        patienceContainer.remove();
+                        this.performAction();
+                        this.advanceTime();
+                        this.saveGame();
+                    }, 2000);
+                }
+            }, 1000);
+        }, 1000);
+    }
+    
+    // Lære selvdisiplin
+    learnSelfDiscipline() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 5) {
+            this.showMessage(this.language === 'no' 
+                ? "Selvdisiplin-øvelser er for barn fra 5 år og oppover."
+                : "Self-discipline exercises are for children from 5 years old and up.");
+            return;
+        }
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt akkurat nå..."
+                : "I'm too tired right now...");
+            return;
+        }
+        
+        // Self-discipline exercise: complete a task step by step
+        this.showDialogue(this.language === 'no' 
+            ? "La oss øve på selvdisiplin! Jeg skal fullføre en oppgave steg for steg..."
+            : "Let's practice self-discipline! I'll complete a task step by step...");
+        
+        setTimeout(() => {
+            const tasks = this.language === 'no' ? [
+                { name: "Rydd rommet", steps: ["1. Legg leker i eske", "2. Rydd seng", "3. Organiser bøker"] },
+                { name: "Fullfør lekser", steps: ["1. Les oppgaven", "2. Tenk gjennom løsningen", "3. Skriv ned svaret"] },
+                { name: "Forbered til dagen", steps: ["1. Velg klær", "2. Pakk skolesekken", "3. Sjekk at alt er klart"] }
+            ] : [
+                { name: "Clean room", steps: ["1. Put toys in box", "2. Make bed", "3. Organize books"] },
+                { name: "Complete homework", steps: ["1. Read the task", "2. Think through solution", "3. Write down answer"] },
+                { name: "Prepare for day", steps: ["1. Choose clothes", "2. Pack school bag", "3. Check everything is ready"] }
+            ];
+            
+            const task = tasks[Math.floor(Math.random() * tasks.length)];
+            
+            const disciplineContainer = document.createElement('div');
+            disciplineContainer.id = 'disciplineContainer';
+            disciplineContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '🎯 Oppgave: ' + task.name : '🎯 Task: ' + task.name;
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            disciplineContainer.appendChild(title);
+            
+            const stepsList = document.createElement('div');
+            stepsList.id = 'stepsList';
+            stepsList.style.cssText = 'margin: 20px 0;';
+            
+            let currentStep = 0;
+            
+            const updateSteps = () => {
+                stepsList.innerHTML = '';
+                task.steps.forEach((step, idx) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.style.cssText = `padding: 10px; margin: 5px 0; border-radius: 5px; ${idx <= currentStep ? 'background: #4CAF50; color: white;' : 'background: #f0f0f0;'}`;
+                    stepDiv.textContent = step;
+                    if (idx <= currentStep) {
+                        stepDiv.textContent = '✓ ' + step;
+                    }
+                    stepsList.appendChild(stepDiv);
+                });
+            };
+            
+            const nextStepBtn = document.createElement('button');
+            nextStepBtn.textContent = this.language === 'no' ? 'Neste steg' : 'Next step';
+            nextStepBtn.className = 'btn-primary';
+            nextStepBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px;';
+            nextStepBtn.onclick = () => {
+                if (currentStep < task.steps.length - 1) {
+                    currentStep++;
+                    updateSteps();
+                    
+                    if (currentStep === task.steps.length - 1) {
+                        nextStepBtn.textContent = this.language === 'no' ? 'Fullfør!' : 'Complete!';
+                    }
+                } else {
+                    // Task completed
+                    this.adjustStat('happiness', 15);
+                    this.adjustStat('learning', 18);
+                    this.adjustStat('energy', -10);
+                    this.setEmotion('happy', 20);
+                    this.child.resilience = Math.min(100, (this.child.resilience || 50) + 8);
+                    this.adjustRelationship(3);
+                    
+                    this.showDialogue(this.language === 'no' 
+                        ? "Jeg fullførte oppgaven! Selvdisiplin hjelper meg med å oppnå mål!"
+                        : "I completed the task! Self-discipline helps me achieve goals!");
+                    
+                    setTimeout(() => {
+                        const fact = this.language === 'no'
+                            ? "💡 Læring: Selvdisiplin betyr å gjøre det som må gjøres, selv når det er vanskelig. Det er nøkkelen til suksess!"
+                            : "💡 Learning: Self-discipline means doing what needs to be done, even when it's hard. It's the key to success!";
+                        this.showMessage(fact);
+                        disciplineContainer.remove();
+                        this.performAction();
+                        this.advanceTime();
+                        this.saveGame();
+                    }, 2000);
+                }
+            };
+            
+            disciplineContainer.appendChild(stepsList);
+            disciplineContainer.appendChild(nextStepBtn);
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => {
+                this.showDialogue(this.language === 'no' 
+                    ? "Jeg avbrøt oppgaven. Det er vanskelig å ha selvdisiplin, men jeg kan prøve igjen senere."
+                    : "I canceled the task. It's hard to have self-discipline, but I can try again later.");
+                disciplineContainer.remove();
+            };
+            disciplineContainer.appendChild(cancelBtn);
+            
+            updateSteps();
+            document.body.appendChild(disciplineContainer);
+        }, 1000);
+    }
+    
+    // Lære planlegging
+    learnPlanning() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 6) {
+            this.showMessage(this.language === 'no' 
+                ? "Planleggingsøvelser er for barn fra 6 år og oppover."
+                : "Planning exercises are for children from 6 years old and up.");
+            return;
+        }
+        
+        if (this.child.energy < 12) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt akkurat nå..."
+                : "I'm too tired right now...");
+            return;
+        }
+        
+        // Planning exercise: plan a day or activity
+        this.showDialogue(this.language === 'no' 
+            ? "La oss lære å planlegge! Jeg skal lage en plan for dagen..."
+            : "Let's learn to plan! I'll make a plan for the day...");
+        
+        setTimeout(() => {
+            const planningContainer = document.createElement('div');
+            planningContainer.id = 'planningContainer';
+            planningContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '📋 Lag en plan' : '📋 Make a plan';
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            planningContainer.appendChild(title);
+            
+            const activities = this.language === 'no' ? [
+                "Spise frokost",
+                "Gjøre lekser",
+                "Leke ute",
+                "Spise lunsj",
+                "Lese bok",
+                "Hjelpe til hjemme",
+                "Spise middag",
+                "Gå til sengs"
+            ] : [
+                "Eat breakfast",
+                "Do homework",
+                "Play outside",
+                "Eat lunch",
+                "Read book",
+                "Help at home",
+                "Eat dinner",
+                "Go to bed"
+            ];
+            
+            const selectedActivities = [];
+            const activitiesList = document.createElement('div');
+            activitiesList.id = 'activitiesList';
+            activitiesList.style.cssText = 'margin: 20px 0;';
+            
+            activities.forEach((activity, idx) => {
+                const activityDiv = document.createElement('div');
+                activityDiv.style.cssText = 'padding: 10px; margin: 5px 0; background: #f0f0f0; border-radius: 5px; cursor: pointer; display: flex; align-items: center;';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = 'activity' + idx;
+                checkbox.style.cssText = 'margin-right: 10px;';
+                checkbox.onchange = () => {
+                    if (checkbox.checked) {
+                        selectedActivities.push(activity);
+                    } else {
+                        const index = selectedActivities.indexOf(activity);
+                        if (index > -1) selectedActivities.splice(index, 1);
+                    }
+                };
+                
+                const label = document.createElement('label');
+                label.htmlFor = 'activity' + idx;
+                label.textContent = activity;
+                label.style.cssText = 'cursor: pointer; flex: 1;';
+                
+                activityDiv.appendChild(checkbox);
+                activityDiv.appendChild(label);
+                activitiesList.appendChild(activityDiv);
+            });
+            
+            planningContainer.appendChild(activitiesList);
+            
+            const createPlanBtn = document.createElement('button');
+            createPlanBtn.textContent = this.language === 'no' ? 'Lag plan' : 'Create plan';
+            createPlanBtn.className = 'btn-primary';
+            createPlanBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px;';
+            createPlanBtn.onclick = () => {
+                if (selectedActivities.length === 0) {
+                    this.showMessage(this.language === 'no' 
+                        ? "Velg minst én aktivitet!"
+                        : "Select at least one activity!");
+                    return;
+                }
+                
+                // Show the plan
+                let planText = this.language === 'no' ? "Min plan for dagen:\n\n" : "My plan for the day:\n\n";
+                selectedActivities.forEach((activity, idx) => {
+                    planText += `${idx + 1}. ${activity}\n`;
+                });
+                
+                this.showDialogue(planText);
+                
+                this.adjustStat('happiness', 12);
+                this.adjustStat('learning', 20);
+                this.adjustStat('energy', -8);
+                this.setEmotion('curious', 15);
+                this.setEmotion('happy', 12);
+                this.child.resilience = Math.min(100, (this.child.resilience || 50) + 5);
+                this.adjustRelationship(2);
+                
+                setTimeout(() => {
+                    const fact = this.language === 'no'
+                        ? "💡 Læring: Planlegging hjelper oss med å organisere tiden vår og oppnå mål. Det er en viktig ferdighet for livet!"
+                        : "💡 Learning: Planning helps us organize our time and achieve goals. It's an important life skill!";
+                    this.showMessage(fact);
+                    planningContainer.remove();
+                    this.performAction();
+                    this.advanceTime();
+                    this.saveGame();
+                }, 2000);
+            };
+            
+            planningContainer.appendChild(createPlanBtn);
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => planningContainer.remove();
+            planningContainer.appendChild(cancelBtn);
+            
+            document.body.appendChild(planningContainer);
+        }, 1000);
+    }
+    
+    // Send parent to work (for babies 0-3 years)
+    sendParentToWork() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age > 3) {
+            this.showMessage(this.language === 'no' 
+                ? "Foreldre-jobbsystemet er kun for babyer (0-3 år)."
+                : "Parent work system is only for babies (0-3 years old).");
+            return;
+        }
+        
+        if (this.child.parentWorkCooldown > 0) {
+            this.showMessage(this.language === 'no' 
+                ? "Foreldre er allerede på jobb. De kan jobbe igjen om " + this.child.parentWorkCooldown + " år."
+                : "Parent is already at work. They can work again in " + this.child.parentWorkCooldown + " years.");
+            return;
+        }
+        
+        // Parent goes to work and earns money
+        const earnings = 50 + Math.floor(Math.random() * 50); // 50-100 kr
+        this.child.money += earnings;
+        this.child.parentWorkCooldown = 2; // Can't work again for 2 years
+        
+        // Slight decrease in happiness/social (less time with parent)
+        this.adjustStat('happiness', -3);
+        this.adjustStat('social', -2);
+        
+        this.showDialogue(this.language === 'no' 
+            ? "Mamma/Pappa gikk på jobb og tjente " + earnings + " kroner! Men jeg savner dem litt..."
+            : "Mom/Dad went to work and earned " + earnings + " kroner! But I miss them a bit...");
+        
+        this.showMessage(this.language === 'no' 
+            ? "💰 Foreldre tjente " + earnings + " kr. Gjenstående: " + this.child.money + " kr. Foreldre kan jobbe igjen om 2 år."
+            : "💰 Parent earned " + earnings + " kr. Remaining: " + this.child.money + " kr. Parent can work again in 2 years.");
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Choose pet (age 5+)
+    choosePet() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 5) {
+            this.showMessage(this.language === 'no' 
+                ? "Du må være minst 5 år for å ha kjæledyr."
+                : "You must be at least 5 years old to have a pet.");
+            return;
+        }
+        
+        if (this.child.pet) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har allerede et kjæledyr!"
+                : "You already have a pet!");
+            return;
+        }
+        
+        // Check if player has enough money for a pet
+        const petCost = 200;
+        if (this.child.money < petCost) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg har ikke nok penger for et kjæledyr... Jeg trenger " + petCost + " kroner, men har bare " + this.child.money + " kroner."
+                : "I don't have enough money for a pet... I need " + petCost + " kroner, but only have " + this.child.money + " kroner.");
+            return;
+        }
+        
+        // Show pet selection with images
+        const pets = this.language === 'no' ? [
+            { name: "Hund", emoji: "🐕", image: "assets/images/dogs.jpg", cost: 200, happiness: 15, careCost: 10 },
+            { name: "Katt", emoji: "🐈", image: "assets/images/acat.jpg", cost: 150, happiness: 12, careCost: 8 },
+            { name: "Fugl", emoji: "🐦", image: "assets/images/petfish.jpg", cost: 100, happiness: 10, careCost: 5 },
+            { name: "Hamster", emoji: "🐹", image: "assets/images/pethamster.jpg", cost: 80, happiness: 8, careCost: 4 },
+            { name: "Kanin", emoji: "🐰", image: "assets/images/rabbit.jpg", cost: 120, happiness: 10, careCost: 6 }
+        ] : [
+            { name: "Dog", emoji: "🐕", image: "assets/images/dogs.jpg", cost: 200, happiness: 15, careCost: 10 },
+            { name: "Cat", emoji: "🐈", image: "assets/images/acat.jpg", cost: 150, happiness: 12, careCost: 8 },
+            { name: "Bird", emoji: "🐦", image: "assets/images/petfish.jpg", cost: 100, happiness: 10, careCost: 5 },
+            { name: "Hamster", emoji: "🐹", image: "assets/images/pethamster.jpg", cost: 80, happiness: 8, careCost: 4 },
+            { name: "Rabbit", emoji: "🐰", image: "assets/images/rabbit.jpg", cost: 120, happiness: 10, careCost: 6 }
+        ];
+        
+        // Add robot pets for 2085 mode
+        if (this.worldMode === '2085') {
+            pets.push(
+                this.language === 'no' 
+                    ? { name: "Robot-hund", emoji: "🤖🐕", image: "assets/images/robotdog.jpg", cost: 500, happiness: 20, careCost: 15 }
+                    : { name: "Robot Dog", emoji: "🤖🐕", image: "assets/images/robotdog.jpg", cost: 500, happiness: 20, careCost: 15 },
+                this.language === 'no'
+                    ? { name: "Robot-mus", emoji: "🤖🐭", image: "assets/images/robotmouse.jpg", cost: 300, happiness: 15, careCost: 12 }
+                    : { name: "Robot Mouse", emoji: "🤖🐭", image: "assets/images/robotmouse.jpg", cost: 300, happiness: 15, careCost: 12 }
+            );
+        }
+        
+        this.showDialogue(this.language === 'no' 
+            ? "Hvilket kjæledyr vil jeg ha?"
+            : "What pet do I want?");
+        
+        setTimeout(() => {
+            const petContainer = document.createElement('div');
+            petContainer.id = 'petContainer';
+            petContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '🐾 Velg kjæledyr' : '🐾 Choose pet';
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            petContainer.appendChild(title);
+            
+            pets.forEach((pet) => {
+                const petBtn = document.createElement('button');
+                petBtn.className = 'btn-primary';
+                petBtn.style.cssText = 'display: block; width: 100%; margin: 10px 0; padding: 15px; text-align: left;';
+                petBtn.innerHTML = `<div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="${pet.image}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 10px;" onerror="this.style.display='none'">
+                    <div>
+                        <strong>${pet.emoji} ${pet.name}</strong><br>
+                        <small>💰 ${pet.cost} kr | 😊 Happiness: +${pet.happiness} | 💵 Care cost: ${pet.careCost} kr/year</small>
+                    </div>
+                </div>`;
+                
+                petBtn.onclick = () => {
+                    if (this.child.money < pet.cost) {
+                        this.showMessage(this.language === 'no' 
+                            ? "Du har ikke nok penger for dette kjæledyret."
+                            : "You don't have enough money for this pet.");
+                        return;
+                    }
+                    
+                    this.child.money -= pet.cost;
+                    this.child.pet = {
+                        type: pet.name,
+                        emoji: pet.emoji,
+                        name: pet.name,
+                        image: pet.image,
+                        happiness: 70,
+                        hunger: 70,
+                        health: 80,
+                        careCost: pet.careCost,
+                        lastFed: this.day,
+                        lastPlayed: this.day
+                    };
+                    
+                    // Show pet image
+                    this.showActivityImage(pet.image, 3000);
+                    
+                    this.showDialogue(this.language === 'no' 
+                        ? "Jeg fikk en " + pet.name.toLowerCase() + "! " + pet.emoji + " Jeg skal ta godt vare på den!"
+                        : "I got a " + pet.name.toLowerCase() + "! " + pet.emoji + " I'll take good care of it!");
+                    
+                    this.adjustStat('happiness', pet.happiness);
+                    this.adjustStat('social', 5);
+                    this.setEmotion('happy', 20);
+                    
+                    petContainer.remove();
+                    this.updateDisplay();
+                    this.performAction();
+                    this.advanceTime();
+                    this.saveGame();
+                };
+                
+                if (this.child.money < pet.cost) {
+                    petBtn.disabled = true;
+                    petBtn.style.opacity = '0.5';
+                    petBtn.style.cursor = 'not-allowed';
+                }
+                
+                petContainer.appendChild(petBtn);
+            });
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => petContainer.remove();
+            petContainer.appendChild(cancelBtn);
+            
+            document.body.appendChild(petContainer);
+        }, 500);
+    }
+    
+    // Care for pet
+    careForPet() {
+        if (!this.canPerformAction()) return;
+        
+        if (!this.child.pet) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har ikke noe kjæledyr!"
+                : "You don't have a pet!");
+            return;
+        }
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å ta vare på kjæledyret akkurat nå..."
+                : "I'm too tired to care for the pet right now...");
+            return;
+        }
+        
+        // Show pet image
+        if (this.child.pet.image) {
+            this.showActivityImage(this.child.pet.image, 2500);
+        }
+        
+        // Show care options
+        const careOptions = this.language === 'no' ? [
+            { name: "Mate kjæledyr", cost: this.child.pet.careCost, hunger: 20, happiness: 10 },
+            { name: "Leke med kjæledyr", cost: 0, happiness: 15, social: 5 },
+            { name: "Gå tur med kjæledyr", cost: 0, happiness: 12, energy: -5, social: 8 }
+        ] : [
+            { name: "Feed pet", cost: this.child.pet.careCost, hunger: 20, happiness: 10 },
+            { name: "Play with pet", cost: 0, happiness: 15, social: 5 },
+            { name: "Walk pet", cost: 0, happiness: 12, energy: -5, social: 8 }
+        ];
+        
+        this.showDialogue(this.language === 'no' 
+            ? "Hva skal jeg gjøre med " + this.child.pet.name.toLowerCase() + "?"
+            : "What should I do with my " + this.child.pet.name.toLowerCase() + "?");
+        
+        setTimeout(() => {
+            const careContainer = document.createElement('div');
+            careContainer.id = 'careContainer';
+            careContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '🐾 Ta vare på kjæledyr' : '🐾 Care for pet';
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            careContainer.appendChild(title);
+            
+            careOptions.forEach((option) => {
+                const optionBtn = document.createElement('button');
+                optionBtn.className = 'btn-primary';
+                optionBtn.style.cssText = 'display: block; width: 100%; margin: 10px 0; padding: 15px;';
+                optionBtn.innerHTML = `<strong>${option.name}</strong>${option.cost > 0 ? ' - ' + option.cost + ' kr' : ''}`;
+                
+                optionBtn.onclick = () => {
+                    if (this.child.money < option.cost) {
+                        this.showMessage(this.language === 'no' 
+                            ? "Du har ikke nok penger."
+                            : "You don't have enough money.");
+                        return;
+                    }
+                    
+                    this.child.money -= option.cost;
+                    
+                    if (option.hunger) {
+                        this.child.pet.hunger = Math.min(100, this.child.pet.hunger + option.hunger);
+                        this.child.pet.lastFed = this.day;
+                    }
+                    
+                    if (option.happiness) {
+                        this.child.pet.happiness = Math.min(100, this.child.pet.happiness + option.happiness);
+                        this.adjustStat('happiness', option.happiness);
+                    }
+                    
+                    if (option.social) {
+                        this.adjustStat('social', option.social);
+                    }
+                    
+                    if (option.energy) {
+                        this.adjustStat('energy', option.energy);
+                    }
+                    
+                    if (option.name.includes('Leke') || option.name.includes('Play')) {
+                        this.child.pet.lastPlayed = this.day;
+                    }
+                    
+                    this.showDialogue(this.language === 'no' 
+                        ? this.child.pet.emoji + " " + this.child.pet.name + " er glad! Jeg elsker å ta vare på den!"
+                        : this.child.pet.emoji + " My " + this.child.pet.name + " is happy! I love taking care of it!");
+                    
+                    careContainer.remove();
+                    this.updateDisplay();
+                    this.performAction();
+                    this.advanceTime();
+                    this.saveGame();
+                };
+                
+                if (this.child.money < option.cost) {
+                    optionBtn.disabled = true;
+                    optionBtn.style.opacity = '0.5';
+                }
+                
+                careContainer.appendChild(optionBtn);
+            });
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => careContainer.remove();
+            careContainer.appendChild(cancelBtn);
+            
+            document.body.appendChild(careContainer);
+        }, 500);
+    }
+    
+    // Find partner (age 18+)
+    findPartner() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 18) {
+            this.showMessage(this.language === 'no' 
+                ? "Du må være minst 18 år for å finne en partner."
+                : "You must be at least 18 years old to find a partner.");
+            return;
+        }
+        
+        if (this.child.partner) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har allerede en partner!"
+                : "You already have a partner!");
+            return;
+        }
+        
+        // Generate potential partners (all genders and orientations)
+        const partnerNames = this.language === 'no' ? [
+            "Alex", "Sofie", "Emma", "Noah", "Lucas", "Maya", "Isabella", "Oliver", "Ella", "William",
+            "Nora", "Hannah", "Liam", "Amelia", "Benjamin", "Victoria", "Sebastian", "Olivia", "Daniel", "Sofia"
+        ] : [
+            "Alex", "Sophie", "Emma", "Noah", "Lucas", "Maya", "Isabella", "Oliver", "Ella", "William",
+            "Nora", "Hannah", "Liam", "Amelia", "Benjamin", "Victoria", "Sebastian", "Olivia", "Daniel", "Sofia"
+        ];
+        
+        const genders = ['man', 'woman', 'non-binary'];
+        const selectedGender = genders[Math.floor(Math.random() * genders.length)];
+        const selectedName = partnerNames[Math.floor(Math.random() * partnerNames.length)];
+        
+        // Cost to find partner (dating, etc.)
+        const cost = 100;
+        if (this.child.money < cost) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg har ikke nok penger for å gå på date... Jeg trenger " + cost + " kroner."
+                : "I don't have enough money to go on a date... I need " + cost + " kroner.");
+            return;
+        }
+        
+        this.child.money -= cost;
+        
+        // Success chance based on social stat
+        const successChance = Math.min(90, 30 + this.child.social / 2);
+        const success = Math.random() * 100 < successChance;
+        
+        if (success) {
+            this.child.partner = {
+                name: selectedName,
+                gender: selectedGender,
+                relationshipLevel: 50,
+                happiness: 70,
+                lastCared: this.day
+            };
+            
+            const genderText = this.language === 'no' 
+                ? (selectedGender === 'man' ? 'mann' : selectedGender === 'woman' ? 'kvinne' : 'person')
+                : (selectedGender === 'man' ? 'man' : selectedGender === 'woman' ? 'woman' : 'person');
+            
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg møtte " + selectedName + "! " + selectedName + " er en " + genderText + " og vi klikket! 💑"
+                : "I met " + selectedName + "! " + selectedName + " is a " + genderText + " and we clicked! 💑");
+            
+            this.adjustStat('happiness', 20);
+            this.adjustStat('social', 15);
+            this.setEmotion('happy', 25);
+        } else {
+            this.showDialogue(this.language === 'no' 
+                ? "Date gikk ikke så bra denne gangen... Men jeg prøver igjen senere!"
+                : "The date didn't go so well this time... But I'll try again later!");
+            this.adjustStat('happiness', -5);
+        }
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Propose marriage
+    proposeMarriage() {
+        if (!this.canPerformAction()) return;
+        
+        if (!this.child.partner) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har ingen partner å gifte deg med!"
+                : "You don't have a partner to marry!");
+            return;
+        }
+        
+        if (this.child.isMarried) {
+            this.showMessage(this.language === 'no' 
+                ? "Du er allerede gift!"
+                : "You're already married!");
+            return;
+        }
+        
+        // Marriage cost
+        const cost = 5000;
+        if (this.child.money < cost) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg har ikke nok penger for bryllup... Jeg trenger " + cost + " kroner."
+                : "I don't have enough money for a wedding... I need " + cost + " kroner.");
+            return;
+        }
+        
+        // Success based on relationship level
+        const successChance = Math.min(95, 50 + this.child.partner.relationshipLevel / 2);
+        const success = Math.random() * 100 < successChance;
+        
+        if (success) {
+            this.child.money -= cost;
+            this.child.isMarried = true;
+            this.child.partner.relationshipLevel = 100;
+            
+            // Show wedding image
+            this.showActivityImage('assets/images/gettingmarried.jpg', 4000);
+            
+            this.showDialogue(this.language === 'no' 
+                ? "💍 Jeg gifta meg med " + this.child.partner.name + "! Vi er nå et ektepar!"
+                : "💍 I married " + this.child.partner.name + "! We are now a married couple!");
+            
+            this.adjustStat('happiness', 30);
+            this.adjustStat('social', 20);
+            this.setEmotion('happy', 30);
+            
+            this.addAutoDiaryEntry(this.language === 'no' 
+                ? '💍 I dag gifta jeg meg med ' + this.child.partner.name + '! Dette er en stor dag i livet mitt.'
+                : '💍 Today I married ' + this.child.partner.name + '! This is a big day in my life.', true);
+        } else {
+            this.showDialogue(this.language === 'no' 
+                ? this.child.partner.name + " sa nei til frieriet... Men vi kan prøve igjen senere når forholdet er bedre."
+                : this.child.partner.name + " said no to the proposal... But we can try again later when the relationship is better.");
+            this.adjustStat('happiness', -10);
+        }
+        
+        this.updateDisplay();
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Adopt child
+    adoptChild() {
+        if (!this.canPerformAction()) return;
+        
+        if (!this.child.isMarried || !this.child.partner) {
+            this.showMessage(this.language === 'no' 
+                ? "Du må være gift for å adoptere et barn."
+                : "You must be married to adopt a child.");
+            return;
+        }
+        
+        // Adoption cost
+        const cost = 10000;
+        if (this.child.money < cost) {
+            this.showDialogue(this.language === 'no' 
+                ? "Adopsjon er dyrt... Jeg trenger " + cost + " kroner."
+                : "Adoption is expensive... I need " + cost + " kroner.");
+            return;
+        }
+        
+        if (!this.child.adoptedChildren) {
+            this.child.adoptedChildren = [];
+        }
+        
+        const childNames = this.language === 'no' ? [
+            "Emma", "Noah", "Sofie", "Lucas", "Maya", "Oliver", "Isabella", "Liam", "Nora", "Benjamin"
+        ] : [
+            "Emma", "Noah", "Sophie", "Lucas", "Maya", "Oliver", "Isabella", "Liam", "Nora", "Benjamin"
+        ];
+        
+        const childGenders = ['boy', 'girl'];
+        const selectedName = childNames[Math.floor(Math.random() * childNames.length)];
+        const selectedGender = childGenders[Math.floor(Math.random() * childGenders.length)];
+        
+        this.child.money -= cost;
+        
+        const adoptedChild = {
+            name: selectedName,
+            gender: selectedGender,
+            age: 0,
+            happiness: 70,
+            hunger: 70,
+            energy: 80
+        };
+        
+        this.child.adoptedChildren.push(adoptedChild);
+        
+        // Show family image
+        this.showActivityImage('assets/images/couplewithbaby.jpg', 4000);
+        
+        const genderText = this.language === 'no' 
+            ? (selectedGender === 'boy' ? 'gutt' : 'jente')
+            : (selectedGender === 'boy' ? 'boy' : 'girl');
+        
+        this.showDialogue(this.language === 'no' 
+            ? "👶 Vi adopterte " + selectedName + "! " + selectedName + " er en " + genderText + " og vi skal ta godt vare på " + (selectedGender === 'boy' ? 'ham' : 'henne') + "!"
+            : "👶 We adopted " + selectedName + "! " + selectedName + " is a " + genderText + " and we'll take good care of " + (selectedGender === 'boy' ? 'him' : 'her') + "!");
+        
+        this.adjustStat('happiness', 25);
+        this.adjustStat('social', 15);
+        this.setEmotion('happy', 30);
+        
+        this.addAutoDiaryEntry(this.language === 'no' 
+            ? '👶 I dag adopterte ' + this.child.partner.name + ' og jeg ' + selectedName + '! Vi er nå en familie.'
+            : '👶 Today ' + this.child.partner.name + ' and I adopted ' + selectedName + '! We are now a family.', true);
+        
+        this.updateDisplay();
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
+    }
+    
+    // Care for family
+    careForFamily() {
+        if (!this.canPerformAction()) return;
+        
+        if (!this.child.partner && (!this.child.adoptedChildren || this.child.adoptedChildren.length === 0)) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har ingen familie å ta vare på!"
+                : "You don't have a family to care for!");
+            return;
+        }
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å ta vare på familien akkurat nå..."
+                : "I'm too tired to care for the family right now...");
+            return;
+        }
+        
+        const familyCost = 30;
+        if (this.child.money < familyCost) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg har ikke nok penger for å ta vare på familien... Jeg trenger " + familyCost + " kroner."
+                : "I don't have enough money to care for the family... I need " + familyCost + " kroner.");
+            return;
+        }
+        
+        this.child.money -= familyCost;
+        
+        // Care for partner
+        if (this.child.partner) {
+            this.child.partner.happiness = Math.min(100, (this.child.partner.happiness || 70) + 10);
+            this.child.partner.relationshipLevel = Math.min(100, (this.child.partner.relationshipLevel || 50) + 5);
+            this.child.partner.lastCared = this.day;
+        }
+        
+        // Care for adopted children
+        if (this.child.adoptedChildren && this.child.adoptedChildren.length > 0) {
+            this.child.adoptedChildren.forEach(child => {
+                child.happiness = Math.min(100, child.happiness + 15);
+                child.hunger = Math.min(100, child.hunger + 20);
+                child.energy = Math.min(100, child.energy + 10);
+            });
+        }
+        
+        // Show family dinner image
+        this.showActivityImage('assets/images/familydinner.jpg', 3000);
+        
+        let familyText = "";
+        if (this.child.partner) {
+            familyText += this.child.partner.name;
+        }
+        if (this.child.adoptedChildren && this.child.adoptedChildren.length > 0) {
+            if (familyText) familyText += " og ";
+            familyText += this.child.adoptedChildren.map(c => c.name).join(", ");
+        }
+        
+        this.showDialogue(this.language === 'no' 
+            ? "Jeg tok vare på familien min (" + familyText + ")! Alle er glade og fornøyde! 👨‍👩‍👧"
+            : "I took care of my family (" + familyText + ")! Everyone is happy and satisfied! 👨‍👩‍👧");
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('social', 10);
+        this.adjustStat('energy', -15);
+        this.setEmotion('happy', 20);
+        
+        this.performAction();
+        this.advanceTime();
+        this.saveGame();
     }
     
     batheChild() {
@@ -2560,6 +4646,16 @@ class MyChildGame {
         
         // Track that child was played with (like original - important for daily routine)
         this.child.lastPlayed = this.day;
+        
+        // Show activity image when playing outside
+        if (this.currentLocation === 'playground' || this.currentLocation === 'nature') {
+            if (this.worldMode === '2085' && this.child.age >= 13) {
+                // Show flying bikes in dystopian future
+                this.showActivityImage('assets/images/flyingbikes.jpg', 2500);
+            } else {
+                this.showActivityImage('assets/images/playoutside.png', 2500);
+            }
+        }
         
         this.adjustStat('happiness', 20);
         this.adjustStat('social', 10);
@@ -2900,6 +4996,14 @@ class MyChildGame {
         if (this.child.energy < 20) {
             this.showDialogue("I'm too tired to study right now...");
             return;
+        }
+        
+        // Show study image based on gender (age 7+)
+        if (this.child.age >= 7) {
+            const studyImage = this.child.gender === 'girl' 
+                ? 'assets/images/girlstudy.jpg' 
+                : 'assets/images/boystudy.jpg';
+            this.showActivityImage(studyImage, 3000);
         }
         
         this.adjustStat('learning', 20);
@@ -4055,6 +6159,9 @@ class MyChildGame {
             return;
         }
         
+        // Show CD image for music activity
+        this.showActivityImage('assets/images/cd.png', 2500);
+        
         this.adjustStat('happiness', 15);
         this.adjustStat('learning', 5);
         this.adjustStat('energy', -3);
@@ -4222,38 +6329,72 @@ class MyChildGame {
         // Ingredient prices (like original game - must buy ingredients)
         const ingredientPrices = {
             "Mel": 5,      // per dl
+            "Hvetemel": 5, // per dl
             "Melk": 3,     // per dl
             "Egg": 8,      // per stk
             "Smør": 12,    // per 100g
             "Sukker": 4,   // per dl
-            "Salt": 2      // per ts
+            "Salt": 2,     // per ts
+            "Gulrot": 3,   // per stk
+            "Fisk": 15,    // per 100g
+            "Torsk": 15,   // per 100g
+            "Ost": 8,      // per 100g
+            "Bakepulver": 1 // per ts
         };
         
+        // Real Norwegian recipes with proper measurements
         const recipes = [
             {
                 name: this.language === 'no' ? "Pannekaker" : "Pancakes",
                 ingredients: [
-                    { name: "Mel", amount: 2, unit: "dl", price: ingredientPrices["Mel"] * 2 },
+                    { name: "Hvetemel", amount: 2.5, unit: "dl", price: ingredientPrices["Mel"] * 2.5 },
                     { name: "Melk", amount: 4, unit: "dl", price: ingredientPrices["Melk"] * 4 },
                     { name: "Egg", amount: 2, unit: "stk", price: ingredientPrices["Egg"] * 2 },
-                    { name: "Salt", amount: 0.5, unit: "ts", price: ingredientPrices["Salt"] * 0.5 }
+                    { name: "Salt", amount: 0.5, unit: "ts", price: ingredientPrices["Salt"] * 0.5 },
+                    { name: "Smør til steking", amount: 20, unit: "g", price: ingredientPrices["Smør"] * 0.2 }
+                ],
+                steps: this.language === 'no' ? [
+                    "1. Bland mel, melk, egg og salt i en bolle",
+                    "2. La røren hvile i 30 minutter",
+                    "3. Stek pannekaker i smør på middels varme",
+                    "4. Vend når den ene siden er gyllen"
+                ] : [
+                    "1. Mix flour, milk, eggs and salt in a bowl",
+                    "2. Let the batter rest for 30 minutes",
+                    "3. Fry pancakes in butter on medium heat",
+                    "4. Flip when one side is golden"
                 ],
                 conversion: {
-                    question: this.language === 'no' ? "Hvor mange ml er 2 dl melk?" : "How many ml is 2 dl milk?",
-                    answer: "200",
-                    explanation: this.language === 'no' ? "1 dl = 100 ml, så 2 dl = 200 ml" : "1 dl = 100 ml, so 2 dl = 200 ml"
+                    question: this.language === 'no' ? "Hvor mange ml er 2.5 dl mel?" : "How many ml is 2.5 dl flour?",
+                    answer: "250",
+                    explanation: this.language === 'no' ? "1 dl = 100 ml, så 2.5 dl = 250 ml" : "1 dl = 100 ml, so 2.5 dl = 250 ml"
                 }
             },
             {
-                name: this.language === 'no' ? "Kaker" : "Cakes",
+                name: this.language === 'no' ? "Gulrotkake" : "Carrot Cake",
                 ingredients: [
+                    { name: "Gulrot", amount: 3, unit: "stk", price: ingredientPrices["Gulrot"] * 3 },
+                    { name: "Hvetemel", amount: 3, unit: "dl", price: ingredientPrices["Mel"] * 3 },
+                    { name: "Sukker", amount: 2, unit: "dl", price: ingredientPrices["Sukker"] * 2 },
+                    { name: "Egg", amount: 3, unit: "stk", price: ingredientPrices["Egg"] * 3 },
                     { name: "Smør", amount: 100, unit: "g", price: ingredientPrices["Smør"] },
-                    { name: "Sukker", amount: 1.5, unit: "dl", price: ingredientPrices["Sukker"] * 1.5 },
-                    { name: "Mel", amount: 3, unit: "dl", price: ingredientPrices["Mel"] * 3 },
-                    { name: "Egg", amount: 2, unit: "stk", price: ingredientPrices["Egg"] * 2 }
+                    { name: "Bakepulver", amount: 2, unit: "ts", price: ingredientPrices["Bakepulver"] * 2 }
+                ],
+                steps: this.language === 'no' ? [
+                    "1. Riv gulrotene",
+                    "2. Pisk smør og sukker til luftig",
+                    "3. Tilsett egg, ett om gangen",
+                    "4. Bland inn mel, bakepulver og gulrot",
+                    "5. Stek i 175°C i 45-50 minutter"
+                ] : [
+                    "1. Grate the carrots",
+                    "2. Cream butter and sugar until fluffy",
+                    "3. Add eggs, one at a time",
+                    "4. Mix in flour, baking powder and carrots",
+                    "5. Bake at 175°C for 45-50 minutes"
                 ],
                 conversion: {
-                    question: this.language === 'no' ? "Hvor mange dl er 500 ml?" : "How many dl is 500 ml?",
+                    question: this.language === 'no' ? "Hvor mange dl er 500 ml melk?" : "How many dl is 500 ml milk?",
                     answer: "5",
                     explanation: this.language === 'no' ? "1 dl = 100 ml, så 500 ml = 5 dl" : "1 dl = 100 ml, so 500 ml = 5 dl"
                 }
@@ -4261,15 +6402,57 @@ class MyChildGame {
             {
                 name: this.language === 'no' ? "Vafler" : "Waffles",
                 ingredients: [
-                    { name: "Mel", amount: 3, unit: "dl", price: ingredientPrices["Mel"] * 3 },
+                    { name: "Hvetemel", amount: 3, unit: "dl", price: ingredientPrices["Mel"] * 3 },
                     { name: "Melk", amount: 5, unit: "dl", price: ingredientPrices["Melk"] * 5 },
                     { name: "Egg", amount: 3, unit: "stk", price: ingredientPrices["Egg"] * 3 },
-                    { name: "Smør", amount: 50, unit: "g", price: ingredientPrices["Smør"] * 0.5 }
+                    { name: "Smeltet smør", amount: 75, unit: "g", price: ingredientPrices["Smør"] * 0.75 },
+                    { name: "Sukker", amount: 1, unit: "dl", price: ingredientPrices["Sukker"] },
+                    { name: "Bakepulver", amount: 1, unit: "ts", price: ingredientPrices["Bakepulver"] }
+                ],
+                steps: this.language === 'no' ? [
+                    "1. Bland alle ingredienser i en bolle",
+                    "2. La røren hvile i 30 minutter",
+                    "3. Varm opp vaffeljernet",
+                    "4. Hell røre i vaffeljernet og stek til gyllen"
+                ] : [
+                    "1. Mix all ingredients in a bowl",
+                    "2. Let the batter rest for 30 minutes",
+                    "3. Heat up the waffle iron",
+                    "4. Pour batter in waffle iron and cook until golden"
                 ],
                 conversion: {
-                    question: this.language === 'no' ? "Hvor mange ml er 3 dl?" : "How many ml is 3 dl?",
+                    question: this.language === 'no' ? "Hvor mange ml er 3 dl mel?" : "How many ml is 3 dl flour?",
                     answer: "300",
                     explanation: this.language === 'no' ? "1 dl = 100 ml, så 3 dl = 300 ml" : "1 dl = 100 ml, so 3 dl = 300 ml"
+                }
+            },
+            {
+                name: this.language === 'no' ? "Fiskegrateng" : "Fish Gratin",
+                ingredients: [
+                    { name: "Torsk", amount: 400, unit: "g", price: ingredientPrices["Fisk"] * 4 },
+                    { name: "Melk", amount: 5, unit: "dl", price: ingredientPrices["Melk"] * 5 },
+                    { name: "Hvetemel", amount: 3, unit: "ss", price: ingredientPrices["Mel"] * 0.3 },
+                    { name: "Smør", amount: 50, unit: "g", price: ingredientPrices["Smør"] * 0.5 },
+                    { name: "Ost", amount: 100, unit: "g", price: ingredientPrices["Ost"] },
+                    { name: "Salt og pepper", amount: 1, unit: "ts", price: ingredientPrices["Salt"] }
+                ],
+                steps: this.language === 'no' ? [
+                    "1. Kok fisk i melk i 10 minutter",
+                    "2. Lag hvit saus med smør, mel og melk",
+                    "3. Legg fisk i ildfast form",
+                    "4. Hell over saus og dryss med ost",
+                    "5. Gratiner i 200°C i 20 minutter"
+                ] : [
+                    "1. Cook fish in milk for 10 minutes",
+                    "2. Make white sauce with butter, flour and milk",
+                    "3. Place fish in ovenproof dish",
+                    "4. Pour sauce over and sprinkle with cheese",
+                    "5. Gratinate at 200°C for 20 minutes"
+                ],
+                conversion: {
+                    question: this.language === 'no' ? "Hvor mange gram er 400 g fisk?" : "How many grams is 400 g fish?",
+                    answer: "400",
+                    explanation: this.language === 'no' ? "400 g er allerede i gram!" : "400 g is already in grams!"
                 }
             }
         ];
@@ -4291,16 +6474,25 @@ class MyChildGame {
             return;
         }
         
-        // Show ingredient list with prices
+        // Show ingredient list with prices and steps
         const ingredientLabel = this.language === 'no' ? "Ingredienser for " : "Ingredients for ";
-        let ingredientList = ingredientLabel + recipe.name + " (Totalt: " + totalCost + " kr):\n";
+        let ingredientList = ingredientLabel + recipe.name + " (Totalt: " + totalCost.toFixed(1) + " kr):\n";
         recipe.ingredients.forEach((ing, idx) => {
-            ingredientList += `${idx + 1}. ${ing.amount} ${ing.unit} ${ing.name} - ${ing.price} kr\n`;
+            ingredientList += `${idx + 1}. ${ing.amount} ${ing.unit} ${ing.name} - ${ing.price.toFixed(1)} kr\n`;
         });
         
+        // Show steps if available
+        let stepsList = "";
+        if (recipe.steps) {
+            stepsList = this.language === 'no' ? "\n\nFremgangsmåte:\n" : "\n\nSteps:\n";
+            recipe.steps.forEach((step) => {
+                stepsList += `${step}\n`;
+            });
+        }
+        
         const cookDialogue = this.language === 'no'
-            ? "La oss lage " + recipe.name + " sammen! " + ingredientList + "\nSkal vi kjøpe ingrediensene? (Vi har " + this.child.money + " kr)"
-            : "Let's make " + recipe.name + " together! " + ingredientList + "\nShould we buy the ingredients? (We have " + this.child.money + " kr)";
+            ? "La oss lage " + recipe.name + " sammen! " + ingredientList + stepsList + "\nSkal vi kjøpe ingrediensene? (Vi har " + this.child.money + " kr)"
+            : "Let's make " + recipe.name + " together! " + ingredientList + stepsList + "\nShould we buy the ingredients? (We have " + this.child.money + " kr)";
         this.showDialogue(cookDialogue);
         
         // Deduct money for ingredients (like original game)
@@ -4868,9 +7060,14 @@ class MyChildGame {
     }
     
     nextDay() {
+        // Don't advance if character is dead
+        if (this.child.isDead) {
+            return;
+        }
+        
         // In 2085, we use years instead of days
         this.year++;
-        this.child.age++;
+            this.child.age++;
         this.timeOfDay = 0;
         this.actionsToday = 0; // Reset actions for new year
         this.consequencesAppliedToday = false; // Reset consequences flag
@@ -4904,13 +7101,24 @@ class MyChildGame {
             
             this.showDialogue(progressMessage);
             
-            const ageMessages = this.language === 'no' ? [
-                `Barnet ditt ble ${this.child.age} år gammelt! Året er ${this.year}.`,
-                `🎂 Gratulerer med ${this.child.age} år! Nok et år i 2085-dystopien.`
-            ] : [
-                `Your child turned ${this.child.age} years old! The year is ${this.year}.`,
-                `🎂 Happy ${this.child.age}th birthday! Another year in the 2085 dystopia.`
-            ];
+            // Age messages based on world mode
+            const ageMessages = this.language === 'no' ? (
+                this.worldMode === '2085' ? [
+                    `Barnet ditt ble ${this.child.age} år gammelt! Året er ${this.year}.`,
+                    `🎂 Gratulerer med ${this.child.age} år! Nok et år i 2085-dystopien.`
+                ] : [
+                    `Barnet ditt ble ${this.child.age} år gammelt! Året er ${this.year}.`,
+                    `🎂 Gratulerer med ${this.child.age} år! Nok et år i 2000-tallet.`
+                ]
+            ) : (
+                this.worldMode === '2085' ? [
+                    `Your child turned ${this.child.age} years old! The year is ${this.year}.`,
+                    `🎂 Happy ${this.child.age}th birthday! Another year in the 2085 dystopia.`
+                ] : [
+                    `Your child turned ${this.child.age} years old! The year is ${this.year}.`,
+                    `🎂 Happy ${this.child.age}th birthday! Another year in the 2000s.`
+                ]
+            );
             this.showMessage(ageMessages[Math.floor(Math.random() * ageMessages.length)]);
             
             // Career opportunities based on study level and age
@@ -4921,11 +7129,18 @@ class MyChildGame {
                 this.showMessage(careerMsg);
             }
             
-            // Year progression message
-            const yearMsg = this.language === 'no'
-                ? `Det er ${this.year} nå! Norge er i krise - oljefondet er tomt, ressursene er knappe. Kan vi redde fremtiden?`
-                : `It's ${this.year} now! Norway is in crisis - the oil fund is empty, resources are scarce. Can we save the future?`;
-            this.showDialogue(yearMsg);
+            // Year progression message - different for each world
+            if (this.worldMode === '2085') {
+                const yearMsg = this.language === 'no'
+                    ? `Det er ${this.year} nå! Norge er i krise - oljefondet er tomt, ressursene er knappe. Kan vi redde fremtiden?`
+                    : `It's ${this.year} now! Norway is in crisis - the oil fund is empty, resources are scarce. Can we save the future?`;
+                this.showDialogue(yearMsg);
+            } else {
+                const yearMsg = this.language === 'no'
+                    ? `Det er ${this.year} nå! En normal dag i 2000-tallet. Alt er som det skal være.`
+                    : `It's ${this.year} now! A normal day in the 2000s. Everything is as it should be.`;
+                this.showDialogue(yearMsg);
+            }
             
             // Driver's license at age 16+
             if (this.child.age >= 16 && !this.child.hasDriversLicense) {
@@ -4949,8 +7164,70 @@ class MyChildGame {
         // Check for success milestones
         this.checkSuccessMilestones();
         
-        // Dystopian consequences - ongoing effects
-        this.applyDystopianConsequences();
+        // World-specific consequences
+        if (this.worldMode === '2085') {
+            // Dystopian consequences - ongoing effects
+            this.applyDystopianConsequences();
+        } else {
+            // 2000s normal world events
+            this.apply2000sEvents();
+        }
+        
+        // Trigger problem situations (age 5+)
+        this.triggerProblemSituation();
+        
+        // Decrease parent work cooldown
+        if (this.child.parentWorkCooldown > 0) {
+            this.child.parentWorkCooldown--;
+        }
+        
+        // Pet needs care (decrease stats over time)
+        if (this.child.pet) {
+            const daysSinceFed = this.day - (this.child.pet.lastFed || 0);
+            const daysSincePlayed = this.day - (this.child.pet.lastPlayed || 0);
+            
+            if (daysSinceFed > 1) {
+                this.child.pet.hunger = Math.max(0, this.child.pet.hunger - 10);
+                this.child.pet.health = Math.max(0, this.child.pet.health - 5);
+            }
+            
+            if (daysSincePlayed > 2) {
+                this.child.pet.happiness = Math.max(0, this.child.pet.happiness - 8);
+            }
+            
+            // Pet care cost (yearly)
+            if (this.day % 365 === 0 && this.child.pet) {
+                const careCost = this.child.pet.careCost;
+                if (this.child.money >= careCost) {
+                    this.child.money -= careCost;
+                } else {
+                    this.showMessage(this.language === 'no' 
+                        ? "⚠️ Du har ikke nok penger for kjæledyr-omsorg. Kjæledyret lider."
+                        : "⚠️ You don't have enough money for pet care. The pet is suffering.");
+                    this.child.pet.health = Math.max(0, this.child.pet.health - 10);
+                }
+            }
+        }
+        
+        // Family needs care
+        if (this.child.partner) {
+            const daysSinceCare = this.day - (this.child.partner.lastCared || 0);
+            if (daysSinceCare > 30) {
+                this.child.partner.happiness = Math.max(0, (this.child.partner.happiness || 70) - 5);
+                this.child.partner.relationshipLevel = Math.max(0, (this.child.partner.relationshipLevel || 50) - 3);
+            }
+        }
+        
+        if (this.child.adoptedChildren && this.child.adoptedChildren.length > 0) {
+            this.child.adoptedChildren.forEach(child => {
+                child.age++;
+                child.hunger = Math.max(0, child.hunger - 10);
+                child.energy = Math.max(0, child.energy - 8);
+                if (child.hunger < 20 || child.energy < 20) {
+                    child.happiness = Math.max(0, child.happiness - 10);
+                }
+            });
+        }
         
         // Natural stat changes (like original game - more challenging) - INCREASED
         this.adjustStat('energy', -10); // Increased from -8 - harder to maintain
@@ -5044,11 +7321,11 @@ class MyChildGame {
             this.setEmotion('sad', 15); // Increased from 10
             this.setEmotion('lonely', 10);
             
-            if (daysSincePlayed > 3) {
-                const lonelyMsg = this.language === 'no'
-                    ? this.child.name + " føler seg ensom... Vi har ikke lekt sammen på lenge."
-                    : this.child.name + " feels lonely... We haven't played together in a while.";
-                this.showMessage("💔 " + lonelyMsg);
+        if (daysSincePlayed > 3) {
+            const lonelyMsg = this.language === 'no'
+                ? this.child.name + " føler seg ensom... Vi har ikke lekt sammen på lenge."
+                : this.child.name + " feels lonely... We haven't played together in a while.";
+            this.showMessage("💔 " + lonelyMsg);
                 this.adjustStat('happiness', -15);
                 this.adjustRelationship(-6);
                 this.setEmotion('lonely', 20);
@@ -5078,7 +7355,7 @@ class MyChildGame {
                     : this.child.name + " misses reading together. This affects learning.";
                 this.showMessage("📚 " + readMsg);
                 this.adjustStat('learning', -10);
-                this.adjustStat('happiness', -8);
+            this.adjustStat('happiness', -8);
             }
         }
         
@@ -5118,7 +7395,7 @@ class MyChildGame {
             this.adjustStat('learning', -3); // Increased from -2
             this.adjustRelationship(-3); // Increased from -2
             this.setEmotion('sad', 18); // Increased from 15
-            if (this.child.happiness < 20) {
+        if (this.child.happiness < 20) {
                 this.adjustStat('social', -6);
                 this.adjustStat('learning', -5);
                 this.adjustStat('energy', -5); // Low happiness drains energy
@@ -5173,7 +7450,7 @@ class MyChildGame {
                 this.adjustStat('happiness', -8);
                 this.adjustStat('learning', -4);
                 this.setEmotion('lonely', 20);
-                this.setEmotion('sad', 15);
+            this.setEmotion('sad', 15);
                 const criticalMsg = this.language === 'no'
                     ? "👥 " + this.child.name + " føler seg isolert. Sosial kontakt er viktig."
                     : "👥 " + this.child.name + " feels isolated. Social contact is important.";
@@ -8817,6 +11094,8 @@ class MyChildGame {
                     ? "🤖 AI-nyhet: Flere jobber er erstattet av AI. Arbeidsløsheten stiger. Mange unge sliter med å finne arbeid."
                     : "🤖 AI News: More jobs have been replaced by AI. Unemployment is rising. Many young people struggle to find work.",
                 effect: () => {
+                    // Show scary robot image
+                    this.showActivityImage('assets/images/scaryrobot.jpg', 3000);
                     this.adjustStat('happiness', -5);
                     this.adjustStat('social', -5);
                     this.child.aiLiteracy = Math.min(100, (this.child.aiLiteracy || 0) + 3);
@@ -8878,6 +11157,82 @@ class MyChildGame {
         );
         
         this.saveGame();
+    }
+    
+    // Apply 2000s normal world events
+    apply2000sEvents() {
+        // Normal, positive events in 2000s world
+        if (Math.random() < 0.15) {
+            const events = [
+                {
+                    name: 'friendVisit',
+                    message: this.language === 'no'
+                        ? "😊 En venn kom på besøk! Vi hadde det så gøy sammen."
+                        : "😊 A friend came to visit! We had so much fun together.",
+                    effect: () => {
+                        this.adjustStat('happiness', 8);
+                        this.adjustStat('social', 10);
+                        this.setEmotion('happy', 12);
+                    }
+                },
+                {
+                    name: 'goodGrade',
+                    message: this.language === 'no'
+                        ? "📚 Jeg fikk en god karakter på skolen i dag! Det føles bra."
+                        : "📚 I got a good grade at school today! It feels good.",
+                    effect: () => {
+                        this.adjustStat('happiness', 10);
+                        this.adjustStat('learning', 5);
+                        this.setEmotion('happy', 15);
+                    }
+                },
+                {
+                    name: 'niceWeather',
+                    message: this.language === 'no'
+                        ? "☀️ Det er fint vær i dag! Perfekt for å være ute."
+                        : "☀️ It's nice weather today! Perfect for being outside.",
+                    effect: () => {
+                        this.adjustStat('happiness', 5);
+                        this.adjustStat('energy', 3);
+                        this.setEmotion('happy', 8);
+                    }
+                },
+                {
+                    name: 'familyTime',
+                    message: this.language === 'no'
+                        ? "👨‍👩‍👧 Vi tilbrakte tid sammen som familie. Det var koselig."
+                        : "👨‍👩‍👧 We spent time together as a family. It was nice.",
+                    effect: () => {
+                        this.adjustStat('happiness', 12);
+                        this.adjustStat('social', 8);
+                        this.adjustRelationship(3);
+                        this.setEmotion('happy', 15);
+                    }
+                },
+                {
+                    name: 'newSkill',
+                    message: this.language === 'no'
+                        ? "🎯 Jeg lærte noe nytt i dag! Det føles bra å utvikle seg."
+                        : "🎯 I learned something new today! It feels good to grow.",
+                    effect: () => {
+                        this.adjustStat('learning', 8);
+                        this.adjustStat('happiness', 6);
+                        this.setEmotion('curious', 10);
+                    }
+                }
+            ];
+            
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            this.showDialogue(randomEvent.message);
+            randomEvent.effect();
+            
+            this.addAutoDiaryEntry(
+                this.language === 'no'
+                    ? 'I dag skjedde det noe fint: ' + randomEvent.message.replace(/😊|📚|☀️|👨‍👩‍👧|🎯/g, '').trim() + ' Verden i 2000-tallet er hyggelig.'
+                    : 'Today something nice happened: ' + randomEvent.message.replace(/😊|📚|☀️|👨‍👩‍👧|🎯/g, '').trim() + ' The world in the 2000s is nice.',
+                true
+            );
+        }
     }
     
     // Apply ongoing dystopian consequences
