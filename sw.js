@@ -80,8 +80,25 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           // Return cached version with proper headers
           const headers = new Headers(response.headers);
-          headers.set('Cache-Control', 'public, max-age=180');
+          
+          // Determine cache strategy based on resource type
+          const url = event.request.url;
+          const isStatic = /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico)$/i.test(url);
+          const isHTML = /\.html?$/i.test(url);
+          
+          if (isStatic) {
+            // Static resources: long cache with immutable
+            headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+          } else if (isHTML) {
+            // HTML files: short cache for updates
+            headers.set('Cache-Control', 'public, max-age=180');
+          } else {
+            // Other resources: medium cache
+            headers.set('Cache-Control', 'public, max-age=180');
+          }
+          
           headers.set('X-Content-Type-Options', 'nosniff');
+          headers.delete('Expires'); // Remove Expires header (prefer Cache-Control)
           
           return new Response(response.body, {
             status: response.status,
@@ -104,8 +121,25 @@ self.addEventListener('fetch', (event) => {
           
           // Add security headers to response
           const headers = new Headers(networkResponse.headers);
-          headers.set('Cache-Control', 'public, max-age=180');
+          
+          // Determine cache strategy based on resource type
+          const url = event.request.url;
+          const isStatic = /\.(css|js|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico)$/i.test(url);
+          const isHTML = /\.html?$/i.test(url);
+          
+          if (isStatic) {
+            // Static resources: long cache with immutable
+            headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+          } else if (isHTML) {
+            // HTML files: short cache for updates
+            headers.set('Cache-Control', 'public, max-age=180');
+          } else {
+            // Other resources: medium cache
+            headers.set('Cache-Control', 'public, max-age=180');
+          }
+          
           headers.set('X-Content-Type-Options', 'nosniff');
+          headers.delete('Expires'); // Remove Expires header (prefer Cache-Control)
           
           return new Response(networkResponse.body, {
             status: networkResponse.status,
