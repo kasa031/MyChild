@@ -13,6 +13,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MyChild">
     
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" sizes="152x152" href="assets/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/icons/icon-192x192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/icons/icon-512x512.png">
+    
     <link rel="stylesheet" href="css/style.css">
     <!-- API Configuration - Load local config if available, otherwise use example -->
     <script>
@@ -30,15 +39,41 @@
 </head>
 <body>
     <div class="container">
+        <!-- Navigation Menu -->
+        <nav class="main-menu" id="mainMenu">
+            <div class="menu-tabs">
+                <button class="menu-tab active" onclick="game.showMenuTab('game')" id="gameTab">
+                    <span class="menu-icon">🎮</span>
+                    <span class="menu-text">Spill</span>
+                </button>
+                <button class="menu-tab" onclick="game.showMenuTab('about')" id="aboutTab">
+                    <span class="menu-icon">📖</span>
+                    <span class="menu-text">Om spillet</span>
+                </button>
+                <button class="menu-tab" onclick="game.showMenuTab('project')" id="projectTab">
+                    <span class="menu-icon">💼</span>
+                    <span class="menu-text">Om prosjektet</span>
+                </button>
+                <button class="menu-tab" onclick="game.showMenuTab('profile')" id="profileTab">
+                    <span class="menu-icon">👤</span>
+                    <span class="menu-text">Profil</span>
+                </button>
+                <button class="menu-tab" onclick="game.showMenuTab('diary')" id="diaryTab">
+                    <span class="menu-icon">📔</span>
+                    <span class="menu-text">Dagbok</span>
+                </button>
+            </div>
+        </nav>
+        
         <header>
             <div class="sticker-decoration sticker-top-left">
                 <img src="assets/images/sticker2000.jpg" alt="2000s sticker" class="sticker-img" loading="lazy">
             </div>
             <div class="header-title-wrapper">
-                <h1>MyChild - 2000s Edition</h1>
+                <h1>MyChild - 2085: Dystopia Edition</h1>
             </div>
             <div class="header-controls">
-                <div class="year-display" id="yearDisplay">Year: <span id="currentYear">2000</span></div>
+                <div class="year-display" id="yearDisplay">Year: <span id="currentYear">2085</span></div>
                 <div id="moneyDisplay" style="display: none; margin: 0 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold;">
                     💰 <span id="moneyValue">0</span>
                 </div>
@@ -247,6 +282,16 @@
                         <button class="routine-btn" onclick="game.learnEnvironment()">🌍 <span data-translate="environment">Miljøvern</span></button>
                         <button class="routine-btn" onclick="game.learnEconomics()">💰 <span data-translate="economics">Økonomi</span></button>
                         <button class="routine-btn" onclick="game.learnEthics()">🤔 <span data-translate="ethics">Etikk & Filosofi</span></button>
+                        <button class="routine-btn" onclick="game.learnClimate()">🌡️ <span data-translate="climate">Klimaendringer</span></button>
+                        <button class="routine-btn" onclick="game.learnAI()">🤖 <span data-translate="ai">AI & Digitalisering</span></button>
+                        <button class="routine-btn" onclick="game.learnResourceManagement()">⚡ <span data-translate="resources">Ressurshåndtering</span></button>
+                    </div>
+                    <h4 data-translate="futureActions">Fremtidshandlinger</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.getDriversLicense()" id="driversLicenseBtn" style="display: none;">🚗 <span>Ta lappen (16+)</span></button>
+                        <button class="routine-btn" onclick="game.moveOut()" id="moveOutBtn" style="display: none;">🏠 <span>Flytt hjemmefra (18+)</span></button>
+                        <button class="routine-btn" onclick="game.volunteerForClimate()">🌱 <span data-translate="climateVolunteer">Klimafrivillig</span></button>
+                        <button class="routine-btn" onclick="game.workOnAIProject()">🤖 <span data-translate="aiProject">AI-prosjekt</span></button>
                     </div>
                     <h4 data-translate="growth">Vekst og valg</h4>
                     <div class="routine-buttons">
@@ -271,14 +316,20 @@
                             <img src="assets/images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="call">Ring venn</span>
                         </button>
                     </div>
+                    <h4 data-translate="minigames">Minispill</h4>
+                    <div class="routine-buttons">
+                        <button class="routine-btn" onclick="game.playNumberGame()">🔢 <span data-translate="numberGame">Tall-spill</span></button>
+                        <button class="routine-btn" onclick="game.playMemoryGame()">🧠 <span data-translate="memoryGame">Hukommelsesspill</span></button>
+                        <button class="routine-btn" onclick="game.playGuessGame()">🎯 <span data-translate="guessGame">Gjetespill</span></button>
+                    </div>
                 </div>
                 </div>
 
                 <div class="time-control">
-                    <button class="time-btn" onclick="game.nextDay()">Next Day →</button>
+                    <button class="time-btn" onclick="game.nextDay()">Next Year →</button>
                     <div class="time-info">
-                        <span>Day: <span id="currentDay">1</span></span>
-                        <span>Time: <span id="currentTime">Morning</span></span>
+                        <span>Age: <span id="currentAge">0</span></span>
+                        <span>Year: <span id="currentYear">2085</span></span>
                     </div>
                 </div>
             </div>
@@ -296,6 +347,29 @@
     <script src="js/translations.js"></script>
     <script src="js/game.js"></script>
     <script>
+        // Register Service Worker for PWA support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Try relative path first (works for both local and GitHub Pages)
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker registration failed:', error);
+                        // Try with absolute path as fallback (for GitHub Pages)
+                        const absolutePath = window.location.pathname.replace(/\/[^/]*$/, '/sw.js');
+                        navigator.serviceWorker.register(absolutePath)
+                            .then((registration) => {
+                                console.log('Service Worker registered with absolute path:', registration.scope);
+                            })
+                            .catch((err) => {
+                                console.log('Service Worker registration failed completely:', err);
+                            });
+                    });
+            });
+        }
+        
         // Check if username is provided, redirect to login if not
         window.addEventListener('DOMContentLoaded', function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -396,6 +470,210 @@
             </div>
             <div class="modal-body" id="helpContent">
                 <!-- Help content will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- About Game Tab Content -->
+    <div id="aboutGameTab" class="menu-tab-content" style="display: none;">
+        <div class="tab-content-wrapper">
+            <div class="tab-section">
+                    <h2>📖 Om MyChild - 2085: Dystopia Edition</h2>
+                <div class="about-content">
+                    <p class="intro-text">
+                        <strong>MyChild - 2085: Dystopia Edition</strong> er et interaktivt omsorgsspill hvor du tar vare på et barn i en dystopisk fremtid. Norge er i krise - oljefondet er tomt, ressursene er knappe, klimaet er i fritt fall, AI tar over, og eldrebølgen slår til. Kan du ta riktige valg og redde fremtiden? 
+                        Ditt mål er å hjelpe barnet å vokse opp, lære, og trives gjennom ulike utfordringer og opplevelser.
+                    </p>
+                    
+                    <h3>🎯 Spillets mål</h3>
+                    <ul class="feature-list">
+                        <li><strong>Ta vare på barnet:</strong> Hold alle stats (happiness, energy, hunger, social, learning) på et sunt nivå</li>
+                        <li><strong>Daglige rutiner:</strong> Fôr, bad, lek og les med barnet hver dag</li>
+                        <li><strong>Utfør aktiviteter:</strong> Gå på skole, lek utendørs, tilbring tid med venner, og mer</li>
+                        <li><strong>Håndter utfordringer:</strong> Støtt barnet gjennom mobbing, skolepress og andre vanskelige situasjoner</li>
+                        <li><strong>Bygg relasjon:</strong> Styrk forholdet til barnet gjennom støttende valg og oppmerksomhet</li>
+                    </ul>
+                    
+                    <h3>🎮 Hvordan spille</h3>
+                    <div class="how-to-play">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h4>Daglige rutiner</h4>
+                                <p>Hver dag må du fôre, bade, leke og lese med barnet. Disse rutinene er kritiske for barnets velvære!</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h4>Utfør aktiviteter</h4>
+                                <p>Bruk handlingene dine (vist øverst) på aktiviteter som skole, lek, venner, og mer. Du har begrenset antall handlinger per dag.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h4>Følg med på stats</h4>
+                                <p>Hold øye med happiness, energy, hunger, social og learning. Røde/orange stats trenger umiddelbar oppmerksomhet!</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">4</span>
+                            <div class="step-content">
+                                <h4>Ta valg</h4>
+                                <p>Når hendelser oppstår, velg klokt. Dine valg påvirker barnets følelser, resiliens og tillit til deg.</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">5</span>
+                            <div class="step-content">
+                                <h4>Vokse opp</h4>
+                                <p>Barnet vokser opp over tid. Nye utfordringer og muligheter dukker opp når de blir eldre.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3>💡 Tips</h3>
+                    <ul class="tips-list">
+                        <li>✅ Prioriter daglige rutiner - de er viktigere enn du tror!</li>
+                        <li>✅ Hold stats over 30 for å unngå negative konsekvenser</li>
+                        <li>✅ Vær støttende når barnet opplever mobbing eller utfordringer</li>
+                        <li>✅ Balanser aktiviteter - for mye av noe kan være skadelig</li>
+                        <li>✅ Spillet lagres automatisk, så du kan alltid komme tilbake</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- About Project Tab Content -->
+    <div id="aboutProjectTab" class="menu-tab-content" style="display: none;">
+        <div class="tab-content-wrapper">
+            <div class="tab-section">
+                <h2>💼 Om prosjektet</h2>
+                <div class="about-content">
+                    <p class="intro-text">
+                        <strong>MyChild - 2000s Edition</strong> er et nostalgisk omsorgsspill inspirert av klassiske spill fra 2000-tallet. 
+                        Spillet kombinerer elementer fra tamagotchi, virtual pet-spill og moderne narrativ design.
+                    </p>
+                    
+                    <h3>🎨 Prosjektinfo</h3>
+                    <div class="project-info">
+                        <p><strong>Versjon:</strong> 1.0</p>
+                        <p><strong>Utviklet med:</strong> HTML5, CSS3, JavaScript</p>
+                        <p><strong>Inspirasjon:</strong> Klassiske virtual pet-spill fra 2000-tallet</p>
+                        <p><strong>Design:</strong> Nostalgisk 2000s-estetikk med moderne funksjonalitet</p>
+                    </div>
+                    
+                    <h3>👤 Om meg</h3>
+                    <div class="contact-info">
+                        <p>Hei! Jeg er utvikleren bak MyChild - 2000s Edition.</p>
+                        <p>Dette prosjektet er en hyllest til barndommens favorittspill og en øvelse i å lage noe meningsfullt og interaktivt.</p>
+                        
+                        <div class="contact-details">
+                            <h4>📧 Kontakt meg:</h4>
+                            <p class="email-link">
+                                <a href="mailto:ms.tery@icloud.com" style="color: var(--primary-1); text-decoration: none; font-weight: bold;">
+                                    ms.tery@icloud.com
+                                </a>
+                            </p>
+                            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                                Jeg setter pris på tilbakemeldinger, forslag og spørsmål!
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <h3>🙏 Takk</h3>
+                    <p>Takk for at du spiller MyChild - 2000s Edition! Jeg håper du får like mye glede av å spille det som jeg fikk av å lage det.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Tab Content -->
+    <div id="profileMenuTab" class="menu-tab-content" style="display: none;">
+        <div class="tab-content-wrapper">
+            <div class="tab-section">
+                <h2>👤 Profil</h2>
+                <div class="profile-tab-content">
+                    <div class="profile-info-card">
+                        <div class="profile-avatar-large">
+                            <div class="child-avatar-large" id="profileTabAvatar">👶</div>
+                        </div>
+                        <h3 id="profileTabName">Bruker</h3>
+                        <p class="profile-username" id="profileTabUsername">Brukernavn</p>
+                    </div>
+                    
+                    <div class="profile-actions">
+                        <button class="btn-primary profile-action-btn" onclick="game.openProfile()">
+                            <span class="btn-icon">✏️</span>
+                            <span class="btn-text">Rediger profil</span>
+                        </button>
+                        <button class="btn-primary profile-action-btn" onclick="game.showHelp()">
+                            <span class="btn-icon">❓</span>
+                            <span class="btn-text">Hjelp og veiledning</span>
+                        </button>
+                        <button class="btn-primary profile-action-btn" id="installAppBtn" onclick="game.installApp()" style="display: none;">
+                            <span class="btn-icon">📱</span>
+                            <span class="btn-text">Installer app</span>
+                        </button>
+                        <button class="btn-danger profile-action-btn" onclick="game.logout()">
+                            <span class="btn-icon">🚪</span>
+                            <span class="btn-text">Logg ut</span>
+                        </button>
+                    </div>
+                    
+                    <div class="install-section" id="installSection">
+                        <h3>📱 Installer app</h3>
+                        <div class="install-info" id="installInfo">
+                            <p id="installStatus">Sjekker installasjonsmuligheter...</p>
+                        </div>
+                        <div class="install-instructions" id="installInstructions" style="display: none;">
+                            <h4>Hvordan installere:</h4>
+                            <div id="installSteps"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-stats-summary">
+                        <h3>Spillstatistikk</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <span class="stat-label">Dager spilt:</span>
+                                <span class="stat-value" id="profileDaysPlayed">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label">Barnets alder:</span>
+                                <span class="stat-value" id="profileChildAge">0</span>
+                            </div>
+                            <div class="stat-card">
+                                <span class="stat-label">År:</span>
+                                <span class="stat-value" id="profileYear">2000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Diary Tab Content -->
+    <div id="diaryTab" class="menu-tab-content" style="display: none;">
+        <div class="tab-content-wrapper">
+            <div class="tab-section">
+                <h2>📔 Dagbok</h2>
+                <div class="diary-container">
+                    <div class="diary-write-section">
+                        <h3>Skriv i dagbok</h3>
+                        <textarea id="diaryEntryText" rows="6" placeholder="Skriv hva du tenker på i dag..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--primary-1); font-family: inherit; resize: vertical;"></textarea>
+                        <button class="btn-primary" onclick="game.addManualDiaryEntry()" style="margin-top: 10px;">💾 Lagre dagbok-innlegg</button>
+                    </div>
+                    <div class="diary-entries-section">
+                        <h3>Dagbok-innlegg</h3>
+                        <div id="diaryEntriesList" class="diary-entries-list">
+                            <!-- Diary entries will be populated here -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

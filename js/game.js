@@ -39,10 +39,12 @@ class MyChildGame {
             studyLevel: 0, // Study dedication (0-100)
             money: 20, // Starting money (like original - need to manage resources)
             careerProgress: 0, // Career development (0-100)
+            chosenCareer: savedGame && savedGame.child && savedGame.child.chosenCareer ? savedGame.child.chosenCareer : null, // Career choice at age 16+
             // Track daily routines (like original - must do these)
             lastFed: 0, // Day when child was last fed
             lastBathed: 0, // Day when child was last bathed
             lastPlayed: 0, // Day when child was last played with
+            lastRead: 0, // Day when child was last read to
             daysWithoutFood: 0, // Track consecutive days without food
             daysWithoutBath: 0, // Track consecutive days without bath
             helpingOthers: 0, // Times Alex helped others (hero counter)
@@ -73,18 +75,32 @@ class MyChildGame {
             teacherInvolved: savedGame && savedGame.child && savedGame.child.teacherInvolved ? savedGame.child.teacherInvolved : false,
             lastSupportiveChoice: savedGame && savedGame.child && savedGame.child.lastSupportiveChoice ? savedGame.child.lastSupportiveChoice : null,
             // Trust level - affected by past choices
-            trustLevel: savedGame && savedGame.child && savedGame.child.trustLevel !== undefined ? savedGame.child.trustLevel : 50
+            trustLevel: savedGame && savedGame.child && savedGame.child.trustLevel !== undefined ? savedGame.child.trustLevel : 50,
+            // Diary system - auto-generated and manual entries
+            diary: savedGame && savedGame.child && savedGame.child.diary ? savedGame.child.diary : [],
+            // Friends system - Alma Vilje and Celia Rose
+            friends: savedGame && savedGame.child && savedGame.child.friends ? savedGame.child.friends : {
+                almaVilje: { name: 'Alma Vilje', friendshipLevel: 30, lastInteraction: 0, supportGiven: 0, supportReceived: 0 },
+                celiaRose: { name: 'Celia Rose', friendshipLevel: 30, lastInteraction: 0, supportGiven: 0, supportReceived: 0 }
+            },
+            // Future-specific stats
+            hasDriversLicense: savedGame && savedGame.child && savedGame.child.hasDriversLicense ? savedGame.child.hasDriversLicense : false,
+            hasMovedOut: savedGame && savedGame.child && savedGame.child.hasMovedOut ? savedGame.child.hasMovedOut : false,
+            climateAwareness: savedGame && savedGame.child && savedGame.child.climateAwareness ? savedGame.child.climateAwareness : 0,
+            aiLiteracy: savedGame && savedGame.child && savedGame.child.aiLiteracy ? savedGame.child.aiLiteracy : 0,
+            resourceManagement: savedGame && savedGame.child && savedGame.child.resourceManagement ? savedGame.child.resourceManagement : 0
         };
         
         this.day = savedGame ? savedGame.day : 1;
-        this.year = savedGame ? savedGame.year : 2000;
+        this.year = savedGame ? savedGame.year : 2085; // Future dystopia setting
+        this.age = savedGame ? savedGame.age : 0; // Track character age in years (replaces day system)
         this.timeOfDay = savedGame ? savedGame.timeOfDay : 0;
         this.timeNames = ["Morning", "Afternoon", "Evening", "Night"];
         this.currentLocation = savedGame ? savedGame.currentLocation : "home";
         this.pendingEvent = savedGame ? savedGame.pendingEvent : null;
         this.dialogueQueue = savedGame ? savedGame.dialogueQueue : [];
         this.actionsToday = savedGame ? savedGame.actionsToday : 0;
-        this.maxActionsPerDay = 5; // Like original - limited actions per day (reduced from 6 to make it more challenging)
+        this.maxActionsPerDay = 4; // Like original - limited actions per day (reduced to 4 to make time management more critical)
         this.consequencesAppliedToday = false; // Track if exhaustion consequences have been applied today
         this.memory = savedGame ? savedGame.memory : []; // Track important events and choices
         this.relationship = savedGame ? savedGame.relationship : 50; // Relationship strength (hidden stat)
@@ -159,6 +175,12 @@ class MyChildGame {
         }
         
         this.initializeGame();
+        
+        // Initialize PWA install prompt
+        this.deferredPrompt = null;
+        setTimeout(() => {
+            this.initializeInstallPrompt();
+        }, 1000);
     }
     
     loadCustomization() {
@@ -375,6 +397,9 @@ class MyChildGame {
         
         this.updateDisplay();
         
+        // Initialize menu - show game tab by default
+        this.showMenuTab('game');
+        
         // Check if this is a loaded game
         const isLoadedGame = this.loadGame() !== null;
         
@@ -391,12 +416,12 @@ class MyChildGame {
             let ageAppropriateDialogue = "";
             if (this.child.age < 1) {
                 ageAppropriateDialogue = this.language === 'no'
-                    ? "Hei... Jeg er " + this.child.name + ". Jeg er bare en baby i år 2000. Jeg vil vokse opp med din hjelp og støtte!"
-                    : "Hi... I'm " + this.child.name + ". I'm just a baby in the year 2000. I'll grow up with your help and support!";
+                    ? "Hei... Jeg er " + this.child.name + ". Jeg er bare en baby i år 2085. Verden er annerledes nå - oljefondet er tomt, klimaet er i krise, og AI tar over. Men jeg vil vokse opp med din hjelp og støtte, og kanskje vi kan gjøre en forskjell?"
+                    : "Hi... I'm " + this.child.name + ". I'm just a baby in the year 2085. The world is different now - the oil fund is empty, the climate is in crisis, and AI is taking over. But I'll grow up with your help and support, and maybe we can make a difference?";
             } else if (this.child.age < 5) {
                 ageAppropriateDialogue = this.language === 'no'
-                    ? "Hei! Jeg er " + this.child.name + ". Jeg er " + this.child.age + " år gammel i 2000-tallet. Alt er nytt og spennende!"
-                    : "Hi! I'm " + this.child.name + ". I'm " + this.child.age + " years old in the 2000s. Everything is new and exciting!";
+                    ? "Hei! Jeg er " + this.child.name + ". Jeg er " + this.child.age + " år gammel i 2085. Verden er annerledes - vi har flyvende biler, men også store utfordringer. Oljefondet er tomt, ressursene er knappe, og eldrebølgen slår til. Men jeg lærer og vokser!"
+                    : "Hi! I'm " + this.child.name + ". I'm " + this.child.age + " years old in 2085. The world is different - we have flying cars, but also big challenges. The oil fund is empty, resources are scarce, and the aging population crisis is hitting. But I'm learning and growing!";
             } else if (this.child.age < 7) {
                 ageAppropriateDialogue = this.language === 'no'
                     ? "Hei... Jeg er " + this.child.name + ". Jeg er " + this.child.age + " år gammel. Jeg forbereder meg på skolen snart!"
@@ -404,13 +429,13 @@ class MyChildGame {
             } else {
                 // Historical reference - like original game (post-WW2 context)
                 ageAppropriateDialogue = this.language === 'no' 
-                    ? "Hei... Jeg er " + this.child.name + ". Å begynne på skolen i 2000-tallet er... vel, det kan være komplisert noen ganger. Noen ganger føler jeg at jeg er annerledes, at folk ser på meg annerledes. Men jeg vet at jeg er god nok akkurat som jeg er, og det er alle andre også. Historien vår er ikke skrevet i stein - vi kan skape vår egen fremtid."
-                    : "Hi... I'm " + this.child.name + ". Starting school in the 2000s is... well, it's complicated sometimes. Sometimes I feel different, like people see me differently. But I know I'm good enough just as I am, and so is everyone else. Our story isn't written in stone - we can create our own future.";
+                    ? "Hei... Jeg er " + this.child.name + ". Å begynne på skolen i 2085 er... vel, det er annerledes. Vi lærer om klimaendringer, AI, og hvordan Norge mistet oljefondet. Noen ganger føler jeg at fremtiden er usikker, men jeg vet at vi kan gjøre en forskjell. Historien vår er ikke skrevet i stein - vi kan skape vår egen fremtid, kanskje redde Norge fra dystopien?"
+                    : "Hi... I'm " + this.child.name + ". Starting school in 2085 is... well, it's different. We learn about climate change, AI, and how Norway lost the oil fund. Sometimes I feel the future is uncertain, but I know we can make a difference. Our story isn't written in stone - we can create our own future, maybe save Norway from dystopia?";
             }
             this.showDialogue(ageAppropriateDialogue);
             const welcomeMsg = this.language === 'no'
-                ? "Velkommen! Du tar nå vare på " + this.child.name + " i år 2000. " + this.child.name + " er " + this.child.age + " år gammel. " + this.child.name + " møter utfordringer, men husk: " + this.child.name + " er perfekt akkurat som " + (this.child.gender === 'girl' ? 'hun' : 'han') + " er. Med din støtte og riktige valg kan " + this.child.name + " vokse sterkere, hjelpe andre og finne suksess. Hvert valg teller - både for i dag og i morgen."
-                : "Welcome! You are now taking care of " + this.child.name + " in the year 2000. " + this.child.name + " is " + this.child.age + " years old. " + this.child.name + " faces challenges, but remember: " + this.child.name + " is perfect just as " + (this.child.gender === 'girl' ? 'she' : 'he') + " is. With your support and the right choices, " + this.child.name + " can grow stronger, help others, and find success. Every choice matters - both for today and tomorrow.";
+                ? "Velkommen til 2085! Du tar nå vare på " + this.child.name + " i en verden i krise. " + this.child.name + " er " + this.child.age + " år gammel. Norge er i krise - oljefondet er tomt, ressursene er knappe, klimaet er i fritt fall, AI tar over, og eldrebølgen slår til. Men med din støtte og riktige valg kan " + this.child.name + " kanskje redde fremtiden. Hvert valg teller - kan du stoppe dystopien?"
+                : "Welcome to 2085! You are now taking care of " + this.child.name + " in a world in crisis. " + this.child.name + " is " + this.child.age + " years old. Norway is in crisis - the oil fund is empty, resources are scarce, the climate is in free fall, AI is taking over, and the aging population crisis is hitting. But with your support and the right choices, " + this.child.name + " might save the future. Every choice matters - can you stop the dystopia?";
             this.showMessage(welcomeMsg);
         }
         
@@ -562,7 +587,7 @@ class MyChildGame {
                 nextDay: "Neste dag →"
             },
             en: {
-                welcome: "Welcome! Take care of your child in the 2000s.",
+                welcome: "Welcome to 2085! Take care of your child in a world in crisis. Can you save Norway from dystopia?",
                 activities: "Activities",
                 playground: "Playground",
                 nature: "Nature",
@@ -614,7 +639,7 @@ class MyChildGame {
         const tutorialSteps = [
             {
                 title: "Velkommen til MyChild! 👶",
-                message: "Dette er et omsorgsspill hvor du tar vare på et barn som vokser opp i 2000-tallet. Ta vare på barnet ved å fylle statsene!",
+                message: "Dette er et omsorgsspill hvor du tar vare på et barn som vokser opp i 2085. Norge er i krise - oljefondet er tomt, ressursene er knappe, klimaet er i fritt fall, AI tar over, og eldrebølgen slår til. Kan du ta riktige valg og redde fremtiden?",
                 duration: 4000
             },
             {
@@ -827,30 +852,102 @@ class MyChildGame {
         updateBar('socialBar', this.child.social);
         updateBar('learningBar', this.child.learning);
         
+        // Update stat bars with visual feedback for critical stats
+        const updateStatBar = (barId, value, statName) => {
+            const bar = document.getElementById(barId);
+            if (bar) {
+                bar.style.transition = 'width 0.5s ease';
+                bar.style.width = value + '%';
+                
+                // Visual feedback for critical stats
+                if (value < 15) {
+                    // Critical - red
+                    bar.style.background = 'linear-gradient(90deg, #f44336, #d32f2f)';
+                    bar.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.6)';
+                    bar.style.animation = 'pulse 1.5s ease-in-out infinite';
+                } else if (value < 30) {
+                    // Warning - orange
+                    bar.style.background = 'linear-gradient(90deg, #ff9800, #f57c00)';
+                    bar.style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.4)';
+                    bar.style.animation = 'none';
+                } else if (value < 50) {
+                    // Low - yellow
+                    bar.style.background = 'linear-gradient(90deg, #ffc107, #ffb300)';
+                    bar.style.boxShadow = '0 0 5px rgba(255, 193, 7, 0.3)';
+                    bar.style.animation = 'none';
+                } else {
+                    // Normal - default gradient
+                    bar.style.background = '';
+                    bar.style.boxShadow = '';
+                    bar.style.animation = '';
+                }
+            }
+        };
+        
+        updateStatBar('happinessBar', this.child.happiness, 'happiness');
+        updateStatBar('energyBar', this.child.energy, 'energy');
+        updateStatBar('socialBar', this.child.social, 'social');
+        updateStatBar('learningBar', this.child.learning, 'learning');
+        
         const hungerBar = document.getElementById('hungerBar');
         if (hungerBar) {
             hungerBar.style.transition = 'width 0.5s ease';
             hungerBar.style.width = this.child.hunger + '%';
-            if (this.child.hunger < 30) {
-                hungerBar.classList.add('low');
+            if (this.child.hunger < 15) {
+                hungerBar.style.background = 'linear-gradient(90deg, #f44336, #d32f2f)';
+                hungerBar.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.6)';
+                hungerBar.style.animation = 'pulse 1.5s ease-in-out infinite';
+            } else if (this.child.hunger < 30) {
+                hungerBar.style.background = 'linear-gradient(90deg, #ff9800, #f57c00)';
+                hungerBar.style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.4)';
+                hungerBar.style.animation = 'none';
             } else {
-                hungerBar.classList.remove('low');
+                hungerBar.style.background = '';
+                hungerBar.style.boxShadow = '';
+                hungerBar.style.animation = '';
             }
         }
         
         // Update action display
         this.updateActionDisplay();
+        this.updateRoutineDisplay();
         
         // Update time
-        document.getElementById('currentDay').textContent = this.day;
+        // Update age display instead of day (2085 uses years)
+        const currentAgeElement = document.getElementById('currentAge');
+        if (currentAgeElement) {
+            currentAgeElement.textContent = this.child.age || 0;
+        }
         document.getElementById('currentYear').textContent = this.year;
         document.getElementById('currentTime').textContent = this.timeNames[this.timeOfDay];
         
         // Update child name
         document.getElementById('childName').textContent = this.child.name;
         
+        // Update future-specific buttons visibility
+        const driversLicenseBtn = document.getElementById('driversLicenseBtn');
+        if (driversLicenseBtn) {
+            if (this.child.age >= 16 && !this.child.hasDriversLicense) {
+                driversLicenseBtn.style.display = 'inline-block';
+            } else {
+                driversLicenseBtn.style.display = 'none';
+            }
+        }
+        
+        const moveOutBtn = document.getElementById('moveOutBtn');
+        if (moveOutBtn) {
+            if (this.child.age >= 18 && !this.child.hasMovedOut) {
+                moveOutBtn.style.display = 'inline-block';
+            } else {
+                moveOutBtn.style.display = 'none';
+            }
+        }
+        
         // Update emotion display (like original - show child's feelings)
         this.updateEmotionDisplay();
+        
+        // Update color palette based on child's emotional state
+        this.updateColorPalette();
         
         // Update money display if child has money
         const moneyDisplay = document.getElementById('moneyDisplay');
@@ -1660,6 +1757,142 @@ class MyChildGame {
         this.updateActionDisplay();
     }
     
+    updateColorPalette() {
+        // Change color palette based on child's emotional state and stats
+        const container = document.querySelector('.container');
+        if (!container) return;
+        
+        const emotions = this.child.emotionalState;
+        const maxEmotion = Object.entries(emotions).reduce((a, b) => emotions[a[0]] > emotions[b[1]] ? a : b);
+        const maxEmotionValue = maxEmotion[1] || 0;
+        const maxEmotionName = maxEmotion[0];
+        
+        // Determine overall mood based on stats and emotions
+        const avgHappiness = (this.child.happiness + (100 - Math.max(0, this.child.hunger - 50))) / 2;
+        const isCritical = this.child.happiness < 20 || this.child.hunger < 20 || this.child.energy < 20;
+        
+        // Remove existing color classes
+        container.classList.remove('mood-happy', 'mood-sad', 'mood-angry', 'mood-anxious', 'mood-critical');
+        
+        if (isCritical) {
+            container.classList.add('mood-critical');
+            container.style.filter = 'brightness(0.9) saturate(0.85)';
+        } else if (maxEmotionName === 'happy' && maxEmotionValue > 40) {
+            container.classList.add('mood-happy');
+            container.style.filter = 'brightness(1.05) saturate(1.1)';
+        } else if ((maxEmotionName === 'sad' || maxEmotionName === 'lonely') && maxEmotionValue > 30) {
+            container.classList.add('mood-sad');
+            container.style.filter = 'brightness(0.95) saturate(0.9)';
+        } else if ((maxEmotionName === 'angry' || maxEmotionName === 'scared') && maxEmotionValue > 30) {
+            container.classList.add('mood-angry');
+            container.style.filter = 'brightness(1.0) saturate(1.15)';
+        } else if (maxEmotionName === 'anxious' && maxEmotionValue > 30) {
+            container.classList.add('mood-anxious');
+            container.style.filter = 'brightness(0.98) saturate(0.95)';
+        } else {
+            container.style.filter = '';
+        }
+    }
+    
+    updateRoutineDisplay() {
+        // Visual feedback for missing routines
+        const daysSinceFed = this.day - (this.child.lastFed || 0);
+        const daysSinceBathed = this.day - (this.child.lastBathed || 0);
+        const daysSincePlayed = this.day - (this.child.lastPlayed || 0);
+        const daysSinceRead = this.day - (this.child.lastRead || 0);
+        
+        // Update feed button
+        const feedBtn = document.querySelector('.feed-btn');
+        if (feedBtn) {
+            if (daysSinceFed > 1) {
+                feedBtn.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+                feedBtn.style.animation = 'pulse 1.5s ease-in-out infinite';
+                feedBtn.style.boxShadow = '0 0 15px rgba(244, 67, 54, 0.6)';
+                feedBtn.style.border = '3px solid #ff5252';
+            } else if (daysSinceFed > 0) {
+                feedBtn.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                feedBtn.style.animation = 'none';
+                feedBtn.style.boxShadow = '0 0 10px rgba(255, 152, 0, 0.4)';
+                feedBtn.style.border = '2px solid #ffb74d';
+            } else {
+                feedBtn.style.background = '';
+                feedBtn.style.animation = '';
+                feedBtn.style.boxShadow = '';
+                feedBtn.style.border = '';
+            }
+        }
+        
+        // Update bathe button
+        const routineBtns = document.querySelectorAll('.routine-btn');
+        if (routineBtns.length > 1) {
+            const batheBtn = routineBtns[1];
+            if (batheBtn) {
+                if (daysSinceBathed > 2) {
+                    batheBtn.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+                    batheBtn.style.animation = 'pulse 1.5s ease-in-out infinite';
+                    batheBtn.style.boxShadow = '0 0 15px rgba(244, 67, 54, 0.6)';
+                    batheBtn.style.border = '3px solid #ff5252';
+                } else if (daysSinceBathed > 1) {
+                    batheBtn.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                    batheBtn.style.animation = 'none';
+                    batheBtn.style.boxShadow = '0 0 10px rgba(255, 152, 0, 0.4)';
+                    batheBtn.style.border = '2px solid #ffb74d';
+                } else {
+                    batheBtn.style.background = '';
+                    batheBtn.style.animation = '';
+                    batheBtn.style.boxShadow = '';
+                    batheBtn.style.border = '';
+                }
+            }
+        }
+        
+        // Update play button
+        if (routineBtns.length > 2) {
+            const playBtn = routineBtns[2];
+            if (playBtn) {
+                if (daysSincePlayed > 3) {
+                    playBtn.style.background = 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)';
+                    playBtn.style.animation = 'pulse 1.5s ease-in-out infinite';
+                    playBtn.style.boxShadow = '0 0 15px rgba(244, 67, 54, 0.6)';
+                    playBtn.style.border = '3px solid #ff5252';
+                } else if (daysSincePlayed > 2) {
+                    playBtn.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                    playBtn.style.animation = 'none';
+                    playBtn.style.boxShadow = '0 0 10px rgba(255, 152, 0, 0.4)';
+                    playBtn.style.border = '2px solid #ffb74d';
+                } else {
+                    playBtn.style.background = '';
+                    playBtn.style.animation = '';
+                    playBtn.style.boxShadow = '';
+                    playBtn.style.border = '';
+                }
+            }
+        }
+        
+        // Update read button
+        if (routineBtns.length > 3) {
+            const readBtn = routineBtns[3];
+            if (readBtn) {
+                if (daysSinceRead > 5) {
+                    readBtn.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+                    readBtn.style.animation = 'pulse 2s ease-in-out infinite';
+                    readBtn.style.boxShadow = '0 0 10px rgba(255, 152, 0, 0.4)';
+                    readBtn.style.border = '2px solid #ffb74d';
+                } else if (daysSinceRead > 3) {
+                    readBtn.style.background = 'linear-gradient(135deg, #ffc107 0%, #ffb300 100%)';
+                    readBtn.style.animation = 'none';
+                    readBtn.style.boxShadow = '0 0 8px rgba(255, 193, 7, 0.3)';
+                    readBtn.style.border = '2px solid #ffd54f';
+                } else {
+                    readBtn.style.background = '';
+                    readBtn.style.animation = '';
+                    readBtn.style.boxShadow = '';
+                    readBtn.style.border = '';
+                }
+            }
+        }
+    }
+    
     async goToLocation(location) {
         this.currentLocation = location;
         this.updateDisplay();
@@ -1807,23 +2040,123 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         if (this.child.energy < 15) {
-            this.showDialogue("I'm too tired to hang out with friends right now.");
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å henge med venner akkurat nå..."
+                : "I'm too tired to hang out with friends right now.");
             return;
         }
-        this.adjustStat('social', 20);
-        this.adjustStat('happiness', 15);
-        this.adjustStat('energy', -10);
-        this.adjustRelationship(1);
         
+        // Choose a friend to hang out with
+        const friends = ['almaVilje', 'celiaRose'];
+        const friendKey = friends[Math.floor(Math.random() * friends.length)];
+        const friend = this.child.friends[friendKey];
+        
+        this.spendTimeWithFriend(friendKey);
+    }
+    
+    spendTimeWithFriend(friendKey) {
+        if (!this.canPerformAction()) return;
+        
+        const friend = this.child.friends[friendKey];
+        if (!friend) return;
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å henge med " + friend.name + " akkurat nå..."
+                : "I'm too tired to hang out with " + friend.name + " right now...");
+            return;
+        }
+        
+        // Increase friendship level
+        friend.friendshipLevel = Math.min(100, friend.friendshipLevel + 5);
+        friend.lastInteraction = this.day;
+        
+        // Social activities with friend
         const activities = [
-            "I had so much fun with my friends today! We played games and talked.",
-            "My friends are the best! We had a great time together.",
-            "I love hanging out with friends! They make me so happy."
+            { 
+                text: this.language === 'no' 
+                    ? "Jeg hang med " + friend.name + " i dag! Vi lekte og snakket sammen. Det var så gøy!"
+                    : "I hung out with " + friend.name + " today! We played and talked together. It was so fun!",
+                social: 20, happiness: 15, energy: -10
+            },
+            {
+                text: this.language === 'no'
+                    ? friend.name + " og jeg lekte utendørs sammen. Vi hadde det så gøy!"
+                    : friend.name + " and I played outside together. We had so much fun!",
+                social: 18, happiness: 18, energy: -12
+            },
+            {
+                text: this.language === 'no'
+                    ? "Jeg snakket med " + friend.name + " om dagene våre. Det er fint å ha noen å snakke med."
+                    : "I talked with " + friend.name + " about our days. It's nice to have someone to talk to.",
+                social: 22, happiness: 12, energy: -8
+            }
         ];
-        this.showDialogue(activities[Math.floor(Math.random() * activities.length)]);
-        this.showMessage("Great social interaction! Your child is building positive relationships.");
+        
+        const activity = activities[Math.floor(Math.random() * activities.length)];
+        this.showDialogue(activity.text);
+        
+        this.adjustStat('social', activity.social);
+        this.adjustStat('happiness', activity.happiness);
+        this.adjustStat('energy', activity.energy);
+        this.adjustRelationship(2);
+        this.setEmotion('happy', 15);
+        
+        // Add diary entry
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'Jeg tilbrakte tid med ' + friend.name + ' i dag. Det var fint.'
+                : 'I spent time with ' + friend.name + ' today. It was nice.',
+            true
+        );
+        
+        this.showMessage(this.language === 'no'
+            ? "Flott sosial interaksjon! Vennskapet med " + friend.name + " vokser."
+            : "Great social interaction! Friendship with " + friend.name + " is growing.");
         this.performAction();
         this.advanceTime();
+    }
+    
+    getFriendSupport(friendKey) {
+        const friend = this.child.friends[friendKey];
+        if (!friend || friend.friendshipLevel < 40) {
+            return null; // Friend not close enough
+        }
+        
+        // Friend provides support during difficult times
+        if (this.child.happiness < 40 || this.child.resilience < 50) {
+            friend.supportReceived++;
+            friend.friendshipLevel = Math.min(100, friend.friendshipLevel + 2);
+            
+            const supportMessages = [
+                this.language === 'no'
+                    ? friend.name + " støttet meg i dag når jeg følte meg nedfor. Det hjalp så mye."
+                    : friend.name + " supported me today when I was feeling down. It helped so much.",
+                this.language === 'no'
+                    ? "Jeg snakket med " + friend.name + " om det som plager meg. Det føltes trygt."
+                    : "I talked with " + friend.name + " about what's bothering me. It felt safe."
+            ];
+            
+            const message = supportMessages[Math.floor(Math.random() * supportMessages.length)];
+            this.showDialogue(message);
+            
+            this.adjustStat('happiness', 10);
+            this.adjustStat('social', 8);
+            this.child.resilience = Math.min(100, this.child.resilience + 3);
+            this.setEmotion('happy', 10);
+            this.setEmotion('sad', -5);
+            
+            this.addAutoDiaryEntry(
+                this.language === 'no'
+                    ? friend.name + ' støttet meg i dag. Jeg er takknemlig for vennskapet vårt.'
+                    : friend.name + ' supported me today. I am grateful for our friendship.',
+                true
+            );
+            
+            return true;
+        }
+        
+        return false;
     }
     
     playOutside() {
@@ -2008,8 +2341,8 @@ class MyChildGame {
         if (!this.canPerformAction()) return;
         
         // Check if we have food (money to buy food) - like original game
-        // Food costs more as child gets older
-        const foodCost = this.child.age < 5 ? 3 : this.child.age < 10 ? 5 : this.child.age < 14 ? 8 : 12;
+        // Food costs more as child gets older (increased to make money more critical)
+        const foodCost = this.child.age < 5 ? 4 : this.child.age < 10 ? 7 : this.child.age < 14 ? 12 : 18;
         
         if (this.child.money < foodCost) {
             const noMoneyMsg = this.language === 'no'
@@ -2345,6 +2678,9 @@ class MyChildGame {
         const content = document.getElementById('universeContent');
         if (!content) return;
         
+        // Track that child was read to
+        this.child.lastRead = this.day;
+        
         this.adjustStat('learning', learningGain);
         this.adjustStat('happiness', happinessGain);
         this.adjustStat('energy', -5);
@@ -2651,6 +2987,10 @@ class MyChildGame {
         
         this.showMessage("Volunteering helps others and makes " + this.child.name + " feel valuable and strong!");
         this.memory.push({day: this.day, event: "Volunteered - helped others", positive: true});
+        this.addAutoDiaryEntry(
+            this.language === 'no' ? 'Jeg hjalp andre i dag. Det føltes godt å gjøre noe for andre.' : 'I helped others today. It felt good to do something for others.',
+            true
+        );
         this.performAction();
         this.advanceTime();
     }
@@ -3251,6 +3591,237 @@ class MyChildGame {
         this.advanceTime();
     }
     
+    // Future-specific learning functions (2085)
+    learnClimate() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å lære om klima akkurat nå..."
+                : "I'm too tired to learn about climate right now...");
+            return;
+        }
+        
+        this.child.climateAwareness = Math.min(100, this.child.climateAwareness + 10);
+        this.adjustStat('learning', 15);
+        this.adjustStat('happiness', -5); // Learning about climate crisis is sobering
+        this.adjustStat('energy', -10);
+        this.setEmotion('curious', 15);
+        this.setEmotion('anxious', 5); // Climate crisis is worrying
+        
+        const climateFacts = [
+            this.language === 'no'
+                ? "I dag lærte jeg om klimaendringer. I 2085 er temperaturen steget med 4 grader. Isen smelter, havnivået stiger, og ekstremvær er vanlig. Norge har mistet mye land til havet."
+                : "Today I learned about climate change. In 2085, temperatures have risen by 4 degrees. Ice is melting, sea levels are rising, and extreme weather is common. Norway has lost much land to the sea.",
+            this.language === 'no'
+                ? "Jeg lærte at oljefondet ble brukt opp på å reparere klima-skader. Vi var ikke forberedt. Nå har vi ingenting igjen."
+                : "I learned that the oil fund was used up repairing climate damage. We weren't prepared. Now we have nothing left.",
+            this.language === 'no'
+                ? "Klimaendringene påvirker alt. Matproduksjonen er redusert, ressursene er knappe, og mange steder er ubeboelige. Vi må gjøre noe!"
+                : "Climate change affects everything. Food production is reduced, resources are scarce, and many places are uninhabitable. We must do something!"
+        ];
+        
+        const fact = climateFacts[Math.floor(Math.random() * climateFacts.length)];
+        this.showDialogue(fact);
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag lærte jeg om klimaendringene. Det er skummelt, men jeg må forstå hva som skjedde.'
+                : 'Today I learned about climate change. It\'s scary, but I need to understand what happened.',
+            false
+        );
+        
+        this.showMessage(this.language === 'no'
+            ? "🌡️ " + this.child.name + " lærer om klimaendringene. Kunnskap er første steg mot løsninger!"
+            : "🌡️ " + this.child.name + " is learning about climate change. Knowledge is the first step toward solutions!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    learnAI() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å lære om AI akkurat nå..."
+                : "I'm too tired to learn about AI right now...");
+            return;
+        }
+        
+        this.child.aiLiteracy = Math.min(100, this.child.aiLiteracy + 10);
+        this.adjustStat('learning', 15);
+        this.adjustStat('happiness', 5);
+        this.adjustStat('energy', -10);
+        this.setEmotion('curious', 20);
+        
+        const aiFacts = [
+            this.language === 'no'
+                ? "I dag lærte jeg om AI. I 2085 har AI tatt over mange jobber. Mange er arbeidsløse. Men AI kan også hjelpe oss med å løse problemer - hvis vi bruker den riktig."
+                : "Today I learned about AI. In 2085, AI has taken over many jobs. Many are unemployed. But AI can also help us solve problems - if we use it right.",
+            this.language === 'no'
+                ? "Jeg lærte at digitaliseringen gikk for raskt. Vi var ikke forberedt. Nå er vi avhengige av AI, men vi forstår den ikke helt."
+                : "I learned that digitalization went too fast. We weren't prepared. Now we're dependent on AI, but we don't fully understand it.",
+            this.language === 'no'
+                ? "AI kan være farlig hvis den ikke kontrolleres. Men den kan også være vår redning - hvis vi lærer å bruke den klokt."
+                : "AI can be dangerous if not controlled. But it can also be our salvation - if we learn to use it wisely."
+        ];
+        
+        const fact = aiFacts[Math.floor(Math.random() * aiFacts.length)];
+        this.showDialogue(fact);
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag lærte jeg om AI. Det er både skummelt og spennende. Kanskje jeg kan bruke det til å hjelpe Norge?'
+                : 'Today I learned about AI. It\'s both scary and exciting. Maybe I can use it to help Norway?',
+            true
+        );
+        
+        this.showMessage(this.language === 'no'
+            ? "🤖 " + this.child.name + " lærer om AI. Kunnskap om teknologi kan være nøkkelen til fremtiden!"
+            : "🤖 " + this.child.name + " is learning about AI. Knowledge of technology could be the key to the future!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    learnResourceManagement() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 15) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å lære om ressurshåndtering akkurat nå..."
+                : "I'm too tired to learn about resource management right now...");
+            return;
+        }
+        
+        this.child.resourceManagement = Math.min(100, this.child.resourceManagement + 10);
+        this.adjustStat('learning', 15);
+        this.adjustStat('happiness', -3); // Learning about resource scarcity is sobering
+        this.adjustStat('energy', -10);
+        this.setEmotion('curious', 15);
+        this.setEmotion('anxious', 5);
+        
+        const resourceFacts = [
+            this.language === 'no'
+                ? "I dag lærte jeg om ressurshåndtering. I 2085 er ressursene knappe. Oljefondet er tomt, vi har ingen venner med andre nasjoner, og vi har ikke nok penger til våpen. Norge er sårbart."
+                : "Today I learned about resource management. In 2085, resources are scarce. The oil fund is empty, we have no friends among other nations, and we don't have enough money for weapons. Norway is vulnerable.",
+            this.language === 'no'
+                ? "Jeg lærte at vi var ikke flinke til å bygge allianser. Nå står vi alene. Uten ressurser, uten venner, uten forsvarskapasitet."
+                : "I learned that we weren't good at building alliances. Now we stand alone. Without resources, without friends, without defense capacity.",
+            this.language === 'no'
+                ? "Ressurshåndtering er kritisk. Vi må lære å bruke det vi har klokt. Kanskje jeg kan hjelpe Norge med dette?"
+                : "Resource management is critical. We must learn to use what we have wisely. Maybe I can help Norway with this?"
+        ];
+        
+        const fact = resourceFacts[Math.floor(Math.random() * resourceFacts.length)];
+        this.showDialogue(fact);
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag lærte jeg om ressurshåndtering. Norge er i krise, men kanskje vi kan finne løsninger?'
+                : 'Today I learned about resource management. Norway is in crisis, but maybe we can find solutions?',
+            false
+        );
+        
+        this.showMessage(this.language === 'no'
+            ? "⚡ " + this.child.name + " lærer om ressurshåndtering. Klok bruk av ressurser kan redde Norge!"
+            : "⚡ " + this.child.name + " is learning about resource management. Wise use of resources could save Norway!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    volunteerForClimate() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for ung til å være klimafrivillig..."
+                : "I'm too young to be a climate volunteer...");
+            return;
+        }
+        
+        if (this.child.energy < 20) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å være klimafrivillig akkurat nå..."
+                : "I'm too tired to be a climate volunteer right now...");
+            return;
+        }
+        
+        this.child.climateAwareness = Math.min(100, this.child.climateAwareness + 5);
+        this.adjustStat('happiness', 10);
+        this.adjustStat('social', 15);
+        this.adjustStat('energy', -15);
+        this.setEmotion('happy', 15);
+        this.setEmotion('curious', 10);
+        
+        const volunteerMsg = this.language === 'no'
+            ? "Jeg var klimafrivillig i dag! Vi plantet trær og ryddet opp. Det føltes godt å gjøre noe for miljøet. Kanskje vi kan redde noe av naturen?"
+            : "I was a climate volunteer today! We planted trees and cleaned up. It felt good to do something for the environment. Maybe we can save some of nature?";
+        this.showDialogue(volunteerMsg);
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag var jeg klimafrivillig. Det føltes godt å gjøre noe. Kanskje små handlinger kan gjøre en forskjell?'
+                : 'Today I was a climate volunteer. It felt good to do something. Maybe small actions can make a difference?',
+            true
+        );
+        
+        this.showMessage(this.language === 'no'
+            ? "🌱 " + this.child.name + " hjelper miljøet! Hver liten handling teller i kampen mot klimaendringene!"
+            : "🌱 " + this.child.name + " is helping the environment! Every small action counts in the fight against climate change!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    workOnAIProject() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 12) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for ung til å jobbe med AI-prosjekter..."
+                : "I'm too young to work on AI projects...");
+            return;
+        }
+        
+        if (this.child.energy < 20) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å jobbe med AI-prosjekter akkurat nå..."
+                : "I'm too tired to work on AI projects right now...");
+            return;
+        }
+        
+        if (this.child.aiLiteracy < 30) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg trenger å lære mer om AI først. Prøv 'Lær om AI' aktiviteten!"
+                : "I need to learn more about AI first. Try the 'Learn about AI' activity!");
+            return;
+        }
+        
+        this.child.aiLiteracy = Math.min(100, this.child.aiLiteracy + 5);
+        this.adjustStat('learning', 20);
+        this.adjustStat('happiness', 12);
+        this.adjustStat('energy', -18);
+        this.setEmotion('happy', 18);
+        this.setEmotion('curious', 15);
+        
+        const projectMsg = this.language === 'no'
+            ? "Jeg jobbet med et AI-prosjekt i dag! Jeg prøver å lage noe som kan hjelpe Norge. Kanskje AI kan være vår redning, ikke vår undergang?"
+            : "I worked on an AI project today! I'm trying to create something that can help Norway. Maybe AI can be our salvation, not our doom?";
+        this.showDialogue(projectMsg);
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag jobbet jeg med et AI-prosjekt. Kanskje teknologi kan hjelpe Norge ut av krisen?'
+                : 'Today I worked on an AI project. Maybe technology can help Norway out of the crisis?',
+            true
+        );
+        
+        this.showMessage(this.language === 'no'
+            ? "🤖 " + this.child.name + " jobber med AI! Kanskje teknologi kan redde Norge fra dystopien?"
+            : "🤖 " + this.child.name + " is working on AI! Maybe technology can save Norway from dystopia?");
+        this.performAction();
+        this.advanceTime();
+    }
+    
     drawOrCreate() {
         if (!this.canPerformAction()) return;
         
@@ -3821,37 +4392,45 @@ class MyChildGame {
         let jobType, earnings, energyCost;
         
         if (this.child.age >= 14 && this.child.age < 16) {
-            // Part-time jobs for younger teens
+            // Part-time jobs for younger teens (reduced earnings to make money more critical)
             jobType = this.language === 'no' ? "Deltidsjobb (avisbud)" : "Part-time job (paper delivery)";
-            earnings = 15 + Math.floor(this.child.studyLevel / 10);
+            earnings = 12 + Math.floor(this.child.studyLevel / 12);
             energyCost = 25;
         } else if (this.child.age >= 16 && this.child.studyLevel < 50) {
             // Basic jobs
             jobType = this.language === 'no' ? "Deltidsjobb (butikk)" : "Part-time job (store)";
-            earnings = 25 + Math.floor(this.child.studyLevel / 5);
+            earnings = 20 + Math.floor(this.child.studyLevel / 6);
             energyCost = 30;
         } else if (this.child.age >= 16 && this.child.studyLevel >= 50) {
             // Better jobs for those who studied
             jobType = this.language === 'no' ? "Deltidsjobb (kontor)" : "Part-time job (office)";
-            earnings = 40 + Math.floor(this.child.studyLevel / 3);
+            earnings = 35 + Math.floor(this.child.studyLevel / 4);
             energyCost = 25;
         } else {
             // Adult jobs
             jobType = this.language === 'no' ? "Fulltidsjobb" : "Full-time job";
-            earnings = 60 + Math.floor(this.child.careerProgress / 2);
+            earnings = 50 + Math.floor(this.child.careerProgress / 3);
             energyCost = 35;
         }
         
         // Earn money (like original game)
         this.child.money += earnings;
         this.adjustStat('energy', -energyCost);
-        this.adjustStat('happiness', -5); // Work is tiring
+        this.adjustStat('happiness', -8); // Work is tiring and takes time away from child
+        this.adjustStat('social', -3); // Less time with friends when working
         this.child.careerProgress = Math.min(100, this.child.careerProgress + 2);
         
+        // Show trade-off message to make choice clearer
         const workMsg = this.language === 'no'
-            ? "Jeg jobbet som " + jobType + " og tjente " + earnings + " kroner! Jeg er litt trøtt, men det var verdt det."
-            : "I worked as " + jobType + " and earned " + earnings + " kroner! I'm a bit tired, but it was worth it.";
+            ? "Jeg jobbet som " + jobType + " og tjente " + earnings + " kroner! Jeg er litt trøtt, men det var verdt det. Jeg savner å tilbringe tid med deg, men vi trenger penger..."
+            : "I worked as " + jobType + " and earned " + earnings + " kroner! I'm a bit tired, but it was worth it. I miss spending time with you, but we need money...";
         this.showDialogue(workMsg);
+        
+        // Remind about the trade-off
+        const tradeoffMsg = this.language === 'no'
+            ? "💡 Husk: Jobb gir penger, men tar tid bort fra å tilbringe tid med barnet. Balanse er viktig!"
+            : "💡 Remember: Work gives money, but takes time away from spending time with the child. Balance is important!";
+        setTimeout(() => this.showMessage(tradeoffMsg), 1500);
         
         const moneyMsg = this.language === 'no'
             ? "💰 Du har nå " + this.child.money + " kroner. Bruk dem klokt!"
@@ -4289,14 +4868,15 @@ class MyChildGame {
     }
     
     nextDay() {
-        this.day++;
+        // In 2085, we use years instead of days
+        this.year++;
+        this.child.age++;
         this.timeOfDay = 0;
-        this.actionsToday = 0; // Reset actions for new day
+        this.actionsToday = 0; // Reset actions for new year
         this.consequencesAppliedToday = false; // Reset consequences flag
         
-        // Age progression
-        if (this.day % 30 === 0) {
-            this.child.age++;
+        // Age progression (now happens every year)
+        if (this.child.age > 0) {
             
             // Show progress and hope based on choices
             let progressMessage = "";
@@ -4318,18 +4898,18 @@ class MyChildGame {
                     : `I'm ${this.child.age} years old now! I'm making good choices, building my future.`;
             } else {
                 progressMessage = this.language === 'no'
-                    ? `Jeg er ${this.child.age} år gammel nå! Jeg vokser opp i 2000-tallet!`
-                    : `I'm ${this.child.age} years old now! I'm growing up in the 2000s!`;
+                    ? `Jeg er ${this.child.age} år gammel nå! Året er ${this.year}. Norge er i krise, men jeg lærer og vokser. Kanskje jeg kan gjøre en forskjell?`
+                    : `I'm ${this.child.age} years old now! The year is ${this.year}. Norway is in crisis, but I'm learning and growing. Maybe I can make a difference?`;
             }
             
             this.showDialogue(progressMessage);
             
             const ageMessages = this.language === 'no' ? [
-                `Barnet ditt ble ${this.child.age} år gammelt! Vokser opp i 2000-tallet.`,
-                `🎂 Gratulerer med ${this.child.age} år! Nok et år med 2000-talls barndom!`
+                `Barnet ditt ble ${this.child.age} år gammelt! Året er ${this.year}.`,
+                `🎂 Gratulerer med ${this.child.age} år! Nok et år i 2085-dystopien.`
             ] : [
-                `Your child turned ${this.child.age} years old! Growing up in the 2000s.`,
-                `🎂 Happy ${this.child.age}th birthday! Another year of 2000s childhood!`
+                `Your child turned ${this.child.age} years old! The year is ${this.year}.`,
+                `🎂 Happy ${this.child.age}th birthday! Another year in the 2085 dystopia.`
             ];
             this.showMessage(ageMessages[Math.floor(Math.random() * ageMessages.length)]);
             
@@ -4341,15 +4921,23 @@ class MyChildGame {
                 this.showMessage(careerMsg);
             }
             
-            // Year progression
-            if (this.child.age % 2 === 0 && this.child.age <= 18) {
-                this.year++;
-                if (this.year <= 2009) {
-                    const yearMsg = this.language === 'no'
-                        ? `Det er ${this.year} nå! 2000-tallet flyr forbi!`
-                        : `It's ${this.year} now! The 2000s are flying by!`;
-                    this.showDialogue(yearMsg);
-                }
+            // Year progression message
+            const yearMsg = this.language === 'no'
+                ? `Det er ${this.year} nå! Norge er i krise - oljefondet er tomt, ressursene er knappe. Kan vi redde fremtiden?`
+                : `It's ${this.year} now! Norway is in crisis - the oil fund is empty, resources are scarce. Can we save the future?`;
+            this.showDialogue(yearMsg);
+            
+            // Driver's license at age 16+
+            if (this.child.age >= 16 && !this.child.hasDriversLicense) {
+                this.getDriversLicense();
+            }
+            
+            // Move out at age 18 (only prompt, don't force)
+            if (this.child.age >= 18 && !this.child.hasMovedOut) {
+                const moveOutPrompt = this.language === 'no'
+                    ? "Du er nå 18 år gammel! Vil du flytte hjemmefra? Det koster 50,000 kroner, men gir deg mer uavhengighet. Du kan også vente til du har mer penger."
+                    : "You are now 18 years old! Do you want to move out? It costs 50,000 kroner, but gives you more independence. You can also wait until you have more money.";
+                this.showMessage(moveOutPrompt);
             }
             
             // Special milestone at age 18 - show success story
@@ -4361,78 +4949,249 @@ class MyChildGame {
         // Check for success milestones
         this.checkSuccessMilestones();
         
-        // Natural stat changes (like original game - more challenging)
-        this.adjustStat('energy', -8); // More energy loss per day
-        this.adjustStat('hunger', -12); // Hunger decreases faster (more important!)
+        // Dystopian consequences - ongoing effects
+        this.applyDystopianConsequences();
         
-        // Track daily routines - consequences for skipping (like original)
+        // Natural stat changes (like original game - more challenging) - INCREASED
+        this.adjustStat('energy', -10); // Increased from -8 - harder to maintain
+        this.adjustStat('hunger', -15); // Increased from -12 - hunger decreases faster (more important!)
+        
+        // Stats naturally decrease more when already low (snowball effect)
+        if (this.child.happiness < 50) {
+            this.adjustStat('happiness', -2); // Additional decrease if already low
+        }
+        if (this.child.social < 50) {
+            this.adjustStat('social', -1); // Additional decrease if already low
+        }
+        if (this.child.learning < 50) {
+            this.adjustStat('learning', -1); // Additional decrease if already low
+        }
+        
+        // Track daily routines - STRONGER consequences for skipping (like original)
         const daysSinceFed = this.day - (this.child.lastFed || 0);
         const daysSinceBathed = this.day - (this.child.lastBathed || 0);
         const daysSincePlayed = this.day - (this.child.lastPlayed || 0);
+        const daysSinceRead = this.day - (this.child.lastRead || 0);
         
-        // Critical: Must feed child regularly (like original)
-        if (daysSinceFed > 1) {
+        // Critical: Must feed child regularly (like original) - STRONGER CONSEQUENCES
+        if (daysSinceFed > 0) {
             this.child.daysWithoutFood = (this.child.daysWithoutFood || 0) + 1;
-            this.adjustStat('hunger', -15); // Extra hunger loss
-            this.adjustStat('happiness', -10);
-            this.setEmotion('anxious', 10);
-            if (daysSinceFed > 2) {
+            // Even missing one day has consequences
+            this.adjustStat('hunger', -20); // Increased from -15
+            this.adjustStat('happiness', -12); // Increased from -10
+            this.setEmotion('anxious', 15); // Increased from 10
+            
+            if (daysSinceFed > 1) {
                 const hungryMsg = this.language === 'no'
                     ? this.child.name + " har ikke spist på " + daysSinceFed + " dager! Dette er kritisk!"
                     : this.child.name + " hasn't eaten in " + daysSinceFed + " days! This is critical!";
                 this.showMessage("⚠️ " + hungryMsg);
-                this.adjustStat('energy', -10);
-                this.adjustStat('happiness', -15);
+                this.adjustStat('energy', -15); // Increased from -10
+                this.adjustStat('happiness', -20); // Increased from -15
+                this.setEmotion('sad', 20);
+                
+                // Very critical after 2 days
+                if (daysSinceFed > 2) {
+                    this.adjustStat('energy', -20);
+                    this.adjustStat('happiness', -25);
+                    this.setEmotion('scared', 15);
+                    const criticalMsg = this.language === 'no'
+                        ? "🚨 KRITISK: " + this.child.name + " sulter! Dette er farlig!"
+                        : "🚨 CRITICAL: " + this.child.name + " is starving! This is dangerous!";
+                    this.showMessage(criticalMsg);
+                    this.showDialogue(this.language === 'no' 
+                        ? "Jeg er så sulten... Jeg trenger mat. Snart."
+                        : "I'm so hungry... I need food. Soon.");
+                }
             }
         } else {
             this.child.daysWithoutFood = 0;
         }
         
-        // Must bathe child regularly (like original)
-        if (daysSinceBathed > 2) {
+        // Must bathe child regularly (like original) - STRONGER CONSEQUENCES
+        if (daysSinceBathed > 1) {
             this.child.daysWithoutBath = (this.child.daysWithoutBath || 0) + 1;
-            this.adjustStat('happiness', -5);
-            this.adjustStat('social', -3); // Poor hygiene affects social interactions
-            if (daysSinceBathed > 3) {
+            this.adjustStat('happiness', -8); // Increased from -5
+            this.adjustStat('social', -5); // Increased from -3 - Poor hygiene affects social interactions
+            this.setEmotion('embarrassed', 10);
+            
+            if (daysSinceBathed > 2) {
                 const dirtyMsg = this.language === 'no'
                     ? this.child.name + " trenger et bad. Dette påvirker " + (this.child.gender === 'girl' ? 'henne' : 'ham') + " negativt."
                     : this.child.name + " needs a bath. This is affecting " + (this.child.gender === 'girl' ? 'her' : 'him') + " negatively.";
                 this.showMessage("⚠️ " + dirtyMsg);
+                this.adjustStat('social', -8); // Even worse social impact
+                this.adjustStat('happiness', -12);
+                
+                if (daysSinceBathed > 3) {
+                    this.adjustStat('social', -12);
+                    this.adjustStat('happiness', -15);
+                    this.setEmotion('embarrassed', 20);
+                    const criticalMsg = this.language === 'no'
+                        ? "🚨 " + this.child.name + " trenger desperat et bad! Dette påvirker alle sosiale interaksjoner."
+                        : "🚨 " + this.child.name + " desperately needs a bath! This affects all social interactions.";
+                    this.showMessage(criticalMsg);
+                }
             }
         } else {
             this.child.daysWithoutBath = 0;
         }
         
-        // Must play with child regularly (like original)
-        if (daysSincePlayed > 3) {
-            this.adjustStat('happiness', -8);
-            this.adjustRelationship(-2);
-            this.setEmotion('sad', 10);
-            const lonelyMsg = this.language === 'no'
-                ? this.child.name + " føler seg ensom... Vi har ikke lekt sammen på lenge."
-                : this.child.name + " feels lonely... We haven't played together in a while.";
-            this.showMessage("💔 " + lonelyMsg);
+        // Must play with child regularly (like original) - STRONGER CONSEQUENCES
+        if (daysSincePlayed > 2) {
+            this.adjustStat('happiness', -12); // Increased from -8
+            this.adjustRelationship(-4); // Increased from -2
+            this.setEmotion('sad', 15); // Increased from 10
+            this.setEmotion('lonely', 10);
+            
+            if (daysSincePlayed > 3) {
+                const lonelyMsg = this.language === 'no'
+                    ? this.child.name + " føler seg ensom... Vi har ikke lekt sammen på lenge."
+                    : this.child.name + " feels lonely... We haven't played together in a while.";
+                this.showMessage("💔 " + lonelyMsg);
+                this.adjustStat('happiness', -15);
+                this.adjustRelationship(-6);
+                this.setEmotion('lonely', 20);
+                
+                if (daysSincePlayed > 4) {
+                    this.adjustStat('social', -8);
+                    this.adjustRelationship(-8);
+                    const criticalMsg = this.language === 'no'
+                        ? "🚨 " + this.child.name + " føler seg forlatt. Vi må leke sammen!"
+                        : "🚨 " + this.child.name + " feels abandoned. We need to play together!";
+                    this.showMessage(criticalMsg);
+                    this.showDialogue(this.language === 'no'
+                        ? "Jeg savner deg... Kan vi leke sammen? Jeg føler meg så alene."
+                        : "I miss you... Can we play together? I feel so alone.");
+                }
+            }
         }
         
-        // Low hunger affects happiness more severely (like original)
+        // Must read to child regularly - NEW CONSEQUENCE
+        if (daysSinceRead > 3) {
+            this.adjustStat('learning', -5);
+            this.adjustStat('happiness', -5);
+            this.adjustRelationship(-2);
+            if (daysSinceRead > 5) {
+                const readMsg = this.language === 'no'
+                    ? this.child.name + " savner å lese sammen. Dette påvirker læringen."
+                    : this.child.name + " misses reading together. This affects learning.";
+                this.showMessage("📚 " + readMsg);
+                this.adjustStat('learning', -10);
+                this.adjustStat('happiness', -8);
+            }
+        }
+        
+        // Low hunger affects happiness more severely (like original) - STRONGER
         if (this.child.hunger < 30) {
-            this.adjustStat('happiness', -8);
-            this.setEmotion('anxious', 8);
-            if (this.child.hunger < 15) {
-                // Critical hunger - child is suffering
+            this.adjustStat('happiness', -12); // Increased from -8
+            this.adjustStat('energy', -5); // New: hunger affects energy
+            this.setEmotion('anxious', 12); // Increased from 8
+            if (this.child.hunger < 20) {
+                this.adjustStat('happiness', -15);
+                this.adjustStat('energy', -8);
+                this.setEmotion('scared', 10);
                 const criticalMsg = this.language === 'no'
                     ? this.child.name + " er veldig sulten! Dette påvirker " + (this.child.gender === 'girl' ? 'henne' : 'ham') + " mye."
                     : this.child.name + " is very hungry! This is affecting " + (this.child.gender === 'girl' ? 'her' : 'him') + " a lot.";
                 this.showMessage("⚠️ " + criticalMsg);
             }
+            if (this.child.hunger < 15) {
+                // Critical hunger - child is suffering
+                this.adjustStat('happiness', -20);
+                this.adjustStat('energy', -12);
+                this.adjustStat('social', -5); // Hunger affects social interactions
+                this.setEmotion('scared', 20);
+                const criticalMsg = this.language === 'no'
+                    ? "🚨 KRITISK: " + this.child.name + " sulter! Dette er farlig!"
+                    : "🚨 CRITICAL: " + this.child.name + " is starving! This is dangerous!";
+                this.showMessage(criticalMsg);
+                this.showDialogue(this.language === 'no'
+                    ? "Jeg er så sulten... Jeg kan ikke tenke klart. Jeg trenger mat."
+                    : "I'm so hungry... I can't think clearly. I need food.");
+            }
         }
         
-        // Low happiness can affect other stats more (like original)
-        if (this.child.happiness < 20) {
-            this.adjustStat('social', -3);
-            this.adjustStat('learning', -2);
-            this.adjustRelationship(-2);
-            this.setEmotion('sad', 15);
+        // Low happiness can affect other stats more (like original) - STRONGER
+        if (this.child.happiness < 30) {
+            this.adjustStat('social', -4); // Increased from -3
+            this.adjustStat('learning', -3); // Increased from -2
+            this.adjustRelationship(-3); // Increased from -2
+            this.setEmotion('sad', 18); // Increased from 15
+            if (this.child.happiness < 20) {
+                this.adjustStat('social', -6);
+                this.adjustStat('learning', -5);
+                this.adjustStat('energy', -5); // Low happiness drains energy
+                this.adjustRelationship(-5);
+                this.setEmotion('sad', 25);
+                this.setEmotion('lonely', 15);
+                const criticalMsg = this.language === 'no'
+                    ? "💔 " + this.child.name + " er veldig ulykkelig. Dette påvirker alt."
+                    : "💔 " + this.child.name + " is very unhappy. This affects everything.";
+                this.showMessage(criticalMsg);
+            }
+            if (this.child.happiness < 10) {
+                // Critical unhappiness
+                this.adjustStat('social', -10);
+                this.adjustStat('learning', -8);
+                this.adjustStat('energy', -10);
+                this.adjustRelationship(-8);
+                this.setEmotion('sad', 30);
+                this.setEmotion('lonely', 20);
+                const criticalMsg = this.language === 'no'
+                    ? "🚨 KRITISK: " + this.child.name + " er i dyp nød. Dette er alvorlig!"
+                    : "🚨 CRITICAL: " + this.child.name + " is in deep distress. This is serious!";
+                this.showMessage(criticalMsg);
+                this.showDialogue(this.language === 'no'
+                    ? "Jeg føler meg så dårlig... Alt er vanskelig. Jeg trenger hjelp."
+                    : "I feel so bad... Everything is hard. I need help.");
+            }
+        }
+        
+        // Low energy affects everything - NEW
+        if (this.child.energy < 30) {
+            this.adjustStat('happiness', -5);
+            this.adjustStat('learning', -3);
+            this.setEmotion('tired', 15);
+            if (this.child.energy < 15) {
+                this.adjustStat('happiness', -10);
+                this.adjustStat('learning', -6);
+                this.adjustStat('social', -5);
+                this.setEmotion('tired', 25);
+                const criticalMsg = this.language === 'no'
+                    ? "😴 " + this.child.name + " er utmattet. Hvile er nødvendig."
+                    : "😴 " + this.child.name + " is exhausted. Rest is necessary.";
+                this.showMessage(criticalMsg);
+            }
+        }
+        
+        // Low social affects happiness and learning - NEW
+        if (this.child.social < 30) {
+            this.adjustStat('happiness', -4);
+            this.setEmotion('lonely', 12);
+            if (this.child.social < 15) {
+                this.adjustStat('happiness', -8);
+                this.adjustStat('learning', -4);
+                this.setEmotion('lonely', 20);
+                this.setEmotion('sad', 15);
+                const criticalMsg = this.language === 'no'
+                    ? "👥 " + this.child.name + " føler seg isolert. Sosial kontakt er viktig."
+                    : "👥 " + this.child.name + " feels isolated. Social contact is important.";
+                this.showMessage(criticalMsg);
+            }
+        }
+        
+        // Low learning affects future opportunities - NEW
+        if (this.child.learning < 30) {
+            this.adjustStat('happiness', -3);
+            if (this.child.learning < 15) {
+                this.adjustStat('happiness', -6);
+                this.adjustStat('social', -3);
+                const criticalMsg = this.language === 'no'
+                    ? "📚 " + this.child.name + " faller bak i læring. Dette påvirker fremtiden."
+                    : "📚 " + this.child.name + " is falling behind in learning. This affects the future.";
+                this.showMessage(criticalMsg);
+            }
         }
         
         // Bullying incidents have lasting effects (like original) - STRENGTHENED
@@ -4457,6 +5216,18 @@ class MyChildGame {
         if (this.relationship > 80) {
             this.adjustStat('happiness', 2);
             this.setEmotion('happy', 5);
+        }
+        
+        // Friends provide support during difficult times
+        if (Math.random() < 0.3 && (this.child.happiness < 40 || this.child.resilience < 50)) {
+            const friends = ['almaVilje', 'celiaRose'];
+            const friendKey = friends[Math.floor(Math.random() * friends.length)];
+            this.getFriendSupport(friendKey);
+        }
+        
+        // Dystopian events - random crises in 2085
+        if (Math.random() < 0.2) {
+            this.triggerDystopianEvent();
         }
         
         // High resilience helps Alex handle challenges better
@@ -4586,6 +5357,11 @@ class MyChildGame {
             this.showMessage(message);
         }
         
+        // Career choice at age 16
+        if (this.child.age === 16 && !this.child.chosenCareer) {
+            this.chooseCareer();
+        }
+        
         if (this.child.careerProgress >= 50 && this.child.age >= 14) {
             const dialogue = this.language === 'no'
                 ? "Jeg begynner å se muligheter... Alt dette arbeidet leder til noe. Jeg er ikke den de sa jeg var."
@@ -4595,6 +5371,22 @@ class MyChildGame {
                 : "✨ " + this.child.name + " is building a bright future! The story isn't over - it's just beginning!";
             this.showDialogue(dialogue);
             this.showMessage(message);
+        }
+        
+        // Career progress milestones
+        if (this.child.chosenCareer) {
+            if (this.child.careerProgress >= 75 && this.child.careerProgress < 76) {
+                const milestoneMsg = this.language === 'no'
+                    ? "Jeg gjør det så bra i " + this.child.chosenCareer + "! Jeg føler meg så stolt. Dette er fremtiden min."
+                    : "I'm doing so well in " + this.child.chosenCareer + "! I feel so proud. This is my future.";
+                this.showDialogue(milestoneMsg);
+                this.addAutoDiaryEntry(
+                    this.language === 'no'
+                        ? 'Jeg når milepæler i ' + this.child.chosenCareer + '. Jeg er stolt av fremgangen min.'
+                        : 'I\'m reaching milestones in ' + this.child.chosenCareer + '. I\'m proud of my progress.',
+                    true
+                );
+            }
         }
         
         if (this.child.goodChoices > this.child.shortTermChoices * 2 && this.child.age >= 12) {
@@ -4956,6 +5748,10 @@ class MyChildGame {
                             this.adjustRelationship(8);
                             this.child.resilience = Math.min(100, this.child.resilience + 10);
                             this.memory.push({day: this.day, event: "Stood up to bullies - succeeded!", positive: true});
+                            this.addAutoDiaryEntry(
+                                this.language === 'no' ? 'I dag sto jeg opp for meg selv mot bøllene. Det fungerte! Jeg føler meg sterkere.' : 'Today I stood up for myself against the bullies. It worked! I feel stronger.',
+                                true
+                            );
                             const msg = this.language === 'no' ? "Jeg gjorde det! Jeg kan ikke tro det fungerte! Jeg føler meg så mye sterkere nå! Du har rett - jeg er god nok akkurat som jeg er!" : "I did it! I can't believe it worked! I feel so much stronger now! You're right - I am good enough just as I am!";
                             this.showDialogue(msg); 
                             this.saveGame();
@@ -7474,6 +8270,866 @@ class MyChildGame {
         
         this.updateDisplay();
         this.saveGame();
+    }
+    
+    // Menu Tab Functions
+    showMenuTab(tabName) {
+        // Hide all tab contents
+        const allTabs = document.querySelectorAll('.menu-tab-content');
+        allTabs.forEach(tab => {
+            tab.classList.remove('active');
+            tab.style.display = 'none';
+        });
+        
+        // Remove active class from all menu tabs
+        const allMenuTabs = document.querySelectorAll('.menu-tab');
+        allMenuTabs.forEach(tab => tab.classList.remove('active'));
+        
+        // Show/hide game area
+        const gameArea = document.querySelector('.game-area');
+        
+        if (tabName === 'game') {
+            // Show game area
+            if (gameArea) {
+                gameArea.classList.remove('hidden');
+            }
+            // Activate game tab
+            const gameTab = document.getElementById('gameTab');
+            if (gameTab) gameTab.classList.add('active');
+        } else {
+            // Hide game area
+            if (gameArea) {
+                gameArea.classList.add('hidden');
+            }
+            
+            // Show selected tab content
+            let tabContent = null;
+            let menuTab = null;
+            
+            if (tabName === 'about') {
+                tabContent = document.getElementById('aboutGameTab');
+                menuTab = document.getElementById('aboutTab');
+            } else if (tabName === 'project') {
+                tabContent = document.getElementById('aboutProjectTab');
+                menuTab = document.getElementById('projectTab');
+            } else if (tabName === 'profile') {
+                tabContent = document.getElementById('profileMenuTab');
+                menuTab = document.getElementById('profileTab');
+                this.updateProfileTab();
+            } else if (tabName === 'diary') {
+                tabContent = document.getElementById('diaryTab');
+                menuTab = document.getElementById('diaryTab');
+                this.updateDiaryTab();
+            }
+            
+            if (tabContent) {
+                tabContent.style.display = 'block';
+                tabContent.classList.add('active');
+            }
+            
+            if (menuTab) {
+                menuTab.classList.add('active');
+            }
+        }
+    }
+    
+    updateProfileTab() {
+        // Update profile tab with current user info
+        const profileTabAvatar = document.getElementById('profileTabAvatar');
+        const profileTabName = document.getElementById('profileTabName');
+        const profileTabUsername = document.getElementById('profileTabUsername');
+        const profileDaysPlayed = document.getElementById('profileDaysPlayed');
+        const profileChildAge = document.getElementById('profileChildAge');
+        const profileYear = document.getElementById('profileYear');
+        
+        if (profileTabAvatar && this.child) {
+            profileTabAvatar.textContent = this.child.emoji || '👶';
+        }
+        
+        if (profileTabName && this.child) {
+            profileTabName.textContent = this.child.name || 'Barn';
+        }
+        
+        if (profileTabUsername) {
+            profileTabUsername.textContent = this.username || 'Bruker';
+        }
+        
+        if (profileDaysPlayed && this.child) {
+            profileDaysPlayed.textContent = this.child.days || 0;
+        }
+        
+        if (profileChildAge && this.child) {
+            profileChildAge.textContent = this.child.age || 0;
+        }
+        
+        if (profileYear && this.child) {
+            profileYear.textContent = this.child.year || 2000;
+        }
+    }
+    
+    // Diary Functions
+    updateDiaryTab() {
+        const diaryEntriesList = document.getElementById('diaryEntriesList');
+        if (!diaryEntriesList || !this.child.diary) return;
+        
+        // Sort entries by day (newest first)
+        const sortedEntries = [...this.child.diary].sort((a, b) => (b.day || 0) - (a.day || 0));
+        
+        if (sortedEntries.length === 0) {
+            diaryEntriesList.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">' + 
+                (this.language === 'no' ? 'Ingen dagbok-innlegg ennå. Skriv noe eller vent på at viktige hendelser genererer innlegg automatisk.' : 
+                 'No diary entries yet. Write something or wait for important events to generate entries automatically.') + 
+                '</p>';
+            return;
+        }
+        
+        diaryEntriesList.innerHTML = sortedEntries.map(entry => {
+            const dateStr = this.language === 'no' 
+                ? `Dag ${entry.day || '?'}, År ${entry.year || this.year || 2000}`
+                : `Day ${entry.day || '?'}, Year ${entry.year || this.year || 2000}`;
+            const typeIcon = entry.autoGenerated ? '✨' : '✍️';
+            const typeLabel = entry.autoGenerated 
+                ? (this.language === 'no' ? 'Auto-generert' : 'Auto-generated')
+                : (this.language === 'no' ? 'Manuelt' : 'Manual');
+            
+            return `
+                <div class="diary-entry" style="margin-bottom: 20px; padding: 15px; background: rgba(255,255,255,0.3); border-radius: 10px; border-left: 4px solid ${entry.positive ? '#4CAF50' : '#f44336'};">
+                    <div class="diary-entry-header" style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9em; color: #666;">
+                        <span><strong>${dateStr}</strong></span>
+                        <span>${typeIcon} ${typeLabel}</span>
+                    </div>
+                    <div class="diary-entry-content" style="font-size: 1em; line-height: 1.6;">
+                        ${entry.text || entry.content || ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    
+    addManualDiaryEntry() {
+        const diaryEntryText = document.getElementById('diaryEntryText');
+        if (!diaryEntryText || !diaryEntryText.value.trim()) {
+            this.showMessage(this.language === 'no' 
+                ? 'Skriv noe i dagbok først!'
+                : 'Write something in the diary first!');
+            return;
+        }
+        
+        if (!this.child.diary) {
+            this.child.diary = [];
+        }
+        
+        this.child.diary.push({
+            day: this.day,
+            year: this.year,
+            text: diaryEntryText.value.trim(),
+            autoGenerated: false,
+            positive: true
+        });
+        
+        diaryEntryText.value = '';
+        this.updateDiaryTab();
+        this.saveGame();
+        
+        this.showMessage(this.language === 'no' 
+            ? 'Dagbok-innlegg lagret!'
+            : 'Diary entry saved!');
+    }
+    
+    addAutoDiaryEntry(eventText, positive = true, emotion = null) {
+        if (!this.child.diary) {
+            this.child.diary = [];
+        }
+        
+        // Generate age-appropriate diary text
+        let diaryText = '';
+        if (this.child.age < 5) {
+            diaryText = this.language === 'no'
+                ? `I dag skjedde det noe: ${eventText}. Jeg husker det.`
+                : `Today something happened: ${eventText}. I remember it.`;
+        } else if (this.child.age < 10) {
+            diaryText = this.language === 'no'
+                ? `I dag: ${eventText}. Det var ${positive ? 'fint' : 'vanskelig'}.`
+                : `Today: ${eventText}. It was ${positive ? 'nice' : 'difficult'}.`;
+        } else {
+            diaryText = this.language === 'no'
+                ? `${eventText} ${positive ? 'Det føltes bra.' : 'Det var vanskelig, men jeg lærer av det.'}`
+                : `${eventText} ${positive ? 'It felt good.' : 'It was difficult, but I am learning from it.'}`;
+        }
+        
+        this.child.diary.push({
+            day: this.day,
+            year: this.year,
+            text: diaryText,
+            autoGenerated: true,
+            positive: positive,
+            emotion: emotion
+        });
+        
+        // Keep only last 50 entries to prevent memory issues
+        if (this.child.diary.length > 50) {
+            this.child.diary = this.child.diary.slice(-50);
+        }
+        
+        this.saveGame();
+    }
+    
+    chooseCareer() {
+        if (this.child.age < 16) return;
+        
+        const careers = [
+            { name: this.language === 'no' ? 'Lærer' : 'Teacher', emoji: '👨‍🏫', description: this.language === 'no' ? 'Hjelpe andre å lære og vokse' : 'Help others learn and grow', studyReq: 60 },
+            { name: this.language === 'no' ? 'Ingeniør' : 'Engineer', emoji: '🔧', description: this.language === 'no' ? 'Bygge og løse problemer' : 'Build and solve problems', studyReq: 70 },
+            { name: this.language === 'no' ? 'Lege' : 'Doctor', emoji: '👨‍⚕️', description: this.language === 'no' ? 'Hjelpe andre å bli friske' : 'Help others get healthy', studyReq: 80 },
+            { name: this.language === 'no' ? 'Kunstner' : 'Artist', emoji: '🎨', description: this.language === 'no' ? 'Skape og uttrykke meg' : 'Create and express myself', studyReq: 40 },
+            { name: this.language === 'no' ? 'Forfatter' : 'Writer', emoji: '✍️', description: this.language === 'no' ? 'Fortelle historier og dele ideer' : 'Tell stories and share ideas', studyReq: 50 },
+            { name: this.language === 'no' ? 'Sykepleier' : 'Nurse', emoji: '👩‍⚕️', description: this.language === 'no' ? 'Ta vare på andre' : 'Take care of others', studyReq: 55 }
+        ];
+        
+        // Filter careers based on study level
+        const availableCareers = careers.filter(c => this.child.studyLevel >= c.studyReq);
+        
+        if (availableCareers.length === 0) {
+            // Default career if study level too low
+            this.child.chosenCareer = this.language === 'no' ? 'Generelt arbeid' : 'General work';
+            return;
+        }
+        
+        // Choose career based on study level and preferences
+        let chosenCareer;
+        if (this.child.studyLevel >= 80) {
+            // High study level - can choose advanced careers
+            chosenCareer = availableCareers.find(c => c.studyReq >= 70) || availableCareers[0];
+        } else if (this.child.studyLevel >= 60) {
+            // Medium study level
+            chosenCareer = availableCareers.find(c => c.studyReq >= 50 && c.studyReq < 70) || availableCareers[0];
+        } else {
+            // Lower study level
+            chosenCareer = availableCareers[0];
+        }
+        
+        this.child.chosenCareer = chosenCareer.name;
+        
+        const careerMsg = this.language === 'no'
+            ? "Jeg har valgt å bli " + chosenCareer.emoji + " " + chosenCareer.name + "! " + chosenCareer.description + ". Dette er fremtiden min, og jeg er klar!"
+            : "I've chosen to become a " + chosenCareer.emoji + " " + chosenCareer.name + "! " + chosenCareer.description + ". This is my future, and I'm ready!";
+        
+        this.showDialogue(careerMsg);
+        this.showMessage(this.language === 'no'
+            ? "🎯 " + this.child.name + " har valgt karriere! Fremtiden er i deres hender!"
+            : "🎯 " + this.child.name + " has chosen a career! The future is in their hands!");
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag valgte jeg min karriere: ' + chosenCareer.name + '. Jeg er spent på fremtiden!'
+                : 'Today I chose my career: ' + chosenCareer.name + '. I\'m excited about the future!',
+            true
+        );
+        
+        // Boost career progress when career is chosen
+        this.child.careerProgress = Math.min(100, this.child.careerProgress + 10);
+        this.saveGame();
+    }
+    
+    // Minigames from 2000s
+    playNumberGame() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å spille akkurat nå..."
+                : "I'm too tired to play right now...");
+            return;
+        }
+        
+        // Simple number game - guess the number
+        const targetNumber = Math.floor(Math.random() * 20) + 1;
+        const guess = prompt(this.language === 'no' 
+            ? "Jeg tenker på et tall mellom 1 og 20. Hva tror du det er?"
+            : "I'm thinking of a number between 1 and 20. What do you think it is?");
+        
+        if (guess && !isNaN(guess)) {
+            const userGuess = parseInt(guess);
+            if (userGuess === targetNumber) {
+                this.showDialogue(this.language === 'no' 
+                    ? "Riktig! Det var " + targetNumber + "! Jeg er så flink!"
+                    : "Correct! It was " + targetNumber + "! I'm so good!");
+                this.adjustStat('happiness', 15);
+                this.adjustStat('learning', 10);
+                this.adjustStat('energy', -5);
+                this.setEmotion('happy', 20);
+                this.setEmotion('surprised', 10);
+            } else {
+                const diff = Math.abs(userGuess - targetNumber);
+                const hint = diff <= 3 ? (this.language === 'no' ? "Nærme!" : "Close!") : (this.language === 'no' ? "Ikke helt riktig." : "Not quite right.");
+                this.showDialogue(this.language === 'no' 
+                    ? hint + " Det var " + targetNumber + ". Men det var gøy å spille!"
+                    : hint + " It was " + targetNumber + ". But it was fun to play!");
+                this.adjustStat('happiness', 8);
+                this.adjustStat('learning', 5);
+                this.adjustStat('energy', -5);
+                this.setEmotion('curious', 10);
+            }
+        } else {
+            this.showDialogue(this.language === 'no' 
+                ? "Det var gøy å spille uansett!"
+                : "It was fun to play anyway!");
+            this.adjustStat('happiness', 5);
+            this.adjustStat('energy', -3);
+        }
+        
+        this.showMessage(this.language === 'no'
+            ? "🎮 Minispill hjelper " + this.child.name + " med å lære og ha det gøy!"
+            : "🎮 Minigames help " + this.child.name + " learn and have fun!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    playMemoryGame() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å spille akkurat nå..."
+                : "I'm too tired to play right now...");
+            return;
+        }
+        
+        // Simple memory game - remember a sequence
+        const colors = ['🔴', '🟢', '🔵', '🟡'];
+        const sequence = [];
+        for (let i = 0; i < 3; i++) {
+            sequence.push(colors[Math.floor(Math.random() * colors.length)]);
+        }
+        
+        const sequenceStr = sequence.join(' ');
+        alert(this.language === 'no' 
+            ? "Husk denne sekvensen: " + sequenceStr
+            : "Remember this sequence: " + sequenceStr);
+        
+        setTimeout(() => {
+            const userSequence = prompt(this.language === 'no' 
+                ? "Hva var sekvensen? (Skriv fargene med mellomrom, f.eks: 🔴 🟢 🔵)"
+                : "What was the sequence? (Write the colors with spaces, e.g: 🔴 🟢 🔵)");
+            
+            if (userSequence && userSequence.trim() === sequenceStr) {
+                this.showDialogue(this.language === 'no' 
+                    ? "Riktig! Jeg husket hele sekvensen! Jeg har god hukommelse!"
+                    : "Correct! I remembered the whole sequence! I have good memory!");
+                this.adjustStat('happiness', 15);
+                this.adjustStat('learning', 12);
+                this.adjustStat('energy', -6);
+                this.setEmotion('happy', 18);
+                this.setEmotion('surprised', 8);
+            } else {
+                this.showDialogue(this.language === 'no' 
+                    ? "Hmm, det var ikke helt riktig. Men jeg prøvde! Sekvensen var: " + sequenceStr
+                    : "Hmm, that wasn't quite right. But I tried! The sequence was: " + sequenceStr);
+                this.adjustStat('happiness', 8);
+                this.adjustStat('learning', 6);
+                this.adjustStat('energy', -6);
+                this.setEmotion('curious', 10);
+            }
+            
+            this.showMessage(this.language === 'no'
+                ? "🧠 Hukommelsesspill hjelper " + this.child.name + " med å trene hjernen!"
+                : "🧠 Memory games help " + this.child.name + " train the brain!");
+            this.performAction();
+            this.advanceTime();
+        }, 2000);
+    }
+    
+    playGuessGame() {
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.energy < 10) {
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg er for trøtt til å spille akkurat nå..."
+                : "I'm too tired to play right now...");
+            return;
+        }
+        
+        // Simple guessing game - guess the animal
+        const animals = [
+            { name: this.language === 'no' ? 'katt' : 'cat', emoji: '🐱', hint: this.language === 'no' ? 'Den sier mjau' : 'It says meow' },
+            { name: this.language === 'no' ? 'hund' : 'dog', emoji: '🐶', hint: this.language === 'no' ? 'Den sier voff' : 'It says woof' },
+            { name: this.language === 'no' ? 'fugl' : 'bird', emoji: '🐦', hint: this.language === 'no' ? 'Den kan fly' : 'It can fly' },
+            { name: this.language === 'no' ? 'fisk' : 'fish', emoji: '🐟', hint: this.language === 'no' ? 'Den lever i vann' : 'It lives in water' }
+        ];
+        
+        const animal = animals[Math.floor(Math.random() * animals.length)];
+        const guess = prompt(this.language === 'no' 
+            ? "Jeg tenker på et dyr. Hint: " + animal.hint + ". Hva tror du det er?"
+            : "I'm thinking of an animal. Hint: " + animal.hint + ". What do you think it is?");
+        
+        if (guess && guess.toLowerCase().includes(animal.name.toLowerCase())) {
+            this.showDialogue(this.language === 'no' 
+                ? "Riktig! Det var " + animal.emoji + " " + animal.name + "! Jeg er så flink!"
+                : "Correct! It was " + animal.emoji + " " + animal.name + "! I'm so good!");
+            this.adjustStat('happiness', 15);
+            this.adjustStat('learning', 10);
+            this.adjustStat('energy', -5);
+            this.setEmotion('happy', 20);
+            this.setEmotion('surprised', 10);
+        } else {
+            this.showDialogue(this.language === 'no' 
+                ? "Ikke helt riktig, men det var gøy! Det var " + animal.emoji + " " + animal.name + "!"
+                : "Not quite right, but it was fun! It was " + animal.emoji + " " + animal.name + "!");
+            this.adjustStat('happiness', 8);
+            this.adjustStat('learning', 5);
+            this.adjustStat('energy', -5);
+            this.setEmotion('curious', 10);
+        }
+        
+        this.showMessage(this.language === 'no'
+            ? "🎯 Gjetespill hjelper " + this.child.name + " med å tenke og lære!"
+            : "🎯 Guessing games help " + this.child.name + " think and learn!");
+        this.performAction();
+        this.advanceTime();
+    }
+    
+    // Future-specific functions
+    getDriversLicense() {
+        if (this.child.age < 16) return;
+        
+        // Check if player has enough money for license (in 2085, licenses are expensive)
+        const licenseCost = 5000; // Expensive in dystopian future
+        if (this.child.money < licenseCost) {
+            const noMoneyMsg = this.language === 'no'
+                ? "Jeg vil gjerne ta lappen, men det koster " + licenseCost + " kroner. I 2085 er alt dyrt på grunn av ressursmangel. Jeg må spare mer penger først."
+                : "I'd like to get my driver's license, but it costs " + licenseCost + " kroner. In 2085, everything is expensive due to resource scarcity. I need to save more money first.";
+            this.showDialogue(noMoneyMsg);
+            return;
+        }
+        
+        // Take the test
+        const passed = Math.random() > 0.3; // 70% chance to pass
+        
+        if (passed) {
+            this.child.money -= licenseCost;
+            this.child.hasDriversLicense = true;
+            
+            const successMsg = this.language === 'no'
+                ? "🎉 Jeg besto lappen! Nå kan jeg kjøre flyvende biler! Det er så kult! Men det var dyrt - " + licenseCost + " kroner. I 2085 er alt så dyrt på grunn av ressursmangel."
+                : "🎉 I passed my driver's test! Now I can drive flying cars! It's so cool! But it was expensive - " + licenseCost + " kroner. In 2085, everything is so expensive due to resource scarcity.";
+            this.showDialogue(successMsg);
+            
+            this.adjustStat('happiness', 20);
+            this.adjustStat('social', 10);
+            this.setEmotion('happy', 25);
+            this.setEmotion('surprised', 15);
+            
+            this.addAutoDiaryEntry(
+                this.language === 'no'
+                    ? 'I dag tok jeg lappen! Nå kan jeg kjøre flyvende biler. Det var dyrt, men verdt det.'
+                    : 'Today I got my driver\'s license! Now I can drive flying cars. It was expensive, but worth it.',
+                true
+            );
+        } else {
+            // Failed test - lose some money but can retry
+            this.child.money -= Math.floor(licenseCost / 2);
+            
+            const failMsg = this.language === 'no'
+                ? "Jeg strøk på lappen... Det var vanskelig. Jeg måtte betale " + Math.floor(licenseCost / 2) + " kroner for prøven. Jeg kan prøve igjen neste år."
+                : "I failed my driver's test... It was difficult. I had to pay " + Math.floor(licenseCost / 2) + " kroner for the test. I can try again next year.";
+            this.showDialogue(failMsg);
+            
+            this.adjustStat('happiness', -10);
+            this.setEmotion('sad', 15);
+            this.setEmotion('embarrassed', 10);
+        }
+        
+        this.saveGame();
+    }
+    
+    moveOut() {
+        if (this.child.age < 18) return;
+        
+        // Check if player has enough money to move out (in 2085, housing is very expensive)
+        const moveOutCost = 50000; // Very expensive in dystopian future
+        if (this.child.money < moveOutCost) {
+            const noMoneyMsg = this.language === 'no'
+                ? "Jeg vil gjerne flytte hjemmefra, men det koster " + moveOutCost + " kroner for depositum og første måneds husleie. I 2085 er boliger ekstremt dyre på grunn av ressursmangel og klimaendringer. Jeg må spare mer penger først."
+                : "I'd like to move out, but it costs " + moveOutCost + " kroner for deposit and first month's rent. In 2085, housing is extremely expensive due to resource scarcity and climate change. I need to save more money first.";
+            this.showDialogue(noMoneyMsg);
+            return;
+        }
+        
+        // Move out
+        this.child.money -= moveOutCost;
+        this.child.hasMovedOut = true;
+        
+        const successMsg = this.language === 'no'
+            ? "🏠 Jeg flyttet hjemmefra! Det er spennende, men også litt skummelt. I 2085 er verden annerledes - ressursene er knappe, klimaet er i krise, og eldrebølgen slår til. Men jeg er klar for å bygge min egen fremtid!"
+            : "🏠 I moved out! It's exciting, but also a bit scary. In 2085, the world is different - resources are scarce, the climate is in crisis, and the aging population crisis is hitting. But I'm ready to build my own future!";
+        this.showDialogue(successMsg);
+        
+        this.adjustStat('happiness', 15);
+        this.adjustStat('social', 5);
+        this.setEmotion('happy', 20);
+        this.setEmotion('anxious', 10);
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag flyttet jeg hjemmefra! Det er spennende, men verden i 2085 er utfordrende. Jeg håper jeg kan gjøre en forskjell.'
+                : 'Today I moved out! It\'s exciting, but the world in 2085 is challenging. I hope I can make a difference.',
+            true
+        );
+        
+        this.saveGame();
+    }
+    
+    // Dystopian events in 2085
+    triggerDystopianEvent() {
+        const events = [
+            {
+                name: 'oilFundCrisis',
+                probability: 0.3,
+                message: this.language === 'no'
+                    ? "⚠️ Nyhet: Oljefondet er helt tomt! Norge har ingen penger igjen. Regjeringen varsler om kutt i alle offentlige tjenester."
+                    : "⚠️ News: The oil fund is completely empty! Norway has no money left. The government warns of cuts in all public services.",
+                effect: () => {
+                    this.adjustStat('happiness', -10);
+                    if (this.child.money > 0) {
+                        this.adjustStat('money', -Math.floor(this.child.money * 0.1)); // Lose 10% of money due to economic crisis
+                    }
+                    this.setEmotion('anxious', 20);
+                    this.setEmotion('sad', 15);
+                }
+            },
+            {
+                name: 'climateDisaster',
+                probability: 0.25,
+                message: this.language === 'no'
+                    ? "🌡️ Ekstremvær: En kraftig storm har ødelagt infrastruktur. Matprisene stiger. Ressursene blir enda knappere."
+                    : "🌡️ Extreme weather: A powerful storm has destroyed infrastructure. Food prices are rising. Resources are becoming even scarcer.",
+                effect: () => {
+                    this.adjustStat('happiness', -8);
+                    this.adjustStat('hunger', -10); // Food becomes more expensive/scarce
+                    this.child.climateAwareness = Math.min(100, (this.child.climateAwareness || 0) + 5);
+                    this.setEmotion('scared', 15);
+                }
+            },
+            {
+                name: 'aiTakeover',
+                probability: 0.2,
+                message: this.language === 'no'
+                    ? "🤖 AI-nyhet: Flere jobber er erstattet av AI. Arbeidsløsheten stiger. Mange unge sliter med å finne arbeid."
+                    : "🤖 AI News: More jobs have been replaced by AI. Unemployment is rising. Many young people struggle to find work.",
+                effect: () => {
+                    this.adjustStat('happiness', -5);
+                    this.adjustStat('social', -5);
+                    this.child.aiLiteracy = Math.min(100, (this.child.aiLiteracy || 0) + 3);
+                    this.setEmotion('anxious', 10);
+                }
+            },
+            {
+                name: 'agingCrisis',
+                probability: 0.15,
+                message: this.language === 'no'
+                    ? "👴 Eldrebølgen: Den aldrende befolkningen krever mer ressurser. Unge må betale høyere skatter for å støtte eldre. Systemet er under press."
+                    : "👴 Aging Crisis: The aging population demands more resources. Young people must pay higher taxes to support the elderly. The system is under pressure.",
+                effect: () => {
+                    this.adjustStat('happiness', -6);
+                    if (this.child.money > 0) {
+                        this.adjustStat('money', -Math.floor(this.child.money * 0.05)); // Higher taxes
+                    }
+                    this.setEmotion('angry', 10);
+                }
+            },
+            {
+                name: 'resourceShortage',
+                probability: 0.2,
+                message: this.language === 'no'
+                    ? "⚡ Ressursmangel: Norge har ikke nok ressurser. Vi har ingen venner med andre nasjoner, så vi får ingen hjelp. Alt blir dyrere."
+                    : "⚡ Resource Shortage: Norway doesn't have enough resources. We have no friends among other nations, so we get no help. Everything becomes more expensive.",
+                effect: () => {
+                    this.adjustStat('happiness', -7);
+                    this.child.resourceManagement = Math.min(100, (this.child.resourceManagement || 0) + 3);
+                    this.setEmotion('anxious', 12);
+                }
+            },
+            {
+                name: 'hope',
+                probability: 0.1,
+                message: this.language === 'no'
+                    ? "✨ Håp: Noen unge mennesker samler seg for å gjøre en forskjell. Kanskje vi kan redde Norge? Kanskje du kan være en del av løsningen?"
+                    : "✨ Hope: Some young people are coming together to make a difference. Maybe we can save Norway? Maybe you can be part of the solution?",
+                effect: () => {
+                    this.adjustStat('happiness', 10);
+                    this.adjustStat('social', 8);
+                    this.setEmotion('happy', 15);
+                    this.setEmotion('curious', 10);
+                }
+            }
+        ];
+        
+        // Select random event based on probability
+        const randomEvent = events[Math.floor(Math.random() * events.length)];
+        
+        this.showDialogue(randomEvent.message);
+        randomEvent.effect();
+        
+        this.addAutoDiaryEntry(
+            this.language === 'no'
+                ? 'I dag skjedde det noe: ' + randomEvent.message.replace(/⚠️|🌡️|🤖|👴|⚡|✨/g, '').trim() + ' Verden i 2085 er utfordrende.'
+                : 'Today something happened: ' + randomEvent.message.replace(/⚠️|🌡️|🤖|👴|⚡|✨/g, '').trim() + ' The world in 2085 is challenging.',
+            randomEvent.name === 'hope'
+        );
+        
+        this.saveGame();
+    }
+    
+    // Apply ongoing dystopian consequences
+    applyDystopianConsequences() {
+        // Climate change effects - ongoing
+        if ((this.child.climateAwareness || 0) < 30) {
+            // Low awareness means vulnerability to climate effects
+            if (Math.random() < 0.1) {
+                this.adjustStat('happiness', -2);
+                this.adjustStat('hunger', -3);
+            }
+        }
+        
+        // Resource scarcity effects - ongoing
+        if ((this.child.resourceManagement || 0) < 30) {
+            // Poor resource management means higher costs
+            if (Math.random() < 0.15 && this.child.money > 0) {
+                this.adjustStat('money', -Math.floor(this.child.money * 0.02)); // Lose 2% of money due to poor resource management
+            }
+        }
+        
+        // AI effects - ongoing
+        if ((this.child.aiLiteracy || 0) < 30 && this.child.age >= 16) {
+            // Low AI literacy means job insecurity
+            if (Math.random() < 0.1) {
+                this.adjustStat('happiness', -3);
+                this.setEmotion('anxious', 5);
+            }
+        }
+        
+        // Aging population crisis effects - ongoing
+        if (this.child.age >= 18) {
+            // Higher taxes for young people
+            if (Math.random() < 0.2 && this.child.money > 0) {
+                this.adjustStat('money', -Math.floor(this.child.money * 0.03)); // 3% tax for aging population
+            }
+        }
+    }
+    
+    logout() {
+        // Confirm logout
+        if (confirm(this.language === 'no' 
+            ? 'Er du sikker på at du vil logge ut? Spillet ditt er lagret automatisk.'
+            : 'Are you sure you want to log out? Your game is saved automatically.')) {
+            // Save game before logout
+            this.saveGame();
+            // Redirect to login
+            window.location.href = 'login.html';
+        }
+    }
+    
+    // PWA Installation Functions
+    initializeInstallPrompt() {
+        // Listen for beforeinstallprompt event (Chrome, Edge, Brave on desktop/mobile)
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // Prevent the mini-infobar from appearing on mobile
+            e.preventDefault();
+            // Stash the event so it can be triggered later
+            this.deferredPrompt = e;
+            // Show install button
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn) {
+                installBtn.style.display = 'flex';
+            }
+            this.updateInstallStatus('ready');
+        });
+        
+        // Listen for app installed event
+        window.addEventListener('appinstalled', () => {
+            this.deferredPrompt = null;
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn) {
+                installBtn.style.display = 'none';
+            }
+            this.updateInstallStatus('installed');
+            
+            // Show success message
+            const message = this.language === 'no'
+                ? 'Appen er installert! Du kan nå åpne den fra skrivebordet eller hjemmeskjermen.'
+                : 'App installed! You can now open it from your desktop or home screen.';
+            this.showMessage(message);
+        });
+        
+        // Check if app is already installed
+        if (window.matchMedia('(display-mode: standalone)').matches || 
+            window.navigator.standalone === true) {
+            this.updateInstallStatus('installed');
+        } else {
+            // Check platform and show appropriate instructions
+            this.checkInstallCapability();
+        }
+    }
+    
+    async checkInstallCapability() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        const isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.MSStream;
+        const isAndroid = /android/i.test(userAgent);
+        const isWindows = /windows/i.test(userAgent);
+        const isMac = /macintosh|mac os x/i.test(userAgent);
+        const isChrome = /chrome/i.test(userAgent) && !/edg/i.test(userAgent);
+        let isBrave = false;
+        try {
+            if (navigator.brave) {
+                isBrave = await navigator.brave.isBrave();
+            }
+        } catch (e) {
+            // Brave detection failed, assume not Brave
+        }
+        const isEdge = /edg/i.test(userAgent);
+        const isFirefox = /firefox/i.test(userAgent);
+        
+        let instructions = [];
+        
+        if (isIOS) {
+            // iOS Safari
+            instructions.push({
+                platform: 'iOS (Safari)',
+                steps: [
+                    '1. Trykk på del-knappen (📤) nederst i Safari',
+                    '2. Scroll ned og velg "Legg til på hjemmeskjerm"',
+                    '3. Trykk "Legg til" for å bekrefte',
+                    '4. Appen vil nå vises på hjemmeskjermen din!'
+                ]
+            });
+        } else if (isAndroid) {
+            // Android Chrome/Brave
+            instructions.push({
+                platform: 'Android (Chrome/Brave)',
+                steps: [
+                    '1. Trykk på menyknappen (⋮ eller ⋯) i nettleseren',
+                    '2. Velg "Legg til på hjemmeskjerm" eller "Installer app"',
+                    '3. Bekreft installasjonen',
+                    '4. Appen vil nå vises på hjemmeskjermen din!'
+                ]
+            });
+        } else if (isWindows) {
+            // Windows Chrome/Brave/Edge
+            instructions.push({
+                platform: 'Windows (Chrome/Brave/Edge)',
+                steps: [
+                    '1. Se etter installasjonsikonet (➕) i adresselinjen',
+                    '2. Eller trykk på "Installer app" knappen over',
+                    '3. Bekreft installasjonen i popup-vinduet',
+                    '4. Appen vil nå vises på skrivebordet og i start-menyen!'
+                ]
+            });
+        } else if (isMac) {
+            // macOS Chrome/Brave/Edge
+            instructions.push({
+                platform: 'macOS (Chrome/Brave/Edge)',
+                steps: [
+                    '1. Se etter installasjonsikonet (➕) i adresselinjen',
+                    '2. Eller trykk på "Installer app" knappen over',
+                    '3. Bekreft installasjonen i popup-vinduet',
+                    '4. Appen vil nå vises i Launchpad og Applications-mappen!'
+                ]
+            });
+        } else {
+            // Generic instructions
+            instructions.push({
+                platform: 'Generelt',
+                steps: [
+                    '1. Se etter installasjonsikonet (➕) i adresselinjen',
+                    '2. Eller trykk på "Installer app" knappen over',
+                    '3. Følg instruksjonene i nettleseren din'
+                ]
+            });
+        }
+        
+        this.showInstallInstructions(instructions);
+    }
+    
+    showInstallInstructions(instructions) {
+        const installSteps = document.getElementById('installSteps');
+        const installInstructions = document.getElementById('installInstructions');
+        
+        if (!installSteps || !installInstructions) return;
+        
+        let html = '';
+        instructions.forEach(instruction => {
+            html += `<div class="install-platform">`;
+            html += `<h5>${instruction.platform}</h5>`;
+            html += `<ol class="install-steps-list">`;
+            instruction.steps.forEach(step => {
+                html += `<li>${step}</li>`;
+            });
+            html += `</ol>`;
+            html += `</div>`;
+        });
+        
+        installSteps.innerHTML = html;
+        installInstructions.style.display = 'block';
+    }
+    
+    updateInstallStatus(status) {
+        const installStatus = document.getElementById('installStatus');
+        if (!installStatus) return;
+        
+        const messages = {
+            ready: this.language === 'no' 
+                ? '✅ Appen kan installeres! Trykk på "Installer app" knappen over.'
+                : '✅ App can be installed! Click the "Install app" button above.',
+            installed: this.language === 'no'
+                ? '✅ Appen er allerede installert!'
+                : '✅ App is already installed!',
+            checking: this.language === 'no'
+                ? 'Sjekker installasjonsmuligheter...'
+                : 'Checking installation capabilities...',
+            notSupported: this.language === 'no'
+                ? '⚠️ Direkte installasjon er ikke støttet i denne nettleseren. Se instruksjoner nedenfor.'
+                : '⚠️ Direct installation is not supported in this browser. See instructions below.'
+        };
+        
+        installStatus.textContent = messages[status] || messages.checking;
+    }
+    
+    async installApp() {
+        if (this.deferredPrompt) {
+            // Show the install prompt
+            this.deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await this.deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                const message = this.language === 'no'
+                    ? 'Takk for at du installerte appen!'
+                    : 'Thank you for installing the app!';
+                this.showMessage(message);
+            } else {
+                const message = this.language === 'no'
+                    ? 'Installasjon avbrutt. Du kan installere senere ved å bruke knappen eller nettleserens meny.'
+                    : 'Installation cancelled. You can install later using the button or browser menu.';
+                this.showMessage(message);
+            }
+            
+            // Clear the deferredPrompt
+            this.deferredPrompt = null;
+            
+            // Hide install button
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn) {
+                installBtn.style.display = 'none';
+            }
+        } else {
+            // Fallback: Show instructions
+            this.checkInstallCapability();
+            const installInstructions = document.getElementById('installInstructions');
+            if (installInstructions) {
+                installInstructions.style.display = 'block';
+            }
+        }
     }
 }
 

@@ -161,22 +161,27 @@
 - ✅ Lagt til flere følelser (tired, lonely)
 
 #### 7. 🎯 Gjør daglige rutiner mer kritiske
-**Status:** Delvis implementert (tracking finnes)
-**Må gjøres:**
-- Gjør daglige rutiner mer kritiske
-- Legg til konsekvenser for å hoppe over rutiner
-- Gjør rutiner mer kostbare (tid/ressurser)
-- Legg til visuell feedback når rutiner mangler
-- Gjør rutiner mer obligatoriske
+**Status:** ✅ FORBEDRET
+**Gjort:**
+- ✅ Gjort konsekvenser mer alvorlige (økt negative effekter betydelig)
+- ✅ Konsekvenser starter tidligere (f.eks. mat etter 1 dag i stedet for 2)
+- ✅ Lagt til kritiske advarsler når rutiner mangler lenge
+- ✅ Lagt til visuell feedback på rutine-knapper (rød/oransje når rutiner mangler)
+- ✅ Lagt til konsekvenser for å hoppe over lesing
+- ✅ Gjort rutiner mer obligatoriske med sterkere konsekvenser
+- ✅ Lagt til flere følelser når rutiner mangler (scared, embarrassed, lonely)
 
 #### 8. 📊 Gjør stats mer kritiske
-**Status:** Delvis implementert
-**Må gjøres:**
-- Gjør stats mer kritiske
-- Legg til konsekvenser for lave stats
-- Gjør det vanskeligere å holde stats høye
-- Legg til visuell feedback for kritiske stats
-- Fargepalett endres basert på karakterens følelser
+**Status:** ✅ FORBEDRET
+**Gjort:**
+- ✅ Gjort konsekvenser for lave stats mye mer alvorlige
+- ✅ Lagt til konsekvenser for alle stats (hunger, happiness, energy, social, learning)
+- ✅ Stats synker raskere naturlig (økt fra -8 til -10 for energy, -12 til -15 for hunger)
+- ✅ Lagt til "snowball effect" - stats synker ekstra når de allerede er lave
+- ✅ Visuell feedback på stat-bars (rød/oransje/gul basert på nivå)
+- ✅ Pulserende animasjon for kritiske stats (< 15)
+- ✅ Fargepalett endres basert på karakterens følelser (container filter)
+- ✅ Kritiske advarsler og dialoger når stats er veldig lave
 
 ---
 
