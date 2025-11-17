@@ -8,6 +8,7 @@
     <!-- Favicon and Theme Colors -->
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%23ff00ff'/><stop offset='50%' style='stop-color:%2300ffff'/><stop offset='100%' style='stop-color:%23ff00ff'/></linearGradient></defs><circle cx='50' cy='50' r='50' fill='url(%23bg)'/><circle cx='50' cy='45' r='25' fill='%23ffdbac'/><circle cx='42' cy='40' r='3' fill='%23000'/><circle cx='58' cy='40' r='3' fill='%23000'/><path d='M 40 50 Q 50 58 60 50' stroke='%23000' stroke-width='2' fill='none'/></svg>">
+    <!-- theme-color is supported in modern browsers including Firefox 89+ -->
     <meta name="theme-color" content="#ff00ff">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -36,7 +37,7 @@
             overflow: hidden;
             word-wrap: break-word;
             box-sizing: border-box;
-            min-height: auto;
+            min-height: 0;
         }
         
         @media (min-width: 768px) {
@@ -171,9 +172,9 @@
             background: white;
             width: 100%;
             box-sizing: border-box;
-            appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
+            appearance: none;
             background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
             background-repeat: no-repeat;
             background-position: right 8px center;
@@ -342,21 +343,21 @@
                 
                 <div class="customization-options">
                     <div class="option-group">
-                        <label>Kjønn:</label>
-                        <select id="gender" name="gender">
+                        <label for="gender">Kjønn:</label>
+                        <select id="gender" name="gender" aria-label="Velg kjønn">
                             <option value="boy">Gutt</option>
                             <option value="girl">Jente</option>
                         </select>
                     </div>
                     
                     <div class="option-group">
-                        <label>Navn:</label>
+                        <label for="childName">Navn:</label>
                         <input type="text" id="childName" name="childName" placeholder="Navn (valgfritt)">
                     </div>
                     
                     <div class="option-group">
-                        <label>Søsken:</label>
-                        <select id="siblings" name="siblings">
+                        <label for="siblings">Søsken:</label>
+                        <select id="siblings" name="siblings" aria-label="Velg søsken">
                             <option value="none">Ingen søsken</option>
                             <option value="younger_brother">Yngre bror</option>
                             <option value="younger_sister">Yngre søster</option>
@@ -371,8 +372,8 @@
                 <!-- Alder midt mellom de to øverste -->
                 <div class="customization-options" style="margin-top: 15px; justify-content: center;">
                     <div class="option-group" style="max-width: 200px; margin: 0 auto;">
-                        <label>Alder (start):</label>
-                        <select id="startAge" name="startAge">
+                        <label for="startAge">Alder (start):</label>
+                        <select id="startAge" name="startAge" aria-label="Velg startalder">
                             <option value="0">Baby (0 år)</option>
                             <option value="1">1 år</option>
                             <option value="2">2 år</option>
@@ -528,8 +529,8 @@
                 
                 <div class="customization-options" style="margin-top: 15px;">
                     <div class="option-group">
-                        <label>Hårfarge:</label>
-                        <select id="hairColor" name="hairColor">
+                        <label for="hairColor">Hårfarge:</label>
+                        <select id="hairColor" name="hairColor" aria-label="Velg hårfarge">
                             <option value="blonde">Blond</option>
                             <option value="brown">Brun</option>
                             <option value="black">Svart</option>
@@ -539,8 +540,8 @@
                     </div>
                     
                     <div class="option-group">
-                        <label>Øyenfarge:</label>
-                        <select id="eyeColor" name="eyeColor">
+                        <label for="eyeColor">Øyenfarge:</label>
+                        <select id="eyeColor" name="eyeColor" aria-label="Velg øyenfarge">
                             <option value="blue">Blå</option>
                             <option value="brown">Brun</option>
                             <option value="green">Grønn</option>
@@ -550,8 +551,8 @@
                     </div>
                     
                     <div class="option-group">
-                        <label>Stil:</label>
-                        <select id="style" name="style">
+                        <label for="style">Stil:</label>
+                        <select id="style" name="style" aria-label="Velg stil">
                             <option value="normal">Normal</option>
                             <option value="cap">Caps</option>
                             <option value="hoodie">Hoodie</option>
