@@ -2308,3 +2308,34 @@ button:focus-visible,
     line-height: 1.6;
 }
 
+/* Accessibility and form improvements */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.upload-hint {
+    font-size: 0.9em;
+    margin-top: 10px;
+    color: #666;
+}
+
+.profile-bio-textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid var(--primary-1);
+    font-family: inherit;
+}
+
+.save-bio-btn {
+    margin-top: 10px;
+}
+
