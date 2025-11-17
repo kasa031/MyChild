@@ -247,12 +247,12 @@
 </head>
 <body>
     <div class="login-container">
-        <div style="position: absolute; top: 10px; right: 10px; z-index: 10; pointer-events: none;">
-            <img src="assets/images/sticker2000.jpg" alt="2000s sticker" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 0 15px rgba(255,0,255,0.5); filter: drop-shadow(0 0 10px rgba(0,255,255,0.5)); animation: float 3s ease-in-out infinite; transform: rotate(15deg);">
+        <div class="sticker-container">
+            <img src="assets/images/sticker2000.jpg" alt="2000s sticker" class="sticker-image">
         </div>
-        <div style="position: relative; z-index: 1; padding-right: 100px; padding-left: 20px;">
-            <h1 style="background: linear-gradient(45deg, #ff00ff, #00ffff, #ff00ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-shadow: 3px 3px 0px #00ffff, -3px -3px 0px #ff00ff; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word; max-width: 100%; margin: 0;">MyChild</h1>
-            <p style="color: #ff00ff; margin-bottom: 30px; margin-top: 10px; font-weight: bold; overflow: hidden; text-overflow: ellipsis; word-wrap: break-word;">Velg verden og opprett nytt spill</p>
+        <div class="header-content">
+            <h1 class="login-title">MyChild</h1>
+            <p class="login-subtitle">Velg verden og opprett nytt spill</p>
             
             <!-- Main Menu -->
             <nav class="main-menu" id="mainMenu">
@@ -323,7 +323,6 @@
                         <p>Dystopisk fremtid. Oljefondet er tomt, klimaet kollapser, AI tar over. Kan du redde fremtiden?</p>
                     </div>
                 </div>
-                <label for="worldMode" class="sr-only">Velg verden</label>
                 <input type="hidden" id="worldMode" name="worldMode" value="2000s" aria-label="Velg verden">
             </div>
             
@@ -366,8 +365,8 @@
                 </div>
                 
                 <!-- Alder midt mellom de to øverste -->
-                <div class="customization-options" style="margin-top: 15px; justify-content: center;">
-                    <div class="option-group" style="max-width: 200px; margin: 0 auto;">
+                <div class="customization-options customization-options-centered">
+                    <div class="option-group option-group-centered">
                         <label for="startAge">Alder (start):</label>
                         <select id="startAge" name="startAge" aria-label="Velg startalder">
                             <option value="0">Baby (0 år)</option>
@@ -471,7 +470,7 @@
                     </div>
                 </div>
                 
-                <div class="option-group" style="margin-top: 15px;">
+                <div class="option-group option-group-spaced">
                     <label id="emojiPicker-label" for="emojiPicker">Velg emoji for karakteren:</label>
                     <div class="emoji-picker" id="emojiPicker" role="group" aria-labelledby="emojiPicker-label">
                         <div class="emoji-option" data-emoji="👶">👶</div>
@@ -586,7 +585,7 @@
         let selectedEmoji = '👶';
         
         // Menu navigation
-        function showMenuOption(option) {
+        window.showMenuOption = function(option) {
             
             // Hide all sections
             const loginForm = document.getElementById('loginForm');
@@ -637,7 +636,7 @@
                     settingsTab.style.border = '2px solid #ffffff';
                 }
             }
-        }
+        };
         
         // Load existing games
         function loadExistingGames() {
@@ -671,7 +670,7 @@
             });
             
             if (games.length === 0) {
-                gamesList.innerHTML = '<p style="color: #666;">Ingen eksisterende spill</p>';
+                gamesList.innerHTML = '<p class="games-list-empty">Ingen eksisterende spill</p>';
                 return;
             }
             
@@ -709,7 +708,7 @@
                 gameDiv.innerHTML = `
                     <div>
                         <strong>${game.username}</strong> - Dag ${game.day}, ${game.age} år<br>
-                        <small style="color: #666;">Sist lagret: ${lastSaved}</small>
+                        <small class="game-last-saved">Sist lagret: ${lastSaved}</small>
                     </div>
                 `;
                 gameDiv.appendChild(buttonDiv);
@@ -732,7 +731,7 @@
         });
         
         // World selection
-        function selectWorld(world) {
+        window.selectWorld = function(world) {
             const worldModeInput = document.getElementById('worldMode');
             if (worldModeInput) {
                 worldModeInput.value = world;
@@ -760,28 +759,36 @@
                     selectedOption.style.animation = 'pulse 0.5s ease';
                 }, 10);
             }
-        }
+        };
         
         // Add event listeners for world selection (works on both desktop and mobile)
-        document.addEventListener('DOMContentLoaded', function() {
+        function setupEventListeners() {
             // World selection buttons
             const worldOptions = document.querySelectorAll('.world-option');
             worldOptions.forEach(option => {
                 const world = option.getAttribute('data-world');
                 if (world) {
+                    // Remove existing listeners to avoid duplicates
+                    const newOption = option.cloneNode(true);
+                    option.parentNode.replaceChild(newOption, option);
+                    
                     // Click event (desktop)
-                    option.addEventListener('click', function(e) {
+                    newOption.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        selectWorld(world);
-                    });
+                        if (window.selectWorld) {
+                            window.selectWorld(world);
+                        }
+                    }, { passive: false });
                     
                     // Touch event (mobile)
-                    option.addEventListener('touchend', function(e) {
+                    newOption.addEventListener('touchend', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        selectWorld(world);
-                    });
+                        if (window.selectWorld) {
+                            window.selectWorld(world);
+                        }
+                    }, { passive: false });
                 }
             });
             
@@ -790,22 +797,38 @@
             menuTabs.forEach(tab => {
                 const option = tab.getAttribute('data-option');
                 if (option) {
+                    // Remove existing listeners to avoid duplicates
+                    const newTab = tab.cloneNode(true);
+                    tab.parentNode.replaceChild(newTab, tab);
+                    
                     // Click event (desktop)
-                    tab.addEventListener('click', function(e) {
+                    newTab.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        showMenuOption(option);
-                    });
+                        if (window.showMenuOption) {
+                            window.showMenuOption(option);
+                        }
+                    }, { passive: false });
                     
                     // Touch event (mobile)
-                    tab.addEventListener('touchend', function(e) {
+                    newTab.addEventListener('touchend', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
-                        showMenuOption(option);
-                    });
+                        if (window.showMenuOption) {
+                            window.showMenuOption(option);
+                        }
+                    }, { passive: false });
                 }
             });
-        });
+        }
+        
+        // Setup event listeners when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupEventListeners);
+        } else {
+            // DOM is already ready
+            setupEventListeners();
+        }
         
         // Initialize world selection (default to 2000s)
         function initializeWorldSelection() {
