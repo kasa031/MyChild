@@ -4,6 +4,10 @@
     display: block;
 }
 
+#loginForm {
+    display: block;
+}
+
 .world-selection {
     margin-bottom: 30px;
     padding: 20px;
