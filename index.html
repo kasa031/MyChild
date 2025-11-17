@@ -436,9 +436,10 @@
                                 </div>
                             </div>
                             <div id="uploadTab" class="avatar-tab-content">
-                                <input type="file" id="avatarUpload" accept="image/*" onchange="game.handleAvatarUpload(event)" style="display: none;">
+                                <label for="avatarUpload" class="sr-only">Last opp avatar bilde</label>
+                                <input type="file" id="avatarUpload" name="avatarUpload" accept="image/*" autocomplete="off" onchange="game.handleAvatarUpload(event)" style="display: none;" aria-label="Last opp avatar bilde">
                                 <button class="btn-primary" onclick="document.getElementById('avatarUpload').click()" id="selectImageBtn">Velg bilde</button>
-                                <p style="font-size: 0.9em; margin-top: 10px; color: #666;" id="uploadImageHint">Last opp ditt eget bilde som avatar</p>
+                                <p class="upload-hint" id="uploadImageHint">Last opp ditt eget bilde som avatar</p>
                             </div>
                         </div>
                     </div>
@@ -448,11 +449,11 @@
                     <h3 data-translate="language">Språk</h3>
                     <div class="language-selector">
                         <label>
-                            <input type="radio" name="language" value="no" onchange="game.setLanguage('no')" checked>
+                            <input type="radio" name="language" value="no" autocomplete="off" onchange="game.setLanguage('no')" checked>
                             <span>🇳🇴 Norsk</span>
                         </label>
                         <label>
-                            <input type="radio" name="language" value="en" onchange="game.setLanguage('en')">
+                            <input type="radio" name="language" value="en" autocomplete="off" onchange="game.setLanguage('en')">
                             <span>🇬🇧 English</span>
                         </label>
                     </div>
@@ -460,8 +461,9 @@
                 
                 <div class="profile-section">
                     <h3 id="aboutMeTitle">Om meg</h3>
-                    <textarea id="profileBio" rows="4" placeholder="Skriv litt om deg selv..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--primary-1); font-family: inherit;"></textarea>
-                    <button class="btn-primary" onclick="game.saveProfile()" style="margin-top: 10px;" id="saveBioBtn">Lagre bio</button>
+                    <label for="profileBio" class="sr-only">Profil bio</label>
+                    <textarea id="profileBio" name="profileBio" rows="4" autocomplete="off" placeholder="Skriv litt om deg selv..." class="profile-bio-textarea"></textarea>
+                    <button class="btn-primary save-bio-btn" onclick="game.saveProfile()" id="saveBioBtn">Lagre bio</button>
                 </div>
                 
                 <div class="profile-section">
