@@ -33,7 +33,7 @@
     border-radius: 15px;
     cursor: pointer;
     text-align: center;
-    transition: transform 0.2s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-width 0.3s ease;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     user-select: none;
@@ -41,6 +41,23 @@
     overflow: visible;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    position: relative;
+}
+
+.world-option.selected {
+    transform: scale(1.05) !important;
+    box-shadow: 0 0 25px rgba(255, 0, 255, 0.8) !important;
+    border-width: 4px !important;
+    z-index: 10;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1.05);
+    }
+    50% {
+        transform: scale(1.08);
+    }
 }
 
 .world-option-2000s {
