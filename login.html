@@ -809,12 +809,17 @@
         });
         
         // Initialize world selection (default to 2000s)
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
+        function initializeWorldSelection() {
+            // Wait a bit to ensure DOM is ready
+            setTimeout(() => {
                 selectWorld('2000s');
-            });
+            }, 100);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeWorldSelection);
         } else {
-            selectWorld('2000s');
+            initializeWorldSelection();
         }
         
         // Form submission
