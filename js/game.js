@@ -979,11 +979,20 @@ class MyChildGame {
         if (currentAgeElement) {
             currentAgeElement.textContent = this.child.age || 0;
         }
-        document.getElementById('currentYear').textContent = this.year;
-        document.getElementById('currentTime').textContent = this.timeNames[this.timeOfDay];
+        const currentYearElement = document.getElementById('currentYear');
+        if (currentYearElement) {
+            currentYearElement.textContent = this.year;
+        }
+        const currentTimeElement = document.getElementById('currentTime');
+        if (currentTimeElement && this.timeNames && this.timeOfDay !== undefined) {
+            currentTimeElement.textContent = this.timeNames[this.timeOfDay] || this.timeNames[0] || 'Morning';
+        }
         
         // Update child name
-        document.getElementById('childName').textContent = this.child.name;
+        const childNameElement = document.getElementById('childName');
+        if (childNameElement) {
+            childNameElement.textContent = this.child.name;
+        }
         
         // Update future-specific buttons visibility
         const driversLicenseBtn = document.getElementById('driversLicenseBtn');
@@ -1865,11 +1874,17 @@ class MyChildGame {
     }
     
     showDialogue(text) {
-        document.getElementById('dialogueText').textContent = text;
+        const dialogueTextElement = document.getElementById('dialogueText');
+        if (dialogueTextElement) {
+            dialogueTextElement.textContent = text;
+        }
     }
     
     showMessage(text) {
-        document.getElementById('statusMessage').textContent = text;
+        const statusMessageElement = document.getElementById('statusMessage');
+        if (statusMessageElement) {
+            statusMessageElement.textContent = text;
+        }
     }
     
     updateActionDisplay() {
@@ -3071,6 +3086,9 @@ class MyChildGame {
     
     makeProblemChoice(problem, choice) {
         // Track choice
+        if (!this.child.problemChoices) {
+            this.child.problemChoices = [];
+        }
         this.child.problemChoices.push({
             problem: problem.name,
             choice: choice.text,
@@ -4416,6 +4434,9 @@ class MyChildGame {
             energy: 80
         };
         
+        if (!this.child.adoptedChildren) {
+            this.child.adoptedChildren = [];
+        }
         this.child.adoptedChildren.push(adoptedChild);
         
         // Show family image
@@ -10854,9 +10875,10 @@ class MyChildGame {
                         this.showDialogue(careerMsg);
                         
                         this.adjustStat('happiness', career.happiness);
-                        if (career.social) {
+                        if (career.social !== undefined && career.social !== null) {
                             this.adjustStat('social', career.social);
-                        } else {
+                        }
+                        if (career.learning !== undefined && career.learning !== null) {
                             this.adjustStat('learning', career.learning);
                         }
                         this.setEmotion('happy', 30);
