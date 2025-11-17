@@ -125,6 +125,21 @@ class CanvasCharacterRenderer {
         const cx = 100;
         const cy = 100;
         
+        // Add hair highlight for depth
+        const highlightColor = this.lightenColor(hairColor, 0.2);
+        this.ctx.fillStyle = highlightColor;
+        this.ctx.beginPath();
+        
+        if (character.gender === 'girl') {
+            // Long hair highlight
+            this.ctx.ellipse(cx - 5, cy - 5, 30, 45, 0, 0, Math.PI * 2);
+        } else {
+            // Short hair highlight
+            this.ctx.ellipse(cx - 5, cy - 25, 25, 18, 0, 0, Math.PI * 2);
+        }
+        this.ctx.fill();
+        
+        // Main hair
         this.ctx.fillStyle = hairColor;
         this.ctx.beginPath();
         

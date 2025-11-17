@@ -103,14 +103,27 @@ class PixiCharacterRenderer {
     
     drawHair(graphics, character) {
         const hairColor = this.getHairColor(character.hairColor);
-        graphics.beginFill(hairColor);
+        const cx = 100;
+        const cy = 100;
+        
+        // Add hair highlight for depth
+        const highlightColor = this.lightenColor(hairColor, 0.2);
+        graphics.beginFill(highlightColor);
         
         if (character.gender === 'girl') {
-            // Long hair for girls
-            graphics.drawEllipse(100, 100, 35, 50);
+            // Long hair for girls with highlight
+            graphics.drawEllipse(cx - 5, cy - 5, 30, 45);
+            graphics.endFill();
+            // Main hair
+            graphics.beginFill(hairColor);
+            graphics.drawEllipse(cx, cy, 35, 50);
         } else {
-            // Short hair for boys
-            graphics.drawEllipse(100, 80, 30, 20);
+            // Short hair for boys with highlight
+            graphics.drawEllipse(cx - 5, cy - 25, 25, 18);
+            graphics.endFill();
+            // Main hair
+            graphics.beginFill(hairColor);
+            graphics.drawEllipse(cx, cy - 20, 30, 20);
         }
         
         graphics.endFill();
