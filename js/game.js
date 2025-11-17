@@ -48,6 +48,7 @@ class MyChildGame {
             money: 20, // Starting money (like original - need to manage resources)
             careerProgress: 0, // Career development (0-100)
             chosenCareer: savedGame && savedGame.child && savedGame.child.chosenCareer ? savedGame.child.chosenCareer : null, // Career choice at age 16+
+            careerSalary: savedGame && savedGame.child && savedGame.child.careerSalary ? savedGame.child.careerSalary : 0, // Annual salary from career
             // Track daily routines (like original - must do these)
             lastFed: 0, // Day when child was last fed
             lastBathed: 0, // Day when child was last bathed
@@ -3166,6 +3167,16 @@ class MyChildGame {
                 swimBtn.style.display = 'inline-block';
             } else {
                 swimBtn.style.display = 'none';
+            }
+        }
+        
+        // Karriere-valg (16+ år, ikke allerede valgt)
+        const chooseCareerBtn = document.getElementById('chooseCareerBtn');
+        if (chooseCareerBtn) {
+            if (this.child.age >= 16 && !this.child.chosenCareer) {
+                chooseCareerBtn.style.display = 'inline-block';
+            } else {
+                chooseCareerBtn.style.display = 'none';
             }
         }
     }
@@ -6580,10 +6591,15 @@ class MyChildGame {
             return;
         }
         
-        // Different jobs based on age and study level (like original game)
+        // Different jobs based on age, study level, and chosen career
         let jobType, earnings, energyCost;
         
-        if (this.child.age >= 14 && this.child.age < 16) {
+        // If career is chosen, use career salary (annual salary / 365 days ≈ daily earnings)
+        if (this.child.chosenCareer && this.child.careerSalary > 0) {
+            jobType = this.child.chosenCareer;
+            earnings = Math.floor(this.child.careerSalary / 365) + Math.floor(Math.random() * 50); // Daily earnings from career
+            energyCost = 20;
+        } else if (this.child.age >= 14 && this.child.age < 16) {
             // Part-time jobs for younger teens (reduced earnings to make money more critical)
             jobType = this.language === 'no' ? "Deltidsjobb (avisbud)" : "Part-time job (paper delivery)";
             earnings = 12 + Math.floor(this.child.studyLevel / 12);
@@ -10752,60 +10768,130 @@ class MyChildGame {
     }
     
     chooseCareer() {
-        if (this.child.age < 16) return;
+        if (!this.canPerformAction()) return;
+        
+        if (this.child.age < 16) {
+            this.showMessage(this.language === 'no' 
+                ? "Du må være minst 16 år for å velge karriere."
+                : "You must be at least 16 years old to choose a career.");
+            return;
+        }
+        
+        if (this.child.chosenCareer) {
+            this.showMessage(this.language === 'no' 
+                ? "Du har allerede valgt karriere: " + this.child.chosenCareer
+                : "You have already chosen a career: " + this.child.chosenCareer);
+            return;
+        }
         
         const careers = [
-            { name: this.language === 'no' ? 'Lærer' : 'Teacher', emoji: '👨‍🏫', description: this.language === 'no' ? 'Hjelpe andre å lære og vokse' : 'Help others learn and grow', studyReq: 60 },
-            { name: this.language === 'no' ? 'Ingeniør' : 'Engineer', emoji: '🔧', description: this.language === 'no' ? 'Bygge og løse problemer' : 'Build and solve problems', studyReq: 70 },
-            { name: this.language === 'no' ? 'Lege' : 'Doctor', emoji: '👨‍⚕️', description: this.language === 'no' ? 'Hjelpe andre å bli friske' : 'Help others get healthy', studyReq: 80 },
-            { name: this.language === 'no' ? 'Kunstner' : 'Artist', emoji: '🎨', description: this.language === 'no' ? 'Skape og uttrykke meg' : 'Create and express myself', studyReq: 40 },
-            { name: this.language === 'no' ? 'Forfatter' : 'Writer', emoji: '✍️', description: this.language === 'no' ? 'Fortelle historier og dele ideer' : 'Tell stories and share ideas', studyReq: 50 },
-            { name: this.language === 'no' ? 'Sykepleier' : 'Nurse', emoji: '👩‍⚕️', description: this.language === 'no' ? 'Ta vare på andre' : 'Take care of others', studyReq: 55 }
+            { name: this.language === 'no' ? 'Lærer' : 'Teacher', emoji: '👨‍🏫', description: this.language === 'no' ? 'Hjelpe andre å lære og vokse' : 'Help others learn and grow', studyReq: 60, salary: 40000, happiness: 15, social: 20 },
+            { name: this.language === 'no' ? 'Ingeniør' : 'Engineer', emoji: '🔧', description: this.language === 'no' ? 'Bygge og løse problemer' : 'Build and solve problems', studyReq: 70, salary: 60000, happiness: 10, learning: 15 },
+            { name: this.language === 'no' ? 'Lege' : 'Doctor', emoji: '👨‍⚕️', description: this.language === 'no' ? 'Hjelpe andre å bli friske' : 'Help others get healthy', studyReq: 80, salary: 80000, happiness: 20, social: 15 },
+            { name: this.language === 'no' ? 'Kunstner' : 'Artist', emoji: '🎨', description: this.language === 'no' ? 'Skape og uttrykke meg' : 'Create and express myself', studyReq: 40, salary: 30000, happiness: 25, learning: 10 },
+            { name: this.language === 'no' ? 'Forfatter' : 'Writer', emoji: '✍️', description: this.language === 'no' ? 'Fortelle historier og dele ideer' : 'Tell stories and share ideas', studyReq: 50, salary: 35000, happiness: 20, learning: 15 },
+            { name: this.language === 'no' ? 'Sykepleier' : 'Nurse', emoji: '👩‍⚕️', description: this.language === 'no' ? 'Ta vare på andre' : 'Take care of others', studyReq: 55, salary: 45000, happiness: 18, social: 18 },
+            { name: this.language === 'no' ? 'IT-utvikler' : 'IT Developer', emoji: '💻', description: this.language === 'no' ? 'Lage programvare og løsninger' : 'Create software and solutions', studyReq: 65, salary: 70000, happiness: 12, learning: 20 },
+            { name: this.language === 'no' ? 'Psykolog' : 'Psychologist', emoji: '🧠', description: this.language === 'no' ? 'Hjelpe andre med mentalt velvære' : 'Help others with mental wellbeing', studyReq: 75, salary: 55000, happiness: 15, social: 25 }
         ];
         
         // Filter careers based on study level
         const availableCareers = careers.filter(c => this.child.studyLevel >= c.studyReq);
         
         if (availableCareers.length === 0) {
-            // Default career if study level too low
-            this.child.chosenCareer = this.language === 'no' ? 'Generelt arbeid' : 'General work';
+            this.showDialogue(this.language === 'no' 
+                ? "Jeg har ikke studert nok ennå... Jeg trenger minst 40 i studie-nivå for å velge en karriere. La meg studere mer først!"
+                : "I haven't studied enough yet... I need at least 40 in study level to choose a career. Let me study more first!");
             return;
         }
         
-        // Choose career based on study level and preferences
-        let chosenCareer;
-        if (this.child.studyLevel >= 80) {
-            // High study level - can choose advanced careers
-            chosenCareer = availableCareers.find(c => c.studyReq >= 70) || availableCareers[0];
-        } else if (this.child.studyLevel >= 60) {
-            // Medium study level
-            chosenCareer = availableCareers.find(c => c.studyReq >= 50 && c.studyReq < 70) || availableCareers[0];
-        } else {
-            // Lower study level
-            chosenCareer = availableCareers[0];
-        }
+        this.showDialogue(this.language === 'no' 
+            ? "Hvilken karriere vil jeg velge? Dette er et viktig valg for fremtiden min!"
+            : "What career should I choose? This is an important choice for my future!");
         
-        this.child.chosenCareer = chosenCareer.name;
-        
-        const careerMsg = this.language === 'no'
-            ? "Jeg har valgt å bli " + chosenCareer.emoji + " " + chosenCareer.name + "! " + chosenCareer.description + ". Dette er fremtiden min, og jeg er klar!"
-            : "I've chosen to become a " + chosenCareer.emoji + " " + chosenCareer.name + "! " + chosenCareer.description + ". This is my future, and I'm ready!";
-        
-        this.showDialogue(careerMsg);
-        this.showMessage(this.language === 'no'
-            ? "🎯 " + this.child.name + " har valgt karriere! Fremtiden er i deres hender!"
-            : "🎯 " + this.child.name + " has chosen a career! The future is in their hands!");
-        
-        this.addAutoDiaryEntry(
-            this.language === 'no'
-                ? 'I dag valgte jeg min karriere: ' + chosenCareer.name + '. Jeg er spent på fremtiden!'
-                : 'Today I chose my career: ' + chosenCareer.name + '. I\'m excited about the future!',
-            true
-        );
-        
-        // Boost career progress when career is chosen
-        this.child.careerProgress = Math.min(100, this.child.careerProgress + 10);
-        this.saveGame();
+        setTimeout(() => {
+            const careerContainer = document.createElement('div');
+            careerContainer.id = 'careerContainer';
+            careerContainer.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #fff0f5 0%, #e0f7ff 100%); padding: 30px; border-radius: 20px; border: 3px solid #ff00ff; z-index: 10000; max-width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 0 30px rgba(255,0,255,0.5);';
+            
+            const title = document.createElement('h3');
+            title.textContent = this.language === 'no' ? '💼 Velg karriere' : '💼 Choose career';
+            title.style.cssText = 'margin-top: 0; text-align: center;';
+            careerContainer.appendChild(title);
+            
+            const info = document.createElement('p');
+            info.textContent = this.language === 'no' 
+                ? 'Ditt studie-nivå: ' + this.child.studyLevel + '/100'
+                : 'Your study level: ' + this.child.studyLevel + '/100';
+            info.style.cssText = 'text-align: center; margin-bottom: 20px; font-weight: bold;';
+            careerContainer.appendChild(info);
+            
+            availableCareers.forEach((career) => {
+                const careerBtn = document.createElement('button');
+                careerBtn.className = 'btn-primary';
+                careerBtn.style.cssText = 'display: block; width: 100%; margin: 10px 0; padding: 15px; text-align: left;';
+                
+                const locked = this.child.studyLevel < career.studyReq;
+                const lockIcon = locked ? '🔒 ' : '';
+                
+                careerBtn.innerHTML = `<strong>${lockIcon}${career.emoji} ${career.name}</strong><br>
+                    <small>${career.description}</small><br>
+                    <small>📚 Studie-krav: ${career.studyReq} | 💰 Lønn: ${career.salary.toLocaleString()} kr/år | 😊 Happiness: +${career.happiness} | ${career.social ? '👥 Social: +' + career.social : '📖 Learning: +' + career.learning}</small>`;
+                
+                if (locked) {
+                    careerBtn.disabled = true;
+                    careerBtn.style.opacity = '0.5';
+                    careerBtn.style.cursor = 'not-allowed';
+                } else {
+                    careerBtn.onclick = () => {
+                        this.child.chosenCareer = career.name;
+                        this.child.careerSalary = career.salary;
+                        
+                        const careerMsg = this.language === 'no'
+                            ? "Jeg har valgt å bli " + career.emoji + " " + career.name + "! " + career.description + ". Dette er fremtiden min, og jeg er klar!"
+                            : "I've chosen to become a " + career.emoji + " " + career.name + "! " + career.description + ". This is my future, and I'm ready!";
+                        
+                        this.showDialogue(careerMsg);
+                        
+                        this.adjustStat('happiness', career.happiness);
+                        if (career.social) {
+                            this.adjustStat('social', career.social);
+                        } else {
+                            this.adjustStat('learning', career.learning);
+                        }
+                        this.setEmotion('happy', 30);
+                        this.child.careerProgress = Math.min(100, this.child.careerProgress + 15);
+                        
+                        this.showMessage(this.language === 'no'
+                            ? "🎯 " + this.child.name + " har valgt karriere! Fremtiden er i deres hender! Årlig lønn: " + career.salary.toLocaleString() + " kr."
+                            : "🎯 " + this.child.name + " has chosen a career! The future is in their hands! Annual salary: " + career.salary.toLocaleString() + " kr.");
+                        
+                        this.addAutoDiaryEntry(
+                            this.language === 'no'
+                                ? '💼 I dag valgte jeg min karriere: ' + career.name + '. Jeg er spent på fremtiden! Dette viser at jeg kan vokse fra mobbeoffer til suksess.'
+                                : '💼 Today I chose my career: ' + career.name + '. I\'m excited about the future! This shows I can grow from a bullying victim to success.',
+                            true
+                        );
+                        
+                        careerContainer.remove();
+                        this.updateDisplay();
+                        this.performAction();
+                        this.advanceTime();
+                        this.saveGame();
+                    };
+                }
+                
+                careerContainer.appendChild(careerBtn);
+            });
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = this.language === 'no' ? 'Avbryt' : 'Cancel';
+            cancelBtn.style.cssText = 'display: block; width: 100%; margin-top: 10px; padding: 10px; background: #ccc; border: none; border-radius: 10px; cursor: pointer;';
+            cancelBtn.onclick = () => careerContainer.remove();
+            careerContainer.appendChild(cancelBtn);
+            
+            document.body.appendChild(careerContainer);
+        }, 500);
     }
     
     // Minigames from 2000s
