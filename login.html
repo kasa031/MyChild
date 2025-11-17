@@ -587,7 +587,6 @@
         
         // Menu navigation
         function showMenuOption(option) {
-            console.log('showMenuOption called with:', option);
             
             // Hide all sections
             const loginForm = document.getElementById('loginForm');
@@ -596,7 +595,7 @@
             
             if (loginForm) loginForm.style.display = 'none';
             if (loadGameSection) loadGameSection.style.display = 'none';
-            if (settingsSection) settingsSection.style.display = 'none';
+            if (settingsSection) settingsSection.style.setProperty('display', 'none', 'important');
             
             // Remove active class from all tabs
             document.querySelectorAll('.menu-tab').forEach(tab => {
@@ -627,12 +626,8 @@
                 }
                 loadExistingGames();
             } else if (option === 'settings') {
-                console.log('Showing settings section');
                 if (settingsSection) {
                     settingsSection.style.setProperty('display', 'block', 'important');
-                    console.log('Settings section display set to block');
-                } else {
-                    console.error('settingsSection element not found!');
                 }
                 const settingsTab = document.getElementById('settingsTab');
                 if (settingsTab) {
@@ -640,9 +635,6 @@
                     settingsTab.style.background = 'linear-gradient(135deg, #ff00ff 0%, #00ffff 50%, #ff00ff 100%)';
                     settingsTab.style.color = 'white';
                     settingsTab.style.border = '2px solid #ffffff';
-                    console.log('Settings tab activated');
-                } else {
-                    console.error('settingsTab element not found!');
                 }
             }
         }
@@ -741,7 +733,6 @@
         
         // World selection
         function selectWorld(world) {
-            console.log('selectWorld called with:', world);
             const worldModeInput = document.getElementById('worldMode');
             if (worldModeInput) {
                 worldModeInput.value = world;
