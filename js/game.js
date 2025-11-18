@@ -159,7 +159,7 @@ class MyChildGame {
                 school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
                 playground: { name: "Playground", color: "#ff8e8e", image: "assets/images/worldcollapse.jpg", usePlaceholder: false },
                 friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
-                nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: false }
+                nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: true }
             };
         } else {
             // 2000s normal world locations
@@ -168,7 +168,7 @@ class MyChildGame {
                 school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
                 playground: { name: "Playground", color: "#baffc9", image: "assets/images/playground.jpg", usePlaceholder: false },
                 friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
-                nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: false }
+                nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: true }
             };
         }
         
@@ -1624,6 +1624,63 @@ class MyChildGame {
         }
     }
     
+    // Initialize particle system for visual effects
+    initParticleSystem(containerElement) {
+        if (!containerElement) return;
+        
+        // Only initialize if not already done
+        if (this.particleSystem && this.particleSystem.initialized) {
+            return;
+        }
+        
+        // Check if ParticleSystem class is available
+        if (typeof ParticleSystem === 'undefined') {
+            console.warn('ParticleSystem class not found');
+            return;
+        }
+        
+        try {
+            this.particleSystem = new ParticleSystem();
+            if (!this.particleSystem.init(containerElement)) {
+                this.particleSystem = null;
+            }
+        } catch (e) {
+            console.warn('Failed to initialize particle system:', e);
+            this.particleSystem = null;
+        }
+    }
+    
+    // Trigger particle effect
+    triggerParticleEffect(effectType) {
+        if (!this.particleSystem || !this.particleSystem.initialized) {
+            return;
+        }
+        
+        try {
+            switch (effectType) {
+                case 'happy':
+                    this.particleSystem.createHearts(15);
+                    break;
+                case 'excited':
+                    this.particleSystem.createEffect('excited', 25);
+                    break;
+                case 'achievement':
+                    this.particleSystem.createSparkles(30);
+                    break;
+                case 'statIncrease':
+                    this.particleSystem.createStatEffect('increase', true);
+                    break;
+                case 'statDecrease':
+                    this.particleSystem.createStatEffect('decrease', false);
+                    break;
+                default:
+                    this.particleSystem.createEffect(effectType, 20);
+            }
+        } catch (e) {
+            console.warn('Failed to trigger particle effect:', e);
+        }
+    }
+    
     supportsWebP() {
         // Check if browser supports WebP format
         if (this._webpSupport !== undefined) {
@@ -1644,7 +1701,8 @@ class MyChildGame {
         
         [this.currentLocation, nextLocation].forEach(locationKey => {
             const location = this.locations[locationKey];
-            if (location && location.image && !location.imagePreloaded) {
+            if (location && location.image && !location.usePlaceholder && !location.imagePreloaded) {
+                // Only preload if image exists and is not a placeholder
                 const link = document.createElement('link');
                 link.rel = 'preload';
                 link.as = 'image';
@@ -1657,8 +1715,21 @@ class MyChildGame {
                 } catch (e) {
                     // Ignore if not supported
                 }
-                document.head.appendChild(link);
-                location.imagePreloaded = true;
+                // Add error handler to remove preload if image doesn't exist
+                const img = new Image();
+                img.onerror = () => {
+                    // Image doesn't exist, remove preload link
+                    if (link.parentNode) {
+                        link.parentNode.removeChild(link);
+                    }
+                    location.usePlaceholder = true;
+                };
+                img.onload = () => {
+                    // Image exists, keep preload
+                    document.head.appendChild(link);
+                    location.imagePreloaded = true;
+                };
+                img.src = location.image;
             }
         });
     }
@@ -2332,11 +2403,21 @@ class MyChildGame {
                 "At a friend's house! Social time with peers.",
                 "Visiting a friend - great for building friendships!",
                 "Friend's house - hanging out and having fun together."
+            ],
+            nature: [
+                "In nature! Fresh air and beautiful surroundings.",
+                "Nature walk - exploring the outdoors and connecting with nature.",
+                "Out in nature - perfect for relaxation and reflection."
             ]
         };
         
         const messages = locationMessages[location];
-        this.showMessage(messages[Math.floor(Math.random() * messages.length)]);
+        if (messages && messages.length > 0) {
+            this.showMessage(messages[Math.floor(Math.random() * messages.length)]);
+        } else {
+            // Fallback message if location not found
+            this.showMessage(`At ${location}.`);
+        }
         
         // Location-specific activities
         this.triggerLocationActivity(location);
