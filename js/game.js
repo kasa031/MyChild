@@ -1736,24 +1736,28 @@ class MyChildGame {
     
     loadSceneImages() {
         // Check if images exist and update accordingly
-        const imageNames = ['home.jpg', 'school.jpg', 'playground.jpg', 'friend.jpg'];
-        imageNames.forEach((imgName, index) => {
-            const locationKeys = ['home', 'school', 'playground', 'friend'];
-            const location = locationKeys[index];
+        // Only check images that are not already set to usePlaceholder
+        const locationsToCheck = ['home', 'school', 'playground', 'friend', 'nature'];
+        locationsToCheck.forEach((locationKey) => {
+            const location = this.locations[locationKey];
+            if (!location || location.usePlaceholder || !location.image) {
+                return; // Skip if already using placeholder or no image
+            }
+            
             const img = new Image();
             img.onload = () => {
                 // Image exists, keep the path
-                this.locations[location].usePlaceholder = false;
+                location.usePlaceholder = false;
             };
             img.onerror = () => {
                 // Image doesn't exist, use placeholder SVG
-                this.locations[location].usePlaceholder = true;
+                location.usePlaceholder = true;
                 // Update scene if it's the current location
-                if (this.currentLocation === location) {
+                if (this.currentLocation === locationKey) {
                     this.updateScene().catch(e => console.log('Scene update error:', e));
                 }
             };
-            img.src = `assets/images/${imgName}`;
+            img.src = location.image;
         });
         
         // Preload critical images after checking
