@@ -156,18 +156,18 @@ class MyChildGame {
             // Dystopian future locations
             this.locations = {
                 home: { name: "Home", color: "#ff6b6b", image: "assets/images/pollutioncity.jpg", usePlaceholder: false },
-                school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
+                school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: true },
                 playground: { name: "Playground", color: "#ff8e8e", image: "assets/images/worldcollapse.jpg", usePlaceholder: false },
-                friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
+                friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: true },
                 nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: true }
             };
         } else {
             // 2000s normal world locations
             this.locations = {
                 home: { name: "Home", color: "#ffb3ba", image: "assets/images/dreamgreenhome.jpg", usePlaceholder: false },
-                school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: false },
-                playground: { name: "Playground", color: "#baffc9", image: "assets/images/playground.jpg", usePlaceholder: false },
-                friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: false },
+                school: { name: "School", color: "#bae1ff", image: "assets/images/school.jpg", usePlaceholder: true },
+                playground: { name: "Playground", color: "#baffc9", image: "assets/images/playground.jpg", usePlaceholder: true },
+                friend: { name: "Friend's House", color: "#ffffba", image: "assets/images/friend.jpg", usePlaceholder: true },
                 nature: { name: "Nature", color: "#90EE90", image: "assets/images/nature.jpg", usePlaceholder: true }
             };
         }
@@ -11767,5 +11767,6 @@ class MyChildGame {
     }
 }
 
-// Initialize game
+// Initialize game and make it globally available
 const game = new MyChildGame();
+window.game = game; // Make it globally available for onclick handlers

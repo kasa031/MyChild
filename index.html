@@ -374,6 +374,11 @@
     <script src="js/translations.js?v=2.0.1"></script>
     <script src="js/game.js?v=2.0.1"></script>
     <script>
+        // Ensure game is available globally
+        if (typeof game === 'undefined' && typeof window.game !== 'undefined') {
+            window.game = window.game;
+        }
+        
         // Register Service Worker for PWA support
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
