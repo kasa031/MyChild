@@ -375,9 +375,42 @@
     <script src="js/game.js?v=2.0.1"></script>
     <script>
         // Ensure game is available globally
-        if (typeof game === 'undefined' && typeof window.game !== 'undefined') {
-            window.game = window.game;
-        }
+        // The game object should already be set by game.js, but we ensure it's accessible
+        (function() {
+            // Wait for DOM and game to be ready
+            function initGameAccess() {
+                if (typeof window.game !== 'undefined' && window.game !== null) {
+                    // Make sure 'game' is accessible globally for inline onclick handlers
+                    if (typeof game === 'undefined') {
+                        // Create a global 'game' reference
+                        try {
+                            // Use Object.defineProperty to make it non-configurable
+                            Object.defineProperty(window, 'game', {
+                                value: window.game,
+                                writable: false,
+                                configurable: false
+                            });
+                        } catch (e) {
+                            // Fallback: just assign it
+                            window.game = window.game;
+                        }
+                    }
+                    console.log('Game object is ready and accessible');
+                    return true;
+                }
+                return false;
+            }
+            
+            // Try immediately
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function() {
+                    setTimeout(initGameAccess, 50);
+                });
+            } else {
+                // DOM is already loaded
+                setTimeout(initGameAccess, 50);
+            }
+        })();
         
         // Register Service Worker for PWA support
         if ('serviceWorker' in navigator) {

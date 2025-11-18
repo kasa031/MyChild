@@ -11772,5 +11772,65 @@ class MyChildGame {
 }
 
 // Initialize game and make it globally available
-const game = new MyChildGame();
-window.game = game; // Make it globally available for onclick handlers
+let game;
+try {
+    game = new MyChildGame();
+    window.game = game; // Make it globally available for onclick handlers
+    // Also make it available as a global variable for inline onclick handlers
+    if (typeof window.game !== 'undefined') {
+        // Create a global reference that works with inline onclick
+        (function() {
+            const gameObj = window.game;
+            // Make sure game is accessible globally
+            if (typeof game === 'undefined') {
+                window.game = gameObj;
+            }
+        })();
+    }
+} catch (e) {
+    console.error('Failed to initialize game:', e);
+    // Create a dummy game object to prevent errors
+    window.game = {
+        showMenuTab: function() { console.warn('Game not initialized yet'); },
+        feedChild: function() { console.warn('Game not initialized yet'); },
+        batheChild: function() { console.warn('Game not initialized yet'); },
+        playWithChild: function() { console.warn('Game not initialized yet'); },
+        readToChild: function() { console.warn('Game not initialized yet'); },
+        practiceMindfulness: function() { console.warn('Game not initialized yet'); },
+        drawOrCreate: function() { console.warn('Game not initialized yet'); },
+        rest: function() { console.warn('Game not initialized yet'); },
+        pottyTraining: function() { console.warn('Game not initialized yet'); },
+        learnSpelling: function() { console.warn('Game not initialized yet'); },
+        learnBike: function() { console.warn('Game not initialized yet'); },
+        learnSwimming: function() { console.warn('Game not initialized yet'); },
+        learnSharing: function() { console.warn('Game not initialized yet'); },
+        learnRespect: function() { console.warn('Game not initialized yet'); },
+        learnPatience: function() { console.warn('Game not initialized yet'); },
+        learnSelfDiscipline: function() { console.warn('Game not initialized yet'); },
+        learnPlanning: function() { console.warn('Game not initialized yet'); },
+        sendParentToWork: function() { console.warn('Game not initialized yet'); },
+        choosePet: function() { console.warn('Game not initialized yet'); },
+        careForPet: function() { console.warn('Game not initialized yet'); },
+        findPartner: function() { console.warn('Game not initialized yet'); },
+        proposeMarriage: function() { console.warn('Game not initialized yet'); },
+        adoptChild: function() { console.warn('Game not initialized yet'); },
+        careForFamily: function() { console.warn('Game not initialized yet'); },
+        daydream: function() { console.warn('Game not initialized yet'); },
+        talkToCaringAdult: function() { console.warn('Game not initialized yet'); },
+        learnAboutEmotions: function() { console.warn('Game not initialized yet'); },
+        cognitiveTherapy: function() { console.warn('Game not initialized yet'); },
+        learnEnvironment: function() { console.warn('Game not initialized yet'); },
+        learnEconomics: function() { console.warn('Game not initialized yet'); },
+        learnEthics: function() { console.warn('Game not initialized yet'); },
+        learnClimate: function() { console.warn('Game not initialized yet'); },
+        learnAI: function() { console.warn('Game not initialized yet'); },
+        learnResourceManagement: function() { console.warn('Game not initialized yet'); },
+        goToLocation: function() { console.warn('Game not initialized yet'); },
+        openUniverse: function() { console.warn('Game not initialized yet'); },
+        toggleMusic: function() { console.warn('Game not initialized yet'); },
+        deleteGame: function() { console.warn('Game not initialized yet'); },
+        showHelp: function() { console.warn('Game not initialized yet'); },
+        openProfile: function() { console.warn('Game not initialized yet'); },
+        toggleProgressStats: function() { console.warn('Game not initialized yet'); }
+    };
+}
