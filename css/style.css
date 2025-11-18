@@ -2354,3 +2354,8 @@ button:focus-visible,
     margin-top: 10px;
 }
 
+/* Child Avatar Cursor */
+#childAvatar {
+    cursor: pointer;
+}
+
