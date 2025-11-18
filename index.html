@@ -79,7 +79,7 @@
             </div>
             <div class="header-controls">
                 <div class="year-display" id="yearDisplay">Year: <span id="currentYear">2085</span></div>
-                <div id="moneyDisplay" style="display: none; margin: 0 10px; padding: 5px 10px; background: rgba(255,255,255,0.3); border-radius: 10px; font-weight: bold;">
+                <div id="moneyDisplay">
                     💰 <span id="moneyValue">0</span>
                 </div>
                 <span id="saveIndicator" 
@@ -87,7 +87,6 @@
                       role="status" 
                       aria-live="polite" 
                       aria-label="Lagre status"
-                      style="opacity: 0.6; font-size: 0.9em; margin-right: 10px; transition: all 0.3s; cursor: help;"
                       title="Spillet lagres automatisk hvert 30. sekund">💾</span>
                 <button id="musicToggle" 
                         class="music-btn" 
@@ -102,31 +101,28 @@
                         title="Slett dette spillet" 
                         aria-label="Slett dette spillet"
                         role="button"
-                        style="margin-left: 10px;">
+                        >
                     🗑️
                 </button>
                 <button class="music-btn" 
                         onclick="window.location.href='login.html'" 
                         title="Logg ut / Tilbake til innlogging" 
                         aria-label="Logg ut"
-                        role="button"
-                        style="margin-left: 10px;">
+                        role="button">
                     🚪
                 </button>
                 <button class="music-btn" 
                         onclick="game.showHelp()" 
                         title="Vis hjelp og tips" 
                         aria-label="Vis hjelp"
-                        role="button"
-                        style="margin-left: 10px;">
+                        role="button">
                     ❓
                 </button>
                 <button class="music-btn" 
                         onclick="game.openProfile()" 
                         title="Profil" 
                         aria-label="Åpne profil"
-                        role="button"
-                        style="margin-left: 10px;">
+                        role="button">
                     👤
                 </button>
             </div>
@@ -144,10 +140,9 @@
                      role="button"
                      tabindex="0"
                      onkeypress="if(event.key==='Enter'||event.key===' '){game.openProfile();}"
-                     style="cursor: pointer;" 
                      id="childAvatar">👶</div>
                 <h2 id="childName">Your Child</h2>
-                <div id="emotionDisplay" style="margin-top: 15px; padding: 10px 15px; background: rgba(255,255,255,0.3); border-radius: 15px; font-size: 1.1em; display: none; font-weight: bold; text-align: center; transition: all 0.3s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <div id="emotionDisplay">
                     <span id="emotionText"></span>
                 </div>
                 <div class="sticker-decoration sticker-avatar-bottom">
@@ -157,63 +152,63 @@
                     <div class="stat">
                         <span class="stat-label">Happiness:</span>
                         <div class="stat-bar">
-                            <div class="stat-fill" id="happinessBar" style="width: 50%"></div>
+                            <div class="stat-fill" id="happinessBar"></div>
                         </div>
                         <span id="happinessValue">50</span>
                     </div>
                     <div class="stat">
                         <span class="stat-label">Energy:</span>
                         <div class="stat-bar">
-                            <div class="stat-fill" id="energyBar" style="width: 80%"></div>
+                            <div class="stat-fill" id="energyBar"></div>
                         </div>
                         <span id="energyValue">80</span>
                     </div>
                     <div class="stat">
                         <span class="stat-label">Social:</span>
                         <div class="stat-bar">
-                            <div class="stat-fill" id="socialBar" style="width: 60%"></div>
+                            <div class="stat-fill" id="socialBar"></div>
                         </div>
                         <span id="socialValue">60</span>
                     </div>
                     <div class="stat">
                         <span class="stat-label">Learning:</span>
                         <div class="stat-bar">
-                            <div class="stat-fill" id="learningBar" style="width: 40%"></div>
+                            <div class="stat-fill" id="learningBar"></div>
                         </div>
                         <span id="learningValue">40</span>
                     </div>
                     <div class="stat">
                         <span class="stat-label">Hunger:</span>
                         <div class="stat-bar">
-                            <div class="stat-fill hunger-fill" id="hungerBar" style="width: 70%"></div>
+                            <div class="stat-fill hunger-fill" id="hungerBar"></div>
                         </div>
                         <span id="hungerValue">70</span>
                     </div>
                 </div>
                 
                 <!-- Hidden stats / Progress indicators -->
-                <div class="progress-stats" id="progressStats" style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e0e0e0; display: none;">
+                <div class="progress-stats" id="progressStats">
                     <div class="stat-mini">
                         <span class="stat-label-mini">Resilience:</span>
                         <div class="stat-bar-mini">
-                            <div class="stat-fill-mini" id="resilienceBar" style="width: 50%"></div>
+                            <div class="stat-fill-mini" id="resilienceBar"></div>
                         </div>
                         <span id="resilienceValue">50</span>
                     </div>
                     <div class="stat-mini">
                         <span class="stat-label-mini">Study Level:</span>
                         <div class="stat-bar-mini">
-                            <div class="stat-fill-mini" id="studyBar" style="width: 0%"></div>
+                            <div class="stat-fill-mini" id="studyBar"></div>
                         </div>
                         <span id="studyValue">0</span>
                     </div>
                     <div class="stat-mini">
                         <span class="stat-label-mini">Helped Others:</span>
-                        <span id="helpingValue" style="font-weight: bold; color: #4caf50;">0</span>
+                        <span id="helpingValue">0</span>
                     </div>
                 </div>
                 
-                <button class="toggle-stats-btn" onclick="game.toggleProgressStats()" style="margin-top: 10px; padding: 5px 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9em;">
+                <button class="toggle-stats-btn" onclick="game.toggleProgressStats()">
                     📊 Vis fremgang
                 </button>
             </div>
@@ -240,7 +235,7 @@
                 </div>
 
                 <div class="actions-area" id="actionsArea">
-                    <div id="actionInfo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-size: 1.1em; font-weight: bold; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div id="actionInfo">
                         <span id="actionInfoText">Handlinger: 5/5</span>
                     </div>
                     <h3 data-translate="activities">Aktiviteter</h3>
@@ -275,10 +270,10 @@
                         <button class="routine-btn" onclick="game.openUniverse('cooking')">🍳 <span data-translate="cook">Lag mat</span></button>
                         <button class="routine-btn" onclick="game.rest()">😴 <span data-translate="rest">Hvile/Søvn</span></button>
                         <!-- Age-specific activities -->
-                        <button class="routine-btn" id="pottyTrainingBtn" onclick="game.pottyTraining()" style="display: none;">🚽 <span>Pottetrening (1-2 år)</span></button>
-                        <button class="routine-btn" id="spellingBtn" onclick="game.learnSpelling()" style="display: none;">🔤 <span>Stave (2-4 år)</span></button>
-                        <button class="routine-btn" id="bikeBtn" onclick="game.learnBike()" style="display: none;">🚲 <span>Lær å sykle (6-7 år)</span></button>
-                        <button class="routine-btn" id="swimBtn" onclick="game.learnSwimming()" style="display: none;">🏊 <span>Lær å svømme (5+ år)</span></button>
+                        <button class="routine-btn" id="pottyTrainingBtn" onclick="game.pottyTraining()">🚽 <span>Pottetrening (1-2 år)</span></button>
+                        <button class="routine-btn" id="spellingBtn" onclick="game.learnSpelling()">🔤 <span>Stave (2-4 år)</span></button>
+                        <button class="routine-btn" id="bikeBtn" onclick="game.learnBike()">🚲 <span>Lær å sykle (6-7 år)</span></button>
+                        <button class="routine-btn" id="swimBtn" onclick="game.learnSwimming()">🏊 <span>Lær å svømme (5+ år)</span></button>
                     </div>
                     <h4>Livet og sosiale ferdigheter</h4>
                     <div class="routine-buttons">
@@ -289,15 +284,15 @@
                         <button class="routine-btn" onclick="game.learnPlanning()">📋 <span>Planlegging</span></button>
                     </div>
                     <!-- Age-specific: Parent work for babies -->
-                    <button class="routine-btn" id="parentWorkBtn" onclick="game.sendParentToWork()" style="display: none;">👨‍💼 <span>Send forelder på jobb (Baby)</span></button>
+                    <button class="routine-btn" id="parentWorkBtn" onclick="game.sendParentToWork()">👨‍💼 <span>Send forelder på jobb (Baby)</span></button>
                     <!-- Age-specific: Pet system (5+) -->
-                    <button class="routine-btn" id="getPetBtn" onclick="game.choosePet()" style="display: none;">🐾 <span>Få kjæledyr (5+ år)</span></button>
-                    <button class="routine-btn" id="careForPetBtn" onclick="game.careForPet()" style="display: none;">🐕 <span>Ta vare på kjæledyr</span></button>
+                    <button class="routine-btn" id="getPetBtn" onclick="game.choosePet()">🐾 <span>Få kjæledyr (5+ år)</span></button>
+                    <button class="routine-btn" id="careForPetBtn" onclick="game.careForPet()">🐕 <span>Ta vare på kjæledyr</span></button>
                     <!-- Age-specific: Relationship and family (18+) -->
-                    <button class="routine-btn" id="findPartnerBtn" onclick="game.findPartner()" style="display: none;">💑 <span>Finn partner (18+ år)</span></button>
-                    <button class="routine-btn" id="marryBtn" onclick="game.proposeMarriage()" style="display: none;">💍 <span>Gifte seg</span></button>
-                    <button class="routine-btn" id="adoptBtn" onclick="game.adoptChild()" style="display: none;">👶 <span>Adoptere barn</span></button>
-                    <button class="routine-btn" id="careForFamilyBtn" onclick="game.careForFamily()" style="display: none;">👨‍👩‍👧 <span>Ta vare på familien</span></button>
+                    <button class="routine-btn" id="findPartnerBtn" onclick="game.findPartner()">💑 <span>Finn partner (18+ år)</span></button>
+                    <button class="routine-btn" id="marryBtn" onclick="game.proposeMarriage()">💍 <span>Gifte seg</span></button>
+                    <button class="routine-btn" id="adoptBtn" onclick="game.adoptChild()">👶 <span>Adoptere barn</span></button>
+                    <button class="routine-btn" id="careForFamilyBtn" onclick="game.careForFamily()">👨‍👩‍👧 <span>Ta vare på familien</span></button>
                     <h4 data-translate="support">Støtte og mestring</h4>
                     <div class="routine-buttons">
                         <button class="routine-btn" onclick="game.daydream()">💭 <span data-translate="daydream">Drøm</span></button>
@@ -316,8 +311,8 @@
                     </div>
                     <h4 data-translate="futureActions">Fremtidshandlinger</h4>
                     <div class="routine-buttons">
-                        <button class="routine-btn" onclick="game.getDriversLicense()" id="driversLicenseBtn" style="display: none;">🚗 <span>Ta lappen (16+)</span></button>
-                        <button class="routine-btn" onclick="game.moveOut()" id="moveOutBtn" style="display: none;">🏠 <span>Flytt hjemmefra (18+)</span></button>
+                        <button class="routine-btn" onclick="game.getDriversLicense()" id="driversLicenseBtn">🚗 <span>Ta lappen (16+)</span></button>
+                        <button class="routine-btn" onclick="game.moveOut()" id="moveOutBtn">🏠 <span>Flytt hjemmefra (18+)</span></button>
                         <button class="routine-btn" onclick="game.volunteerForClimate()">🌱 <span data-translate="climateVolunteer">Klimafrivillig</span></button>
                         <button class="routine-btn" onclick="game.workOnAIProject()">🤖 <span data-translate="aiProject">AI-prosjekt</span></button>
                     </div>
@@ -327,7 +322,7 @@
                         <button class="routine-btn" onclick="game.volunteer()">🤝 <span data-translate="volunteer">Frivillig</span></button>
                         <button class="routine-btn" onclick="game.helpOthers()">🦸 <span data-translate="help">Hjelp andre</span></button>
                         <button class="routine-btn" onclick="game.exercise()">🏃 <span data-translate="exercise">Trening</span></button>
-                        <button class="routine-btn" id="chooseCareerBtn" onclick="game.chooseCareer()" style="display: none;">💼 <span>Velg karriere (16+ år)</span></button>
+                        <button class="routine-btn" id="chooseCareerBtn" onclick="game.chooseCareer()">💼 <span>Velg karriere (16+ år)</span></button>
                     </div>
                     <h4 data-translate="work">Arbeid</h4>
                     <div class="routine-buttons">
@@ -339,10 +334,10 @@
                         <button class="routine-btn" onclick="game.playVideoGames()">🎮 <span data-translate="games">Spill</span></button>
                         <button class="routine-btn" onclick="game.quizAboutEmotions()">❓ <span data-translate="quiz">Følelses-quiz</span></button>
                         <button class="routine-btn" onclick="game.listenToMusic()">
-                            <img src="assets/images/cd.png" alt="Music" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="music">Hør musikk</span>
+                            <img src="assets/images/cd.png" alt="Music" class="action-icon" loading="lazy"> <span data-translate="music">Hør musikk</span>
                         </button>
                         <button class="routine-btn" onclick="game.callFriend()">
-                            <img src="assets/images/nokiaphone.png" alt="Phone" class="action-icon" style="width: 20px; height: 20px;" loading="lazy"> <span data-translate="call">Ring venn</span>
+                            <img src="assets/images/nokiaphone.png" alt="Phone" class="action-icon" loading="lazy"> <span data-translate="call">Ring venn</span>
                         </button>
                     </div>
                     <h4 data-translate="minigames">Minispill</h4>
@@ -413,7 +408,7 @@
     </script>
     
     <!-- Profile Modal -->
-    <div id="profileModal" class="modal" style="display: none;">
+    <div id="profileModal" class="modal">
         <div class="modal-content profile-modal">
             <div class="modal-header">
                 <h2 id="profileEditingTitle">Profilredigering</h2>
@@ -440,7 +435,7 @@
                             </div>
                             <div id="uploadTab" class="avatar-tab-content">
                                 <label for="avatarUpload" class="sr-only">Last opp avatar bilde</label>
-                                <input type="file" id="avatarUpload" name="avatarUpload" accept="image/*" autocomplete="off" onchange="game.handleAvatarUpload(event)" style="display: none;" aria-label="Last opp avatar bilde">
+                                <input type="file" id="avatarUpload" name="avatarUpload" accept="image/*" autocomplete="off" onchange="game.handleAvatarUpload(event)" aria-label="Last opp avatar bilde">
                                 <button class="btn-primary" onclick="document.getElementById('avatarUpload').click()" id="selectImageBtn">Velg bilde</button>
                                 <p class="upload-hint" id="uploadImageHint">Last opp ditt eget bilde som avatar</p>
                             </div>
@@ -483,7 +478,7 @@
     </div>
     
     <!-- Universe Modal (for School, Playground, Cooking, etc.) -->
-    <div id="universeModal" class="modal" style="display: none;">
+    <div id="universeModal" class="modal">
         <div class="modal-content universe-modal">
             <div class="modal-header">
                 <h2 id="universeTitle">Univers</h2>
@@ -496,7 +491,7 @@
     </div>
     
     <!-- Help Modal -->
-    <div id="helpModal" class="modal" style="display: none;">
+    <div id="helpModal" class="modal">
         <div class="modal-content help-modal">
             <div class="modal-header">
                 <h2>❓ Hjelp og veiledning</h2>
@@ -509,7 +504,7 @@
     </div>
     
     <!-- About Game Tab Content -->
-    <div id="aboutGameTab" class="menu-tab-content" style="display: none;">
+    <div id="aboutGameTab" class="menu-tab-content">
         <div class="tab-content-wrapper">
             <div class="tab-section">
                     <h2>📖 Om MyChild - 2085: Dystopia Edition</h2>
@@ -581,7 +576,7 @@
     </div>
     
     <!-- About Project Tab Content -->
-    <div id="aboutProjectTab" class="menu-tab-content" style="display: none;">
+    <div id="aboutProjectTab" class="menu-tab-content">
         <div class="tab-content-wrapper">
             <div class="tab-section">
                 <h2>💼 Om prosjektet</h2>
@@ -607,11 +602,11 @@
                         <div class="contact-details">
                             <h4>📧 Kontakt meg:</h4>
                             <p class="email-link">
-                                <a href="mailto:ms.tery@icloud.com" style="color: var(--primary-1); text-decoration: none; font-weight: bold;">
+                                <a href="mailto:ms.tery@icloud.com">
                                     ms.tery@icloud.com
                                 </a>
                             </p>
-                            <p style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                            <p>
                                 Jeg setter pris på tilbakemeldinger, forslag og spørsmål!
                             </p>
                         </div>
@@ -625,7 +620,7 @@
     </div>
     
     <!-- Profile Tab Content -->
-    <div id="profileMenuTab" class="menu-tab-content" style="display: none;">
+    <div id="profileMenuTab" class="menu-tab-content">
         <div class="tab-content-wrapper">
             <div class="tab-section">
                 <h2>👤 Profil</h2>
@@ -647,7 +642,7 @@
                             <span class="btn-icon">❓</span>
                             <span class="btn-text">Hjelp og veiledning</span>
                         </button>
-                        <button class="btn-primary profile-action-btn" id="installAppBtn" onclick="game.installApp()" style="display: none;">
+                        <button class="btn-primary profile-action-btn" id="installAppBtn" onclick="game.installApp()">
                             <span class="btn-icon">📱</span>
                             <span class="btn-text">Installer app</span>
                         </button>
@@ -662,7 +657,7 @@
                         <div class="install-info" id="installInfo">
                             <p id="installStatus">Sjekker installasjonsmuligheter...</p>
                         </div>
-                        <div class="install-instructions" id="installInstructions" style="display: none;">
+                        <div class="install-instructions" id="installInstructions">
                             <h4>Hvordan installere:</h4>
                             <div id="installSteps"></div>
                         </div>
@@ -691,15 +686,15 @@
     </div>
     
     <!-- Diary Tab Content -->
-    <div id="diaryTab" class="menu-tab-content" style="display: none;">
+    <div id="diaryTab" class="menu-tab-content">
         <div class="tab-content-wrapper">
             <div class="tab-section">
                 <h2>📔 Dagbok</h2>
                 <div class="diary-container">
                     <div class="diary-write-section">
                         <h3>Skriv i dagbok</h3>
-                        <textarea id="diaryEntryText" rows="6" placeholder="Skriv hva du tenker på i dag..." style="width: 100%; padding: 10px; border-radius: 10px; border: 2px solid var(--primary-1); font-family: inherit; resize: vertical;"></textarea>
-                        <button class="btn-primary" onclick="game.addManualDiaryEntry()" style="margin-top: 10px;">💾 Lagre dagbok-innlegg</button>
+                        <textarea id="diaryEntryText" rows="6" placeholder="Skriv hva du tenker på i dag..."></textarea>
+                        <button class="btn-primary" onclick="game.addManualDiaryEntry()">💾 Lagre dagbok-innlegg</button>
                     </div>
                     <div class="diary-entries-section">
                         <h3>Dagbok-innlegg</h3>
