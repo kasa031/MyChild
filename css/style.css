@@ -2348,9 +2348,6 @@ button:focus-visible,
     border-radius: 10px;
     border: 2px solid var(--primary-1);
     font-family: inherit;
-    /* Prevent browser extensions from interfering */
-    data-lpignore: true;
-    data-form-type: other;
 }
 
 .save-bio-btn {
